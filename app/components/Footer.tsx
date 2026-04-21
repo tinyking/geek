@@ -7,22 +7,20 @@ export default function Footer() {
         </p>
         <div className="flex items-center gap-6">
           <a
-            href="#"
+            href="https://x.com/tinyking86"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-sm text-[#6B6B6B] hover:text-black transition-colors"
           >
             Twitter
           </a>
           <a
-            href="#"
+            href="https://github.com/tinyking"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-sm text-[#6B6B6B] hover:text-black transition-colors"
           >
             GitHub
-          </a>
-          <a
-            href="#"
-            className="text-sm text-[#6B6B6B] hover:text-black transition-colors"
-          >
-            LinkedIn
           </a>
         </div>
       </div>
