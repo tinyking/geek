@@ -13,7 +13,7 @@ export const posts: Post[] = [
   {
     slug: "rocketmq-subscription-inconsistency",
     title: "排查指南：RocketMQ 订阅关系不一致，消息去哪儿了？",
-    date: "2024-04-21",
+    date: "2026-04-21",
     excerpt: "在分布式系统的日常维护中，RocketMQ作为核心的消息中间件，承载着数据的异步解耦与削峰填谷。你是否遇见过这种现象：明明发了大量消息，后端消费却「漏掉」了一部分？",
     content: `
 在分布式系统的日常维护中，RocketMQ作为核心的消息中间件，承载着数据的异步解耦与削峰填谷。
@@ -86,7 +86,7 @@ consumer.subscribe("TOPIC_CORE_DATA", "*"); // 确保所有节点此处代码一
   {
     slug: "how-to-build-a-personal-website",
     title: "如何搭建一个个人网站",
-    date: "2024-04-15",
+    date: "2026-04-15",
     excerpt: "分享从零开始搭建个人网站的完整流程，包括技术选型、设计思路和部署方案。",
     content: `
 ## 为什么要有个人网站
@@ -130,7 +130,7 @@ consumer.subscribe("TOPIC_CORE_DATA", "*"); // 确保所有节点此处代码一
   {
     slug: "my-reading-notes-2024",
     title: "2024 年阅读笔记",
-    date: "2024-04-10",
+    date: "2026-04-10",
     excerpt: "整理 2024 年读过的好书，分享读书笔记和心得体会。",
     content: `
 ## 前言
@@ -171,7 +171,7 @@ Ray Dalio 的人生和工作原则。印象最深的一点：把生活当作一�
   {
     slug: "design-principles-i-believe",
     title: "我信奉的设计原则",
-    date: "2024-03-28",
+    date: "2026-03-28",
     excerpt: "总结多年来在设计和开发过程中形成的设计理念和原则。",
     content: `
 ## 设计的本质
