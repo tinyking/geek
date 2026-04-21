@@ -15,12 +15,6 @@ export default function Navbar() {
             文章
           </Link>
           <Link
-            href="/about"
-            className="text-sm text-[#6B6B6B] hover:text-black transition-colors"
-          >
-            关于
-          </Link>
-          <Link
             href="/skills"
             className="text-sm text-[#6B6B6B] hover:text-black transition-colors"
           >
@@ -37,12 +31,6 @@ export default function Navbar() {
             className="text-sm text-[#6B6B6B] hover:text-black transition-colors"
           >
             工具
-          </Link>
-          <Link
-            href="/contact"
-            className="bg-black text-white px-5 py-2 rounded-full text-sm font-medium hover:opacity-80 transition-opacity"
-          >
-            联系我
           </Link>
         </div>
       </div>
