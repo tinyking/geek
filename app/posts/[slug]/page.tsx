@@ -89,7 +89,7 @@ export default async function PostPage({ params }: PageProps) {
               [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-4 [&>ol]:text-[#4A4A4A] [&>ol]:space-y-1
               [&>blockquote]:border-l-4 [&>blockquote]:border-[#E57035] [&>blockquote]:pl-4 [&>blockquote]:py-2 [&>blockquote]:my-4 [&>blockquote]:bg-[#FFFAF5] [&>blockquote]:text-[#6B6B6B] [&>blockquote]:italic
               [&>pre]:bg-[#1A1A1A] [&>pre]:text-white [&>pre]:p-4 [&>pre]:rounded-lg [&>pre]:my-4 [&>pre]:overflow-x-auto
-              [&>pre>code]:bg-transparent [&>pre>code]:text-white
+              [&>pre>code]:bg-transparent [&>pre>code]:text-white [&>pre>code]:whitespace-pre-wrap [&>pre>code]:break-words
               [&_code]:bg-[#F5F5F0] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:text-[#E57035]
               [&_strong]:font-semibold [&_strong]:text-[#1A1A1A]
               [&_em]:italic
