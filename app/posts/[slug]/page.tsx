@@ -113,6 +113,13 @@ export default async function PostPage({ params }: PageProps) {
               [&_strong]:font-semibold [&_strong]:text-[#1A1A1A]
               [&_em]:italic
               [&_a]:text-[#E57035] [&_a]:underline [&_a]:hover:text-[#C55A20]
+              /* 表格样式 */
+              [&>table]:w-full [&>table]:border-collapse [&>table]:my-6 [&>table]:text-sm
+              [&>table]:border [&>table]:border-[#E5E5E0] [&>table]:rounded-lg [&>table]:overflow-hidden
+              [&>table_th]:bg-[#F5F5F0] [&>table_th]:px-4 [&>table_th]:py-3 [&>table_th]:text-left [&>table_th]:font-semibold [&>table_th]:text-[#1A1A1A] [&>table_th]:border-b [&>table_th]:border-[#E5E5E0]
+              [&>table_td]:px-4 [&>table_td]:py-3 [&>table_td]:text-[#4A4A4A] [&>table_td]:border-b [&>table_td]:border-[#E5E5E0]
+              [&>table_tr]:bg-white [&>table_tr]:hover:bg-[#FAFAF8]
+              [&>table_tr:last-child_td]:border-b-0
               /* Highlight.js 语法高亮颜色 */
               [&_.hljs-keyword]:text-[#c678dd]
               [&_.hljs-string]:text-[#98c379]
