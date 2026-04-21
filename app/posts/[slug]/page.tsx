@@ -29,20 +29,28 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
-// 配置 marked 使用 highlight.js
+// 自定义渲染器
+const renderer = new marked.Renderer();
+
+renderer.code = function ({ text, lang }: { text: string; lang?: string }) {
+  let highlighted: string;
+  if (lang && hljs.getLanguage(lang)) {
+    try {
+      highlighted = hljs.highlight(text, { language: lang }).value;
+    } catch {
+      highlighted = hljs.highlightAuto(text).value;
+    }
+  } else {
+    highlighted = hljs.highlightAuto(text).value;
+  }
+  return `<pre><code class="language-${lang || ""}">${highlighted}</code></pre>`;
+};
+
+// 配置 marked
 marked.setOptions({
+  renderer,
   breaks: true,
   gfm: true,
-  highlight: function (code: string, lang: string) {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return hljs.highlight(code, { language: lang }).value;
-      } catch {
-        // 忽略错误
-      }
-    }
-    return hljs.highlightAuto(code).value;
-  },
 });
 
 export default async function PostPage({ params }: PageProps) {
