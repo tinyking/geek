@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { marked } from "marked";
+import hljs from "highlight.js";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { getPostBySlug, getAllPosts } from "../utils";
@@ -28,10 +29,20 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
-// 配置 marked
+// 配置 marked 使用 highlight.js
 marked.setOptions({
   breaks: true,
   gfm: true,
+  highlight: function (code: string, lang: string) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return hljs.highlight(code, { language: lang }).value;
+      } catch {
+        // 忽略错误
+      }
+    }
+    return hljs.highlightAuto(code).value;
+  },
 });
 
 export default async function PostPage({ params }: PageProps) {
@@ -88,12 +99,36 @@ export default async function PostPage({ params }: PageProps) {
               [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-4 [&>ul]:text-[#4A4A4A] [&>ul]:space-y-1
               [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-4 [&>ol]:text-[#4A4A4A] [&>ol]:space-y-1
               [&>blockquote]:border-l-4 [&>blockquote]:border-[#E57035] [&>blockquote]:pl-4 [&>blockquote]:py-2 [&>blockquote]:my-4 [&>blockquote]:bg-[#FFFAF5] [&>blockquote]:text-[#6B6B6B] [&>blockquote]:italic
-              [&>pre]:bg-[#1A1A1A] [&>pre]:text-white [&>pre]:p-4 [&>pre]:rounded-lg [&>pre]:my-4 [&>pre]:overflow-x-auto
-              [&>pre>code]:bg-transparent [&>pre>code]:text-white [&>pre>code]:whitespace-pre-wrap [&>pre>code]:break-words
+              [&>pre]:bg-[#282c34] [&>pre]:text-[#abb2bf] [&>pre]:p-4 [&>pre]:rounded-lg [&>pre]:my-4 [&>pre]:overflow-x-auto
+              [&>pre>code]:bg-transparent [&>pre>code]:text-[#abb2bf] [&>pre>code]:whitespace-pre-wrap [&>pre>code]:break-words [&>pre>code]:text-sm [&>pre>code]:leading-relaxed
               [&_code]:bg-[#F5F5F0] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:text-[#E57035]
               [&_strong]:font-semibold [&_strong]:text-[#1A1A1A]
               [&_em]:italic
-              [&_a]:text-[#E57035] [&_a]:underline [&_a]:hover:text-[#C55A20]"
+              [&_a]:text-[#E57035] [&_a]:underline [&_a]:hover:text-[#C55A20]
+              /* Highlight.js 语法高亮颜色 */
+              [&_.hljs-keyword]:text-[#c678dd]
+              [&_.hljs-string]:text-[#98c379]
+              [&_.hljs-number]:text-[#d19a66]
+              [&_.hljs-comment]:text-[#5c6370] [&_.hljs-comment]:italic
+              [&_.hljs-function]:text-[#61afef]
+              [&_.hljs-class]:text-[#e5c07b]
+              [&_.hljs-variable]:text-[#e06c75]
+              [&_.hljs-built_in]:text-[#e6c07b]
+              [&_.hljs-type]:text-[#56b6c2]
+              [&_.hljs-params]:text-[#abb2bf]
+              [&_.hljs-title]:text-[#61afef]
+              [&_.hljs-attr]:text-[#d19a66]
+              [&_.hljs-attribute]:text-[#98c379]
+              [&_.hljs-symbol]:text-[#56b6c2]
+              [&_.hljs-bullet]:text-[#61afef]
+              [&_.hljs-addition]:text-[#98c379]
+              [&_.hljs-deletion]:text-[#e06c75]
+              [&_.hljs-selector-class]:text-[#e5c07b]
+              [&_.hljs-selector-id]:text-[#e5c07b]
+              [&_.hljs-selector-tag]:text-[#e06c75]
+              [&_.hljs-name]:text-[#e06c75]
+              [&_.hljs-tag]:text-[#abb2bf]
+              [&_.hljs-punctuation]:text-[#abb2bf]"
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
 
