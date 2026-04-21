@@ -4,6 +4,7 @@ import { marked } from "marked";
 import hljs from "highlight.js";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import ShareButtons from "./ShareButtons";
 import { getPostBySlug, getAllPosts } from "../utils";
 
 interface PageProps {
@@ -62,6 +63,9 @@ export default async function PostPage({ params }: PageProps) {
   }
 
   const htmlContent = await marked(post.content);
+
+  // 分享链接
+  const postUrl = `https://geek.tinyking.vercel.app/posts/${slug}`;
 
   return (
     <main className="min-h-screen">
@@ -147,8 +151,17 @@ export default async function PostPage({ params }: PageProps) {
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
 
+          {/* 分享按钮 */}
+          <div className="mt-10 pt-6 border-t border-[#E5E5E0]">
+            <ShareButtons
+              title={post.title}
+              url={postUrl}
+              excerpt={post.excerpt}
+            />
+          </div>
+
           {/* 文章底部 */}
-          <footer className="mt-16 pt-8 border-t border-[#E5E5E0]">
+          <footer className="mt-8 pt-8 border-t border-[#E5E5E0]">
             <Link
               href="/posts"
               className="inline-flex items-center gap-1 text-sm text-[#6B6B6B] hover:text-[#E57035] transition-colors"
