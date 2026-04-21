@@ -64,9 +64,6 @@ export default async function PostPage({ params }: PageProps) {
 
   const htmlContent = await marked(post.content);
 
-  // 分享链接
-  const postUrl = `https://geek.tinyking.vercel.app/posts/${slug}`;
-
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -155,7 +152,6 @@ export default async function PostPage({ params }: PageProps) {
           <div className="mt-10 pt-6 border-t border-[#E5E5E0]">
             <ShareButtons
               title={post.title}
-              url={postUrl}
               excerpt={post.excerpt}
             />
           </div>

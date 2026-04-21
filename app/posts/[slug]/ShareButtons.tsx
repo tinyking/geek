@@ -5,29 +5,35 @@ import { Link2, Check, Share2 } from "lucide-react";
 
 interface ShareButtonsProps {
   title: string;
-  url: string;
   excerpt: string;
 }
 
-export default function ShareButtons({
-  title,
-  url,
-  excerpt,
-}: ShareButtonsProps) {
+export default function ShareButtons({ title, excerpt }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
+  // 获取当前页面 URL
+  const getCurrentUrl = () => {
+    if (typeof window !== "undefined") {
+      return window.location.href;
+    }
+    return "";
+  };
+
   const shareToTwitter = () => {
+    const url = getCurrentUrl();
     const text = `${title}\n${excerpt}`;
     const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
     window.open(shareUrl, "_blank", "width=550,height=420");
   };
 
   const shareToWeibo = () => {
+    const url = getCurrentUrl();
     const shareUrl = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&pic=`;
     window.open(shareUrl, "_blank", "width=550,height=420");
   };
 
   const copyLink = async () => {
+    const url = getCurrentUrl();
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
