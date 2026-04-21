@@ -17,11 +17,11 @@ export default function Hero() {
         我是一名独立创作者，热爱思考与分享，专注于记录生活感悟与技术探索。
       </p>
       <div className="flex flex-wrap justify-center gap-4">
-        <Link href="/projects" className="btn-primary">
-          查看作品 <ArrowRight size={18} />
+        <Link href="/posts" className="btn-primary">
+          阅读文章 <ArrowRight size={18} />
         </Link>
-        <Link href="/contact" className="btn-secondary">
-          取得联系
+        <Link href="/projects" className="btn-secondary">
+          查看作品
         </Link>
       </div>
     </section>

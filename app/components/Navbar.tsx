@@ -9,6 +9,12 @@ export default function Navbar() {
         </Link>
         <div className="hidden md:flex items-center gap-8">
           <Link
+            href="/posts"
+            className="text-sm text-[#6B6B6B] hover:text-black transition-colors"
+          >
+            文章
+          </Link>
+          <Link
             href="/about"
             className="text-sm text-[#6B6B6B] hover:text-black transition-colors"
           >
