@@ -57,3 +57,8 @@ Custom Tailwind component classes defined in `globals.css`:
 - Some component files (Skills, About, Contact, Footer) are currently empty placeholders
 - The site uses smooth scrolling navigation between sections
 - ESLint is configured with Next.js core web vitals and TypeScript rules
+
+## 自定义命令约定
+当我在对话中使用以下斜杠快捷词时，请执行对应操作：
+
+- **/post**: 复制目标内容到项目的文章中。
