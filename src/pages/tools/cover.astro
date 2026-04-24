@@ -1,24 +1,15 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Navbar from '../../components/Navbar.astro';
-import Footer from '../../components/Footer.astro';
 ---
 
 <BaseLayout>
   <Navbar />
-  <main class="min-h-screen pt-24">
-    <div class="section-padding">
-      <div class="max-w-4xl mx-auto">
-        <h1 class="text-4xl font-semibold mb-8">封面生成器</h1>
-        <div class="bg-white border border-[#E5E5E0] rounded-xl overflow-hidden">
-          <iframe 
-            src="/tools/cover.html" 
-            class="w-full h-[calc(100vh-200px)] border-0"
-            title="封面生成器"
-          ></iframe>
-        </div>
-      </div>
-    </div>
+  <main class="pt-16">
+    <iframe 
+      src="/tools/cover.html" 
+      class="w-full h-[calc(100vh-64px)] border-0"
+      title="封面生成器"
+    ></iframe>
   </main>
-  <Footer />
 </BaseLayout>

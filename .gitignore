@@ -3,6 +3,8 @@
 
 # build output
 /dist
+.next
+.vercel
 
 # environment variables
 .env
@@ -31,3 +33,6 @@ pnpm-debug.log*
 
 # astro
 .astro/
+
+# workbuddy (local development)
+.workbuddy/
