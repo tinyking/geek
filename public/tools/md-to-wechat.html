@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown → 微信公众号</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── 顶栏 ── */
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .header-left { display: flex; align-items: center; min-width: 0; overflow: hidden; }
+    .home-btn { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; color: #6b7280; margin-right: 10px; flex-shrink: 0; text-decoration: none; transition: background 0.15s, color 0.15s; }
+    .home-btn:hover { background: #f3f4f6; color: #111; }
+    .header-title { font-size: 14px; font-weight: 600; color: #111; letter-spacing: 0.02em; white-space: nowrap; flex-shrink: 0; }
+    .header-title span { color: #9ca3af; font-weight: 400; margin: 0 6px; }
+    .doc-title-wrap { display: none; align-items: center; gap: 6px; margin-left: 14px; padding-left: 14px; border-left: 1px solid #e5e7eb; min-width: 0; max-width: 380px; }
+    .doc-title-text { font-size: 13px; color: #374151; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .doc-title-copy { flex-shrink: 0; background: none; border: none; cursor: pointer; color: #9ca3af; padding: 2px; border-radius: 3px; display: flex; align-items: center; transition: color 0.15s; }
+    .doc-title-copy:hover { color: #374151; }
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+
+    .reload-btn {
+      padding: 6px 14px;
+      background: none;
+      color: #6b7280;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .reload-btn:hover { color: #111; border-color: #9ca3af; }
+    .sync-switch {
+      display: flex; align-items: center; gap: 6px;
+      cursor: pointer; font-size: 12px; color: #6b7280;
+      user-select: none;
+    }
+    .sync-switch-track {
+      width: 32px; height: 18px; border-radius: 9px;
+      background: #e5e7eb; position: relative;
+      transition: background 0.2s; flex-shrink: 0;
+    }
+    .sync-switch-track.on { background: #111; }
+    .sync-switch-thumb {
+      position: absolute; top: 2px; left: 2px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+      transition: transform 0.2s;
+    }
+    .sync-switch-track.on .sync-switch-thumb { transform: translateX(14px); }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: #07c160;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .copy-btn:hover { background: #06ad56; }
+    .copy-btn:active { transform: scale(0.97); }
+    .copy-btn.success { background: #16a34a; }
+    .copy-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── 双栏 ── */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+      overflow: hidden;
+      gap: 1px;
+      background: #e5e7eb;
+    }
+
+    .pane { background: #fff; display: flex; flex-direction: column; overflow: hidden; }
+
+    .pane-header {
+      padding: 10px 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #9ca3af;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+
+    #md-input {
+      flex: 1;
+      padding: 20px;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
+      line-height: 1.7;
+      color: #374151;
+      border: none;
+      outline: none;
+      resize: none;
+      background: #fafafa;
+    }
+
+    #preview { flex: 1; overflow-y: auto; }
+
+    /* ── Claude 预览主题 ── */
+    .wechat-body {
+      padding: 24px 28px 48px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #2b2b2b;
+      background-color: #f8f6f0;
+      min-height: 100%;
+    }
+
+    .wechat-body h1 { font-size: 28px; font-weight: 700; color: #b75c3d; line-height: 1.3; margin: 38px 0 16px; letter-spacing: -0.015em; }
+    .wechat-body h2 { font-size: 22px; font-weight: 600; color: #b75c3d; line-height: 1.35; margin: 32px 0 14px; }
+    .wechat-body h3 { font-size: 18px; font-weight: 600; color: #2b2b2b; line-height: 1.4; margin: 28px 0 12px; }
+    .wechat-body h4 { font-size: 16px; font-weight: 600; color: #2b2b2b; line-height: 1.4; margin: 24px 0 10px; }
+    .wechat-body p { margin: 16px 0; }
+    .wechat-body strong { font-weight: 700; color: #b75c3d; background-color: rgba(183,92,61,0.08); padding: 0 4px; border-radius: 4px; }
+    .wechat-body em { font-style: italic; color: #666; }
+    .wechat-body a { color: #b75c3d; text-decoration: none; border-bottom: 1px solid #b75c3d; padding-bottom: 1px; }
+    .wechat-body ul, .wechat-body ol { margin: 16px 0; padding-left: 28px; }
+    .wechat-body li { margin: 8px 0; }
+    .wechat-body blockquote { margin: 24px 0; padding: 16px 20px; background-color: rgba(183,92,61,0.04); border-left: 4px solid #b75c3d; color: #555; border-radius: 4px; }
+    .wechat-body code { font-family: "SF Mono", Consolas, monospace; padding: 3px 6px; background-color: #f0ece4; color: #b75c3d; border-radius: 4px; font-size: 13px; }
+    .wechat-body pre { margin: 24px 0; background-color: #f0ece4; border-radius: 8px; overflow-x: auto; }
+    .wechat-body pre code { background: none; color: #2b2b2b; padding: 16px 20px; display: block; font-size: 13px; line-height: 1.6; }
+    .wechat-body hr { margin: 36px auto; border: none; border-top: 1px solid #eaeaea; }
+    .wechat-body table { width: 100%; margin: 24px 0; border-collapse: collapse; font-size: 15px; }
+    .wechat-body th { background-color: #f0ece4; padding: 12px 16px; text-align: left; font-weight: 600; color: #2b2b2b; border: 1px solid #e0ddd6; }
+    .wechat-body td { padding: 12px 16px; border: 1px solid #e0ddd6; }
+
+    /* ── 图片装饰 ── */
+    #preview img { max-width: 100%; height: auto; width: 100%; }
+    .img-wrapper { position: relative; display: block; margin: 24px 0; }
+    .img-wrapper img { border-radius: 4px; margin: 0; }
+    .img-overlay-left {
+      position: absolute; bottom: 0; left: 0;
+      display: flex; align-items: stretch;
+      max-width: 75%; border-radius: 0 4px 0 4px; overflow: hidden;
+    }
+    .img-alt-label {
+      background: rgba(0,0,0,0.5); color: #fff;
+      font-size: 11px; padding: 3px 8px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .img-copy-alt-btn {
+      background: rgba(0,0,0,0.6); color: #fff;
+      border: none; border-left: 1px solid rgba(255,255,255,0.2);
+      font-size: 11px; padding: 2px 8px; cursor: pointer;
+      transition: background 0.15s; flex-shrink: 0;
+    }
+    .img-copy-alt-btn:hover { background: rgba(0,0,0,0.8); }
+    .img-copy-b64-btn {
+      position: absolute; bottom: 6px; right: 6px;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: 4px; font-size: 11px;
+      padding: 2px 8px; cursor: pointer; transition: background 0.15s;
+    }
+    .img-copy-b64-btn:hover { background: rgba(0,0,0,0.75); }
+
+    /* ── 底部 ── */
+    .stats { padding: 8px 20px; font-size: 11px; color: #9ca3af; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
+
+    .empty-hint { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #d1d5db; font-size: 14px; gap: 8px; background: #f8f6f0; }
+    .empty-hint svg { width: 36px; height: 36px; opacity: 0.4; }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-left">
+      <a href="/tools/article-tools" class="home-btn" title="返回工具箱">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </a>
+      <div class="header-title">Markdown <span>→</span> 微信公众号</div>
+      <div class="doc-title-wrap" id="doc-title-wrap">
+        <span class="doc-title-text" id="doc-title-text"></span>
+        <button class="doc-title-copy" id="doc-title-copy" title="复制标题" onclick="copyDocTitle()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="header-actions">
+      <label class="sync-switch" onclick="toggleSync()">
+        <div class="sync-switch-track on" id="sync-track"><div class="sync-switch-thumb"></div></div>
+        滚动同步
+      </label>
+      <button class="reload-btn" onclick="loadDraft()">重新加载草稿</button>
+      <button class="copy-btn" id="copy-btn" onclick="copyToWechat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2"/>
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+        </svg>
+        复制到公众号
+      </button>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <div class="pane">
+      <div class="pane-header">Markdown 输入</div>
+      <textarea id="md-input" placeholder="粘贴 Markdown…"></textarea>
+      <div class="stats" id="stats">0 字</div>
+    </div>
+
+    <div class="pane">
+      <div class="pane-header">预览（微信公众号 · Claude 风格）</div>
+      <div id="preview">
+        <div class="empty-hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <span>左侧粘贴 Markdown，这里实时预览</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const input = document.getElementById('md-input');
+    const preview = document.getElementById('preview');
+    const stats = document.getElementById('stats');
+
+    marked.setOptions({ breaks: true });
+
+    let docTitle = '';
+
+    function extractTitle(md) {
+      const m = md.match(/^# (.+)$/m);
+      return m ? m[1].trim() : '';
+    }
+
+    function updateTitleDisplay(title) {
+      docTitle = title;
+      const wrap = document.getElementById('doc-title-wrap');
+      const text = document.getElementById('doc-title-text');
+      text.textContent = title;
+      wrap.style.display = title ? 'flex' : 'none';
+    }
+
+    async function copyDocTitle() {
+      if (!docTitle) return;
+      const btn = document.getElementById('doc-title-copy');
+      await navigator.clipboard.writeText(docTitle);
+      btn.style.color = '#16a34a';
+      setTimeout(() => btn.style.color = '', 1500);
+    }
+
+    // ── base64 图片 ──
+    function toBase64(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          resolve(canvas.toDataURL());
+        };
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    async function inlineImages() {
+      const imgs = preview.querySelectorAll('img');
+      await Promise.all(Array.from(imgs).map(async (img) => {
+        if (img.src.startsWith('data:')) return;
+        try { img.src = await toBase64(img.src); } catch (_) { }
+      }));
+    }
+
+    // ── alt 标注 ──
+    function decorateImages() {
+      preview.querySelectorAll('img:not([data-decorated])').forEach(img => {
+        img.setAttribute('data-decorated', '1');
+        const alt = img.getAttribute('alt') || '';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'img-wrapper';
+        img.parentNode.insertBefore(wrapper, img);
+        wrapper.appendChild(img);
+
+        // 左下：alt 文本 + 复制 alt 按钮
+        if (alt) {
+          const leftOverlay = document.createElement('div');
+          leftOverlay.className = 'img-overlay-left';
+          const label = document.createElement('div');
+          label.className = 'img-alt-label';
+          label.textContent = alt;
+          const copyAltBtn = document.createElement('button');
+          copyAltBtn.className = 'img-copy-alt-btn';
+          copyAltBtn.textContent = '复制';
+          copyAltBtn.onclick = async () => {
+            await navigator.clipboard.writeText(alt);
+            copyAltBtn.textContent = '✓';
+            setTimeout(() => copyAltBtn.textContent = '复制', 1500);
+          };
+          leftOverlay.appendChild(label);
+          leftOverlay.appendChild(copyAltBtn);
+          wrapper.appendChild(leftOverlay);
+        }
+
+        // 右下：复制图片本身（等同于浏览器右键「复制图片」）
+        const copyImgBtn = document.createElement('button');
+        copyImgBtn.className = 'img-copy-b64-btn';
+        copyImgBtn.textContent = '复制图片';
+        copyImgBtn.onclick = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          canvas.toBlob(async (blob) => {
+            try {
+              await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+              copyImgBtn.textContent = '✓';
+            } catch (_) {
+              copyImgBtn.textContent = '✗';
+            }
+            setTimeout(() => copyImgBtn.textContent = '复制图片', 1500);
+          }, 'image/png');
+        };
+        wrapper.appendChild(copyImgBtn);
+      });
+    }
+
+    // ── 渲染 ──
+    async function render() {
+      const rawMd = input.value.trim();
+      if (!rawMd) {
+        updateTitleDisplay('');
+        preview.innerHTML = `<div class="empty-hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <span>左侧粘贴 Markdown，这里实时预览</span>
+        </div>`;
+        stats.textContent = '0 字';
+        return;
+      }
+      const md = rawMd
+        .replace(/^# .+\n?/m, '')
+        .replace(/\n\n(```)/g, '\n$1')
+        .replace(/(```[^\n]*)\n\n/g, '$1\n')
+        .trim();
+      preview.innerHTML = `<div class="wechat-body">${marked.parse(md)}</div>`;
+      stats.textContent = `${rawMd.replace(/\s/g, '').length} 字 · ${rawMd.split('\n').length} 行`;
+      await inlineImages();
+      decorateImages();
+    }
+
+    input.addEventListener('input', render);
+
+    // ── 微信 inline style 映射 ──
+    const S = {
+      wrapper:    'max-width:100%;margin:0 auto;padding:24px 20px 48px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.7;color:#2b2b2b;background-color:#f8f6f0;word-wrap:break-word;',
+      h1:         'display:block;font-size:28px;font-weight:700;color:#b75c3d;line-height:1.3;margin:38px 0 16px;letter-spacing:-0.015em;background-color:#f8f6f0;',
+      h2:         'display:block;font-size:22px;font-weight:600;color:#b75c3d;line-height:1.35;margin:32px 0 14px;background-color:#f8f6f0;',
+      h3:         'display:block;font-size:18px;font-weight:600;color:#2b2b2b;line-height:1.4;margin:28px 0 12px;background-color:#f8f6f0;',
+      h4:         'display:block;font-size:16px;font-weight:600;color:#2b2b2b;line-height:1.4;margin:24px 0 10px;background-color:#f8f6f0;',
+      p:          'display:block;margin:16px 0;line-height:1.7;color:#2b2b2b;background-color:#f8f6f0;',
+      strong:     'font-weight:700;color:#b75c3d;background-color:rgba(183,92,61,0.08);padding:0 4px;border-radius:4px;',
+      em:         'font-style:italic;color:#666;',
+      a:          'color:#b75c3d;text-decoration:none;border-bottom:1px solid #b75c3d;padding-bottom:1px;',
+      ul:         'display:block;margin:16px 0;padding-left:28px;background-color:#f8f6f0;',
+      ol:         'display:block;margin:16px 0;padding-left:28px;background-color:#f8f6f0;',
+      li:         'display:list-item;margin:8px 0;line-height:1.7;color:#2b2b2b;background-color:#f8f6f0;',
+      blockquote: 'display:block;margin:24px 0;padding:16px 20px;background-color:rgba(183,92,61,0.04);border-left:4px solid #b75c3d;color:#555;border-radius:4px;',
+      pre:        'display:block;margin:24px 0;background-color:#f0ece4;border-radius:8px;overflow-x:auto;',
+      preCode:    'display:block;background:none;color:#2b2b2b;padding:12px 20px;font-size:13px;line-height:1.6;font-family:"SF Mono",Consolas,monospace;',
+      inlineCode: 'font-family:"SF Mono",Consolas,monospace;padding:3px 6px;background-color:#f0ece4;color:#b75c3d;border-radius:4px;font-size:13px;line-height:1.5;',
+      hr:         'display:block;margin:36px auto;border:none;border-top:1px solid #eaeaea;',
+      img:        'max-width:100%;height:auto;display:block;margin:24px auto;border-radius:4px;',
+      table:      'display:table;width:100%;margin:24px 0;border-collapse:collapse;font-size:15px;',
+      th:         'background-color:#f0ece4;padding:12px 16px;text-align:left;font-weight:600;color:#2b2b2b;border:1px solid #e0ddd6;',
+      td:         'padding:12px 16px;border:1px solid #e0ddd6;color:#2b2b2b;',
+    };
+
+    function buildWechatHTML() {
+      // 从预览 clone，保留已 base64 的图片
+      const body = preview.querySelector('.wechat-body');
+      if (!body) return '';
+
+      const clone = body.cloneNode(true);
+
+      // 移除预览用的装饰元素
+      clone.querySelectorAll('.img-overlay-left, .img-copy-b64-btn').forEach(el => el.remove());
+      clone.querySelectorAll('.img-wrapper').forEach(wrapper => {
+        const img = wrapper.querySelector('img');
+        if (img) wrapper.replaceWith(img);
+      });
+      clone.querySelectorAll('[data-decorated]').forEach(el => el.removeAttribute('data-decorated'));
+
+      // 用 DOMParser 应用 inline style
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(`<div>${clone.innerHTML}</div>`, 'text/html');
+      const root = doc.body.firstChild;
+
+      ['h1','h2','h3','h4','p','strong','em','a','ul','ol','li','blockquote','hr','table','th','td'].forEach(tag => {
+        root.querySelectorAll(tag).forEach(el => { el.style.cssText = S[tag]; });
+      });
+      // blockquote 内的 <p> 去掉背景色，避免盖掉 blockquote 自身背景
+      root.querySelectorAll('blockquote p').forEach(el => {
+        el.style.backgroundColor = 'transparent';
+      });
+
+      root.querySelectorAll('img').forEach(el => { el.style.cssText = S.img; });
+
+      // 代码块：保留 <pre>，微信不会在 <pre> 前后补空行（<section> 会触发 ProseMirror trailing break）
+      root.querySelectorAll('pre').forEach(pre => {
+        pre.style.cssText = 'display:block;margin:24px 0;background-color:#f0ece4;border-radius:8px;padding:16px 20px;font-family:Menlo,Consolas,monospace;font-size:13px;line-height:1.8;color:#2b2b2b;white-space:pre-wrap;word-break:break-all;overflow-x:auto;';
+        const code = pre.querySelector('code');
+        if (code) code.style.cssText = 'background:none;color:inherit;padding:0;font-size:inherit;border-radius:0;';
+      });
+
+      root.querySelectorAll('code').forEach(el => {
+        if (el.closest('pre')) return;
+        el.style.cssText = S.inlineCode;
+      });
+
+      // 移除空段落（代码块前后的空行）
+      root.querySelectorAll('p').forEach(p => {
+        if (!p.textContent.trim() && !p.querySelector('img')) p.remove();
+      });
+
+      root.style.cssText = S.wrapper;
+      // 微信会丢弃 div 的 background-color，用 table 包一层确保背景色保留
+      return `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f8f6f0;border:none;border-collapse:collapse;"><tr><td style="background-color:#f8f6f0;border:none;">${root.outerHTML}</td></tr></table>`;
+    }
+
+    async function copyToWechat() {
+      if (!input.value.trim()) { alert('请先输入 Markdown 内容'); return; }
+
+      const btn = document.getElementById('copy-btn');
+      const html = buildWechatHTML();
+
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/html': new Blob([html], { type: 'text/html' }),
+            'text/plain': new Blob([input.value], { type: 'text/plain' }),
+          })
+        ]);
+        btn.textContent = '✓ 已复制，去公众号粘贴';
+        btn.classList.add('success');
+        setTimeout(() => {
+          btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> 复制到公众号`;
+          btn.classList.remove('success');
+        }, 3000);
+      } catch (_) {
+        await navigator.clipboard.writeText(input.value);
+        alert('富文本复制不支持，已复制纯文本');
+      }
+    }
+
+    // ── 加载 draft.md ──
+    async function loadDraft() {
+      try {
+        const res = await fetch('./draft.md');
+        if (!res.ok) return;
+        const text = await res.text();
+        // 从封面配置 JSON 块读取标题
+        const jsonM = text.match(/```json\s*([\s\S]*?)```/);
+        if (jsonM) {
+          try {
+            const parsed = JSON.parse('{' + jsonM[1].trim().replace(/,$/, '') + '}');
+            updateTitleDisplay(parsed.changes?.content?.title || '');
+          } catch (_) {}
+        }
+        const m = text.match(/^## 正文\s*\n([\s\S]*)/m);
+        // 去掉末尾的 footer（--- 后跟 *运行...）
+        const body = m
+          ? m[1].replace(/\n---\n\*运行[\s\S]*$/, '').trimEnd()
+          : text.trimEnd();
+        input.value = body;
+      } catch (_) {}
+      await render();
+    }
+
+    loadDraft();
+
+    // ── 滚动同步 ──
+    let syncScroll = true;
+    let syncing = false;
+
+    function toggleSync() {
+      syncScroll = !syncScroll;
+      document.getElementById('sync-track').classList.toggle('on', syncScroll);
+    }
+
+    input.addEventListener('scroll', () => {
+      if (!syncScroll || syncing) return;
+      syncing = true;
+      const pct = input.scrollTop / (input.scrollHeight - input.clientHeight) || 0;
+      preview.scrollTop = pct * (preview.scrollHeight - preview.clientHeight);
+      syncing = false;
+    });
+
+    preview.addEventListener('scroll', () => {
+      if (!syncScroll || syncing) return;
+      syncing = true;
+      const pct = preview.scrollTop / (preview.scrollHeight - preview.clientHeight) || 0;
+      input.scrollTop = pct * (input.scrollHeight - input.clientHeight);
+      syncing = false;
+    });
+  </script>
+
+</body>
+</html>

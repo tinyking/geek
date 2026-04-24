@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -130,6 +131,32 @@ export default function ToolsPage() {
         </div>
 
         <div className="max-w-5xl mx-auto space-y-12">
+          {/* 文章工具 */}
+          <div>
+            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+              <span className="w-2 h-2 bg-[#E57035] rounded-full" />
+              文章工具
+            </h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Link
+                href="/tools/article-tools"
+                className="group bg-white border border-[#E5E5E0] p-5 rounded-xl transition-all hover:shadow-md hover:border-[#9CA3AF]"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">✍️</span>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold group-hover:text-[#E57035] transition-colors">
+                      文章工具箱
+                    </h3>
+                    <p className="text-[#6B6B6B] text-sm mt-1 line-clamp-2">
+                      封面生成、二维码、Markdown 转微信/X 排版，写作必备工具集
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </div>
+
           {categories.map((category) => (
             <div key={category}>
               <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
