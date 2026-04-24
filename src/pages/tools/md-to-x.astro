@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<BaseLayout>
+  <Navbar />
+  <main class="min-h-screen pt-24">
+    <div class="section-padding">
+      <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-semibold mb-8">Markdown 转 X</h1>
+        <div class="bg-white border border-[#E5E5E0] rounded-xl overflow-hidden">
+          <iframe 
+            src="/tools/md-to-x.html" 
+            class="w-full h-[calc(100vh-200px)] border-0"
+            title="Markdown 转 X"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

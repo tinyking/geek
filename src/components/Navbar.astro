@@ -1,0 +1,37 @@
+---
+const currentPath = Astro.url.pathname;
+---
+
+<nav class="fixed top-0 left-0 right-0 z-50 bg-[#FAFAF8]/80 backdrop-blur-md border-b border-[#E5E5E0]">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="/" class="text-lg font-semibold tracking-tight">
+      阅微漫记
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a
+        href="/posts"
+        class:list={["text-sm transition-colors", currentPath.startsWith('/posts') ? 'text-black' : 'text-[#6B6B6B] hover:text-black']}
+      >
+        文章
+      </a>
+      <a
+        href="/skills"
+        class:list={["text-sm transition-colors", currentPath === '/skills' ? 'text-black' : 'text-[#6B6B6B] hover:text-black']}
+      >
+        技能
+      </a>
+      <a
+        href="/projects"
+        class:list={["text-sm transition-colors", currentPath === '/projects' ? 'text-black' : 'text-[#6B6B6B] hover:text-black']}
+      >
+        作品
+      </a>
+      <a
+        href="/tools"
+        class:list={["text-sm transition-colors", currentPath.startsWith('/tools') ? 'text-black' : 'text-[#6B6B6B] hover:text-black']}
+      >
+        工具
+      </a>
+    </div>
+  </div>
+</nav>

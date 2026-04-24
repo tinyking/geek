@@ -1,0 +1,52 @@
+---
+const projects = [
+  {
+    title: "健康追踪 App 重设计",
+    desc: "为一款健康类应用进行了全面的界面重构，用户留存率提升了 40%。",
+    tag: "🎨 界面设计",
+    icon: "📱",
+  },
+  {
+    title: "企业内部知识库系统",
+    desc: "基于 AI Agent 的智能问答系统，提升团队协作效率 60%。",
+    tag: "🔧 AI 开发",
+    icon: "🤖",
+  },
+  {
+    title: "数据可视化大屏",
+    desc: "实时数据监控平台，支持多维度分析和自定义报表。",
+    tag: "📊 数据可视化",
+    icon: "📈",
+  },
+];
+---
+
+<section id="projects" class="section-padding">
+  <div class="text-center mb-16">
+    <span class="text-[#E57035] text-xs font-bold tracking-widest uppercase">
+      精选作品
+    </span>
+    <h2 class="text-4xl font-semibold mt-3">最近的项目</h2>
+  </div>
+  <div class="grid gap-6">
+    {projects.map((p, i) => (
+      <a
+        key={i}
+        href="#"
+        class="group bg-white border border-[#E5E5E0] p-8 rounded-xl flex flex-col md:flex-row gap-8 transition-all hover:shadow-lg hover:border-[#9CA3AF]"
+      >
+        <div class="w-full md:w-48 h-36 bg-gradient-to-br from-[#FFF5F0] to-[#FFEDE5] rounded-lg flex items-center justify-center text-4xl">
+          {p.icon}
+        </div>
+        <div class="flex-1">
+          <h3 class="text-xl font-semibold mb-2">{p.title}</h3>
+          <p class="text-[#6B6B6B] mb-4">{p.desc}</p>
+          <div class="flex gap-4 text-xs text-[#9CA3AF]">
+            <span>{p.tag}</span>
+            <span>📅 2024</span>
+          </div>
+        </div>
+      </a>
+    ))}
+  </div>
+</section>

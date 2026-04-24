@@ -1,0 +1,56 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<BaseLayout>
+  <Navbar />
+  <main class="min-h-screen pt-24">
+    <div class="section-padding">
+      <div class="max-w-3xl mx-auto">
+        <h1 class="text-4xl font-semibold mb-12">文章</h1>
+        
+        <div class="space-y-8">
+          {posts.map((post) => (
+            <a 
+              href={`/posts/${post.slug}`}
+              class="block group"
+            >
+              <article class="bg-white border border-[#E5E5E0] rounded-xl p-6 transition-all hover:shadow-lg hover:border-[#9CA3AF]">
+                <div class="flex items-center gap-3 mb-3">
+                  <time class="text-sm text-[#6B6B6B]">
+                    {post.data.date.toLocaleDateString('zh-CN')}
+                  </time>
+                  <span class="text-[#E5E5E0]">·</span>
+                  <span class="text-sm text-[#6B6B6B]">
+                    {post.data.readingTime} 分钟阅读
+                  </span>
+                </div>
+                <h2 class="text-xl font-semibold mb-2 group-hover:text-[#E57035] transition-colors">
+                  {post.data.title}
+                </h2>
+                <p class="text-[#6B6B6B] line-clamp-2">
+                  {post.data.excerpt}
+                </p>
+                <div class="flex flex-wrap gap-2 mt-4">
+                  {post.data.tags.map((tag) => (
+                    <span class="px-2 py-1 text-xs bg-[#FAFAF8] text-[#6B6B6B] rounded">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

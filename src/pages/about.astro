@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout>
+  <Navbar />
+  <main class="min-h-screen pt-24">
+    <div class="section-padding">
+      <div class="max-w-3xl mx-auto">
+        <h1 class="text-4xl font-semibold mb-8">关于我</h1>
+        
+        <div class="prose prose-lg">
+          <p class="text-[#6B6B6B] mb-6 leading-relaxed">
+            你好！我是阅微漫记的作者，一个热爱技术与生活的独立创作者。
+          </p>
+          
+          <h2 class="text-2xl font-semibold mt-12 mb-4">我的背景</h2>
+          <p class="text-[#6B6B6B] mb-6 leading-relaxed">
+            多年深耕于互联网技术领域，从前端开发到后端架构，从传统开发到 AI 应用，
+            持续探索技术的边界。我坚信好的技术应该服务于人，让人活得更有尊严、更有意义。
+          </p>
+          
+          <h2 class="text-2xl font-semibold mt-12 mb-4">我的兴趣</h2>
+          <ul class="text-[#6B6B6B] mb-6 space-y-2">
+            <li>💡 技术创新与产品思考</li>
+            <li>📚 阅读与知识管理</li>
+            <li>🎨 设计与用户体验</li>
+            <li>🌱 个人成长与自我提升</li>
+          </ul>
+          
+          <h2 class="text-2xl font-semibold mt-12 mb-4">这个博客</h2>
+          <p class="text-[#6B6B6B] mb-6 leading-relaxed">
+            「阅微」取自「见微知著」，「漫记」则是随手记录之意。
+            这里记录我的技术探索、产品思考和生活感悟，希望与志同道合的朋友一起交流成长。
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

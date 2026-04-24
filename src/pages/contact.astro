@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout>
+  <Navbar />
+  <main class="min-h-screen pt-24">
+    <div class="section-padding">
+      <div class="max-w-2xl mx-auto text-center">
+        <h1 class="text-4xl font-semibold mb-4">联系我</h1>
+        <p class="text-[#6B6B6B] mb-12">
+          如果你有任何问题、合作意向或只是想打个招呼，欢迎通过以下方式联系我。
+        </p>
+        
+        <div class="space-y-6">
+          <a 
+            href="https://x.com/tinyking86"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="block px-8 py-6 bg-white border border-[#E5E5E0] rounded-xl hover:border-[#9CA3AF] transition-colors"
+          >
+            <div class="text-2xl mb-2">𝕏</div>
+            <div class="font-semibold">Twitter / X</div>
+            <div class="text-sm text-[#6B6B6B]">@tinyking86</div>
+          </a>
+          
+          <a 
+            href="https://github.com/tinyking"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="block px-8 py-6 bg-white border border-[#E5E5E0] rounded-xl hover:border-[#9CA3AF] transition-colors"
+          >
+            <div class="text-2xl mb-2">⌨️</div>
+            <div class="font-semibold">GitHub</div>
+            <div class="text-sm text-[#6B6B6B]">@tinyking</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+const tools = [
+  {
+    title: '封面生成器',
+    desc: '快速生成公众号封面图',
+    href: '/tools/cover',
+    icon: '🎨',
+  },
+  {
+    title: 'Markdown 转微信公众号',
+    desc: '将 Markdown 格式转换为微信公众号可用的格式',
+    href: '/tools/md-to-wechat',
+    icon: '📝',
+  },
+  {
+    title: 'Markdown 转 X (Twitter)',
+    desc: '将 Markdown 内容转换为 X 平台的格式',
+    href: '/tools/md-to-x',
+    icon: '𝕏',
+  },
+  {
+    title: '二维码生成器',
+    desc: '快速生成各种二维码',
+    href: '/tools/qrcode',
+    icon: '📱',
+  },
+];
+---
+
+<BaseLayout>
+  <Navbar />
+  <main class="min-h-screen pt-24">
+    <div class="section-padding">
+      <div class="max-w-3xl mx-auto">
+        <h1 class="text-4xl font-semibold mb-12">工具箱</h1>
+        
+        <div class="grid gap-6 md:grid-cols-2">
+          {tools.map((tool) => (
+            <a
+              href={tool.href}
+              class="group bg-white border border-[#E5E5E0] p-8 rounded-xl transition-all hover:shadow-lg hover:border-[#9CA3AF]"
+            >
+              <div class="text-4xl mb-4">{tool.icon}</div>
+              <h2 class="text-xl font-semibold mb-2 group-hover:text-[#E57035] transition-colors">
+                {tool.title}
+              </h2>
+              <p class="text-[#6B6B6B] text-sm">
+                {tool.desc}
+              </p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
