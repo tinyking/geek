@@ -10,6 +10,8 @@ tags:
 readingTime: 5
 ---
 
+![Tolaria 编辑器界面截图](/images/tolaria-screenshot.png)
+
 这是一个刚刚诞生不久的开源 Markdown 知识库管理工具，专为"AI时代"设计，巧妙地融合了 Notion 的编辑体验和 Obsidian 的本地化数据理念。它由资深技术人 Luca 为自己打造，一经发布便因**完全本地化、原生Git集成、为AI协作而生**等理念，在开发者社区引发了大量讨论。
 
 ## 🚀 Tolaria 是什么？
