@@ -48,12 +48,35 @@ const { Content } = await post.render();
         </div>
         
         <footer class="mt-12 pt-8 border-t border-[#E5E5E0]">
-          <a 
-            href="/posts"
-            class="inline-flex items-center gap-2 text-[#6B6B6B] hover:text-black transition-colors"
-          >
-            ← 返回文章列表
-          </a>
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <a 
+              href="/posts"
+              class="inline-flex items-center gap-2 text-[#6B6B6B] hover:text-black transition-colors"
+            >
+              ← 返回文章列表
+            </a>
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-[#6B6B6B]">分享到：</span>
+              <button
+                id="share-x"
+                class="w-9 h-9 flex items-center justify-center rounded-full bg-black hover:bg-gray-800 transition-colors"
+                title="分享到 X"
+              >
+                <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </button>
+              <button
+                id="share-weibo"
+                class="w-9 h-9 flex items-center justify-center rounded-full bg-[#E6162D] hover:bg-[#C40D25] transition-colors"
+                title="分享到微博"
+              >
+                <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.757 5.049-6.739 5.443zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.313-.361-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.194.573zm.176-2.719c-1.893-.493-4.033.45-4.857 2.118-.836 1.704-.026 3.591 1.886 4.21 1.983.64 4.318-.341 5.132-2.179.8-1.793-.201-3.642-2.161-4.149z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
         </footer>
       </div>
     </article>
@@ -164,3 +187,18 @@ const { Content } = await post.render();
     opacity: 0.8;
   }
 </style>
+
+<script define:vars={{ title: post.data.title }}>
+  const pageUrl = window.location.origin + window.location.pathname;
+  const shareTitle = title;
+  
+  document.getElementById('share-x')?.addEventListener('click', () => {
+    const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(pageUrl)}`;
+    window.open(xUrl, '_blank', 'width=550,height=420');
+  });
+  
+  document.getElementById('share-weibo')?.addEventListener('click', () => {
+    const weiboUrl = `https://service.weibo.com/share/share.php?title=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(pageUrl)}`;
+    window.open(weiboUrl, '_blank', 'width=550,height=420');
+  });
+</script>
