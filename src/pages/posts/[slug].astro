@@ -56,6 +56,16 @@ const { Content } = await post.render();
               ← 返回文章列表
             </a>
             <div class="flex items-center gap-3">
+              <button
+                id="copy-wechat"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm bg-[#07C160] hover:bg-[#06994d] text-white rounded-full transition-colors"
+                title="复制到公众号"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.022-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89a5.718 5.718 0 0 0-.407-.033zm-.96 1.876c.526 0 .952.43.952.962a.955.955 0 0 1-.952.965.955.955 0 0 1-.952-.965c0-.531.426-.962.952-.962zm4.844 0c.526 0 .952.43.952.962a.955.955 0 0 1-.952.965.955.955 0 0 1-.952-.965c0-.531.426-.962.952-.962z"/>
+                </svg>
+                复制到公众号
+              </button>
               <span class="text-sm text-[#6B6B6B]">分享到：</span>
               <button
                 id="share-x"
@@ -191,14 +201,254 @@ const { Content } = await post.render();
 <script define:vars={{ title: post.data.title }}>
   const pageUrl = window.location.origin + window.location.pathname;
   const shareTitle = title;
-  
+
   document.getElementById('share-x')?.addEventListener('click', () => {
     const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(pageUrl)}`;
     window.open(xUrl, '_blank', 'width=550,height=420');
   });
-  
+
   document.getElementById('share-weibo')?.addEventListener('click', () => {
     const weiboUrl = `https://service.weibo.com/share/share.php?title=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(pageUrl)}`;
     window.open(weiboUrl, '_blank', 'width=550,height=420');
+  });
+
+  // 复制到公众号
+  const WECHAT_CSS = `
+    .wechat-content {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      color: #333;
+      line-height: 1.75;
+      padding: 20px 15px;
+      max-width: 100%;
+    }
+    .wechat-content h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-align: left;
+      margin: 0 0 20px 0;
+      line-height: 1.4;
+      border-bottom: none;
+    }
+    .wechat-content h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #e8913c;
+      margin: 32px 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e8913c;
+      line-height: 1.4;
+    }
+    .wechat-content h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #2eaadc;
+      margin: 24px 0 12px 0;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #2eaadc;
+      line-height: 1.4;
+    }
+    .wechat-content p {
+      text-align: justify;
+      font-size: 16px;
+      font-weight: 400;
+      color: #333;
+      margin: 0 0 20px 0;
+      line-height: 1.9;
+      text-indent: 0;
+    }
+    .wechat-content blockquote {
+      margin: 20px 0;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #fff8f0 0%, #fff 100%);
+      border-left: 4px solid #e8913c;
+      color: #e8913c;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.7;
+    }
+    .wechat-content blockquote p {
+      margin: 0;
+      color: #e8913c;
+      font-weight: 500;
+      text-align: left;
+    }
+    .wechat-content strong {
+      color: #8b5cf6;
+      font-weight: 600;
+    }
+    .wechat-content em {
+      font-style: italic;
+      color: #666;
+    }
+    .wechat-content a {
+      color: #2eaadc;
+      text-decoration: none;
+      border-bottom: 1px solid #2eaadc;
+    }
+    .wechat-content ul, .wechat-content ol {
+      margin: 16px 0;
+      padding-left: 24px;
+    }
+    .wechat-content li {
+      font-size: 16px;
+      color: #333;
+      line-height: 1.9;
+      margin-bottom: 8px;
+    }
+    .wechat-content li > * {
+      display: inline;
+    }
+    .wechat-content img {
+      display: block;
+      margin: 24px auto;
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    .wechat-content pre {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 14px;
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      line-height: 1.6;
+      margin: 20px 0;
+    }
+    .wechat-content code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 14px;
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      color: #d73a49;
+    }
+    .wechat-content pre code {
+      background: transparent;
+      padding: 0;
+    }
+    .wechat-content hr {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 32px 0;
+    }
+    .wechat-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .wechat-content th, .wechat-content td {
+      border: 1px solid #e5e5e0;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 15px;
+    }
+    .wechat-content th {
+      background: #fafaf8;
+      font-weight: 600;
+    }
+  `;
+
+  // 手动内联样式函数（简易版，无依赖）
+  function inlineStyles(element, css) {
+    // 解析 CSS 规则并应用到元素
+    const rules = css.match(/[.#]?[\w-]+\s*\{[^}]*\}/g) || [];
+    const classStyles = {};
+
+    for (const rule of rules) {
+      const match = rule.match(/([.#]?[\w-]+)\s*\{([^}]*)\}/);
+      if (!match) continue;
+      const selector = match[1];
+      const properties = match[2];
+
+      if (selector.startsWith('.')) {
+        classStyles[selector.slice(1)] = properties;
+      }
+    }
+
+    function applyToElement(el, selector) {
+      if (classStyles[selector]) {
+        const props = classStyles[selector];
+        const declarations = props.match(/([\w-]+)\s*:\s*([^;]+)/g) || [];
+        for (const decl of declarations) {
+          const [prop, value] = decl.split(':').map(s => s.trim());
+          try { el.style[prop] = value; } catch {}
+        }
+      }
+    }
+
+    // 应用类名
+    const tagMap = {
+      'h1': 'h1', 'h2': 'h2', 'h3': 'h3', 'p': 'p',
+      'blockquote': 'blockquote', 'strong': 'strong', 'em': 'em',
+      'a': 'a', 'ul': 'ul', 'ol': 'ol', 'li': 'li',
+      'img': 'img', 'pre': 'pre', 'code': 'code', 'hr': 'hr',
+      'table': 'table', 'th': 'th', 'td': 'td'
+    };
+
+    for (const [tag, cls] of Object.entries(tagMap)) {
+      el.querySelectorAll(tag).forEach(e => applyToElement(e, cls));
+    }
+    // 根元素
+    applyToElement(element, 'wechat-content');
+  }
+
+  document.getElementById('copy-wechat')?.addEventListener('click', async () => {
+    const btn = document.getElementById('copy-wechat');
+    if (!btn) return;
+
+    const originalText = btn.innerHTML;
+    btn.textContent = '正在处理…';
+    btn.disabled = true;
+
+    try {
+      const proseEl = document.querySelector('.prose');
+      if (!proseEl) throw new Error('未找到文章内容');
+
+      // 深拷贝以避免污染原 DOM
+      const clone = proseEl.cloneNode(true);
+
+      // 手动内联样式
+      inlineStyles(clone, WECHAT_CSS);
+
+      // 拼装完整 HTML
+      const html = `<div class="wechat-content" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#333;line-height:1.75;padding:20px 15px;max-width:100%;"><h1 style="font-size:28px;font-weight:700;color:#1a1a1a;text-align:left;margin:0 0 20px 0;line-height:1.4;border-bottom:none;">${shareTitle}</h1>${clone.innerHTML}</div>`;
+
+      // 复制到剪贴板（富文本）
+      if (navigator.clipboard && navigator.clipboard.write) {
+        const blob = new Blob([html], { type: 'text/html' });
+        const clipboardItem = new ClipboardItem({ 'text/html': blob });
+        await navigator.clipboard.write([clipboardItem]);
+      } else {
+        // fallback：直接写入 editable div 再 execCommand
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        container.style.position = 'fixed';
+        container.style.left = '-9999px';
+        document.body.appendChild(container);
+        const range = document.createRange();
+        range.selectNodeContents(container);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+        document.execCommand('copy');
+        document.body.removeChild(container);
+      }
+
+      btn.textContent = '✅ 已复制';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+      btn.textContent = '❌ 失败';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }, 2000);
+    }
   });
 </script>
