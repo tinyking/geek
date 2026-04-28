@@ -389,7 +389,7 @@ const { Content } = await post.render();
     };
 
     for (const [tag, cls] of Object.entries(tagMap)) {
-      el.querySelectorAll(tag).forEach(e => applyToElement(e, cls));
+      element.querySelectorAll(tag).forEach(e => applyToElement(e, cls));
     }
     // 根元素
     applyToElement(element, 'wechat-content');
