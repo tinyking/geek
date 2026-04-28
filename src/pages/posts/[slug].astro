@@ -433,11 +433,11 @@ const { Content } = await post.render();
       const match = firstLineText.match(headerRegex);
       if (!match) continue;
 
-      const rawType = (match[1] ?? 'note').toLowerCase();
-      const customTitle = (match[3] ?? '').trim();
-      const calloutType = CALLOUT_TYPE_MAP[rawType] ?? 'note';
-      const calloutTitle = customTitle || CALLOUT_DEFAULT_TITLES[calloutType] ?? 'Note';
-      const theme = CALLOUT_THEMES[calloutType] ?? CALLOUT_THEMES.note;
+      const rawType = (match[1] || 'note').toLowerCase();
+      const customTitle = (match[3] || '').trim();
+      const calloutType = CALLOUT_TYPE_MAP[rawType] || 'note';
+      const calloutTitle = customTitle || CALLOUT_DEFAULT_TITLES[calloutType] || 'Note';
+      const theme = CALLOUT_THEMES[calloutType] || CALLOUT_THEMES.note;
 
       const firstBreak = getFirstBreakElement(firstParagraph);
       if (firstBreak) {
@@ -485,7 +485,7 @@ const { Content } = await post.render();
     let firstLine = '';
     for (const node of Array.from(paragraph.childNodes)) {
       if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName === 'BR') break;
-      firstLine += node.textContent ?? '';
+      firstLine += node.textContent || '';
     }
     return firstLine;
   }
