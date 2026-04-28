@@ -212,26 +212,29 @@ const { Content } = await post.render();
     window.open(weiboUrl, '_blank', 'width=550,height=420');
   });
 
-  // 复制到公众号
+  // ==========================================
+  // 复制到公众号 — 完整迁移自 Obsidian 插件
+  // ==========================================
+
   const WECHAT_CSS = `
     .wechat-content {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
       font-size: 16px;
       color: #333;
       line-height: 1.75;
+      text-align: left;
       padding: 20px 15px;
       max-width: 100%;
     }
-    .wechat-content h1 {
+    h1 {
       font-size: 28px;
       font-weight: 700;
       color: #1a1a1a;
       text-align: left;
-      margin: 0 0 20px 0;
+      margin: 0 0 16px 0;
       line-height: 1.4;
-      border-bottom: none;
     }
-    .wechat-content h2 {
+    h2 {
       font-size: 20px;
       font-weight: 600;
       color: #e8913c;
@@ -240,7 +243,7 @@ const { Content } = await post.render();
       border-bottom: 2px solid #e8913c;
       line-height: 1.4;
     }
-    .wechat-content h3 {
+    h3 {
       font-size: 18px;
       font-weight: 600;
       color: #2eaadc;
@@ -249,7 +252,7 @@ const { Content } = await post.render();
       border-bottom: 1px solid #2eaadc;
       line-height: 1.4;
     }
-    .wechat-content p {
+    p {
       text-align: justify;
       font-size: 16px;
       font-weight: 400;
@@ -258,7 +261,7 @@ const { Content } = await post.render();
       line-height: 1.9;
       text-indent: 0;
     }
-    .wechat-content blockquote {
+    blockquote {
       margin: 20px 0;
       padding: 12px 16px;
       background: linear-gradient(135deg, #fff8f0 0%, #fff 100%);
@@ -268,46 +271,47 @@ const { Content } = await post.render();
       font-weight: 500;
       line-height: 1.7;
     }
-    .wechat-content blockquote p {
+    blockquote p {
       margin: 0;
       color: #e8913c;
       font-weight: 500;
-      text-align: left;
     }
-    .wechat-content strong {
+    strong {
       color: #8b5cf6;
       font-weight: 600;
     }
-    .wechat-content em {
+    em {
       font-style: italic;
       color: #666;
     }
-    .wechat-content a {
+    a {
       color: #2eaadc;
       text-decoration: none;
       border-bottom: 1px solid #2eaadc;
     }
-    .wechat-content ul, .wechat-content ol {
+    ul, ol {
       margin: 16px 0;
       padding-left: 24px;
     }
-    .wechat-content li {
+    li {
       font-size: 16px;
       color: #333;
       line-height: 1.9;
       margin-bottom: 8px;
+      word-break: normal;
+      overflow-wrap: normal;
     }
-    .wechat-content li > * {
+    li > * {
       display: inline;
     }
-    .wechat-content img {
+    img {
       display: block;
       margin: 24px auto;
       max-width: 100%;
       height: auto;
       border-radius: 8px;
     }
-    .wechat-content pre {
+    pre {
       background: #f8f9fa;
       padding: 16px;
       border-radius: 6px;
@@ -317,7 +321,7 @@ const { Content } = await post.render();
       line-height: 1.6;
       margin: 20px 0;
     }
-    .wechat-content code {
+    code {
       background: #f0f0f0;
       padding: 2px 6px;
       border-radius: 3px;
@@ -325,130 +329,234 @@ const { Content } = await post.render();
       font-family: "SF Mono", Monaco, Consolas, monospace;
       color: #d73a49;
     }
-    .wechat-content pre code {
+    pre code {
       background: transparent;
       padding: 0;
     }
-    .wechat-content hr {
+    hr {
       border: none;
       border-top: 1px solid #eee;
       margin: 32px 0;
     }
-    .wechat-content table {
-      width: 100%;
-      border-collapse: collapse;
+    .wechat-callout {
       margin: 20px 0;
+      border-left: 4px solid #773098;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #faf7fd;
     }
-    .wechat-content th, .wechat-content td {
-      border: 1px solid #e5e5e0;
+    .wechat-callout-title {
       padding: 10px 14px;
-      text-align: left;
       font-size: 15px;
+      font-weight: 700;
+      line-height: 1.6;
+      color: #5a3382;
+      background: #f1e7fb;
     }
-    .wechat-content th {
-      background: #fafaf8;
-      font-weight: 600;
+    .wechat-callout-body {
+      padding: 12px 14px;
     }
+    .wechat-callout-body p {
+      margin: 0 0 12px 0;
+      color: #333;
+      font-weight: 400;
+    }
+    .wechat-callout-body p:last-child {
+      margin-bottom: 0;
+    }
+    .wechat-callout-note     { border-left-color: #773098; background: #faf7fd; }
+    .wechat-callout-note     .wechat-callout-title { color: #5a3382; background: #f1e7fb; }
+    .wechat-callout-info     { border-left-color: #2eaadc; background: #f3fbff; }
+    .wechat-callout-info     .wechat-callout-title { color: #1f7599; background: #dff4fd; }
+    .wechat-callout-tip      { border-left-color: #2f9e44; background: #f3fcf5; }
+    .wechat-callout-tip      .wechat-callout-title { color: #1f6d2f; background: #dff5e4; }
+    .wechat-callout-question { border-left-color: #b7791f; background: #fffaf2; }
+    .wechat-callout-question .wechat-callout-title { color: #8a5b17; background: #fcefd9; }
+    .wechat-callout-warning  { border-left-color: #e8913c; background: #fff8f0; }
+    .wechat-callout-warning  .wechat-callout-title { color: #b96f22; background: #fde9d4; }
+    .wechat-callout-danger   { border-left-color: #e03131; background: #fff5f5; }
+    .wechat-callout-danger   .wechat-callout-title { color: #b42323; background: #fde3e3; }
+    .wechat-callout-example  { border-left-color: #0ca678; background: #f2fffb; }
+    .wechat-callout-example  .wechat-callout-title { color: #087f5b; background: #d9f7ee; }
+    .wechat-callout-quote    { border-left-color: #868e96; background: #f8f9fa; }
+    .wechat-callout-quote    .wechat-callout-title { color: #495057; background: #e9ecef; }
   `;
 
-  // 手动内联样式函数（简易版，无依赖）
-  function inlineStyles(element, css) {
-    // 解析 CSS 规则并应用到元素
-    const rules = css.match(/[.#]?[\w-]+\s*\{[^}]*\}/g) || [];
-    const classStyles = {};
+  const CALLOUT_THEMES = {
+    note:     { borderColor: '#773098', background: '#faf7fd', titleColor: '#5a3382' },
+    info:     { borderColor: '#2eaadc', background: '#f3fbff', titleColor: '#1f7599' },
+    tip:      { borderColor: '#2f9e44', background: '#f3fcf5', titleColor: '#1f6d2f' },
+    question: { borderColor: '#b7791f', background: '#fffaf2', titleColor: '#8a5b17' },
+    warning:  { borderColor: '#e8913c', background: '#fff8f0', titleColor: '#b96f22' },
+    danger:   { borderColor: '#e03131', background: '#fff5f5', titleColor: '#b42323' },
+    example:  { borderColor: '#0ca678', background: '#f2fffb', titleColor: '#087f5b' },
+    quote:    { borderColor: '#868e96', background: '#f8f9fa', titleColor: '#495057' },
+  };
 
-    for (const rule of rules) {
-      const match = rule.match(/([.#]?[\w-]+)\s*\{([^}]*)\}/);
+  const CALLOUT_DEFAULT_TITLES = {
+    note: 'Note', info: 'Info', tip: 'Tip', question: 'Question',
+    warning: 'Warning', danger: 'Danger', example: 'Example', quote: 'Quote',
+  };
+
+  const CALLOUT_TYPE_MAP = {
+    note: 'note', abstract: 'note', summary: 'note', tldr: 'note',
+    info: 'info', todo: 'info',
+    tip: 'tip', hint: 'tip', important: 'tip', success: 'tip', check: 'tip', done: 'tip',
+    question: 'question', help: 'question', faq: 'question',
+    warning: 'warning', caution: 'warning', attention: 'warning',
+    failure: 'danger', fail: 'danger', missing: 'danger', danger: 'danger', error: 'danger', bug: 'danger',
+    example: 'example', quote: 'quote',
+  };
+
+  function preventBreakAfterStrong(html) {
+    let result = html;
+    result = result.replace(/(<\/strong>)(<)/g, '$1﻿$2');
+    result = result.replace(/(<\/b>)(<)/g, '$1﻿$2');
+    result = result.replace(/(<\/span>)(<)/g, '$1﻿$2');
+    result = result.replace(/(<\/strong>)(\s*)([：:])/g, '$1﻿$2$3');
+    result = result.replace(/(<\/b>)(\s*)([：:])/g, '$1﻿$2$3');
+    result = result.replace(/(<\/span>)(\s*)([：:])/g, '$1﻿$2$3');
+    return result;
+  }
+
+  function transformCallouts(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const blockquotes = Array.from(doc.querySelectorAll('blockquote'));
+    const headerRegex = /^\[!([a-zA-Z0-9_-]+)\]([+-])?\s*(.*)$/;
+
+    for (const blockquote of blockquotes) {
+      const firstParagraph = blockquote.querySelector('p');
+      if (!firstParagraph) continue;
+
+      const firstLineText = getFirstLineText(firstParagraph).trim();
+      const match = firstLineText.match(headerRegex);
       if (!match) continue;
-      const selector = match[1];
-      const properties = match[2];
 
-      if (selector.startsWith('.')) {
-        classStyles[selector.slice(1)] = properties;
-      }
-    }
+      const rawType = (match[1] ?? 'note').toLowerCase();
+      const customTitle = (match[3] ?? '').trim();
+      const calloutType = CALLOUT_TYPE_MAP[rawType] ?? 'note';
+      const calloutTitle = customTitle || CALLOUT_DEFAULT_TITLES[calloutType] ?? 'Note';
+      const theme = CALLOUT_THEMES[calloutType] ?? CALLOUT_THEMES.note;
 
-    function applyToElement(el, selector) {
-      if (classStyles[selector]) {
-        const props = classStyles[selector];
-        const declarations = props.match(/([\w-]+)\s*:\s*([^;]+)/g) || [];
-        for (const decl of declarations) {
-          const [prop, value] = decl.split(':').map(s => s.trim());
-          try { el.style[prop] = value; } catch {}
+      const firstBreak = getFirstBreakElement(firstParagraph);
+      if (firstBreak) {
+        while (firstParagraph.firstChild && firstParagraph.firstChild !== firstBreak) {
+          firstParagraph.removeChild(firstParagraph.firstChild);
         }
+        firstParagraph.removeChild(firstBreak);
+      } else {
+        firstParagraph.remove();
+      }
+      if (firstParagraph.isConnected && !firstParagraph.textContent?.trim()) {
+        firstParagraph.remove();
+      }
+
+      const tableEl = doc.createElement('table');
+      tableEl.style.cssText = 'width:100%;margin:20px 0;border-collapse:collapse;border-spacing:0';
+      const tbodyEl = doc.createElement('tbody');
+      const trEl = doc.createElement('tr');
+      const tdEl = doc.createElement('td');
+      tdEl.style.cssText = `border-left:4px solid ${theme.borderColor};background:${theme.background};padding:12px 16px;border-radius:8px`;
+
+      const titleEl = doc.createElement('p');
+      titleEl.style.cssText = 'margin:0 0 10px 0;color:' + theme.titleColor + ';font-size:15px;font-weight:700;line-height:1.6';
+      titleEl.textContent = calloutTitle;
+      tdEl.appendChild(titleEl);
+
+      const bodyParagraphs = Array.from(blockquote.querySelectorAll('p'));
+      for (let i = 0; i < bodyParagraphs.length; i++) {
+        const p = bodyParagraphs[i];
+        p.style.cssText = i < bodyParagraphs.length - 1
+          ? 'margin:0 0 12px 0;color:#333;font-size:16px;font-weight:400;line-height:1.9'
+          : 'margin:0;color:#333;font-size:16px;font-weight:400;line-height:1.9';
+        tdEl.appendChild(p);
+      }
+
+      trEl.appendChild(tdEl);
+      tbodyEl.appendChild(trEl);
+      tableEl.appendChild(tbodyEl);
+      blockquote.replaceWith(tableEl);
+    }
+    return doc.body.innerHTML;
+  }
+
+  function getFirstLineText(paragraph) {
+    let firstLine = '';
+    for (const node of Array.from(paragraph.childNodes)) {
+      if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName === 'BR') break;
+      firstLine += node.textContent ?? '';
+    }
+    return firstLine;
+  }
+
+  function getFirstBreakElement(paragraph) {
+    for (const node of Array.from(paragraph.childNodes)) {
+      if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName === 'BR') {
+        return node as HTMLBRElement;
       }
     }
+    return null;
+  }
 
-    // 应用类名
-    const tagMap = {
-      'h1': 'h1', 'h2': 'h2', 'h3': 'h3', 'p': 'p',
-      'blockquote': 'blockquote', 'strong': 'strong', 'em': 'em',
-      'a': 'a', 'ul': 'ul', 'ol': 'ol', 'li': 'li',
-      'img': 'img', 'pre': 'pre', 'code': 'code', 'hr': 'hr',
-      'table': 'table', 'th': 'th', 'td': 'td'
-    };
-
-    for (const [tag, cls] of Object.entries(tagMap)) {
-      element.querySelectorAll(tag).forEach(e => applyToElement(e, cls));
+  function inlineCSS(html) {
+    const cssRules = WECHAT_CSS.match(/[^\{\}]+\{[^\}]*\}/g) || [];
+    const styleMap = {};
+    for (const rule of cssRules) {
+      const colonIdx = rule.indexOf('{');
+      const selector = rule.slice(0, colonIdx).trim();
+      const declarations = rule.slice(colonIdx + 1, rule.length - 1);
+      styleMap[selector] = declarations;
     }
-    // 根元素
-    applyToElement(element, 'wechat-content');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<div>${html}</div>`, 'text/html');
+    const container = doc.firstChild as Element;
+    for (const [selector, declarations] of Object.entries(styleMap)) {
+      try {
+        const elements = container.querySelectorAll(selector);
+        for (const el of Array.from(elements)) {
+          (el as HTMLElement).style.cssText = declarations;
+        }
+      } catch {}
+    }
+    return container.innerHTML;
   }
 
   document.getElementById('copy-wechat')?.addEventListener('click', async () => {
     const btn = document.getElementById('copy-wechat');
     if (!btn) return;
-
-    const originalText = btn.innerHTML;
+    const originalHTML = btn.innerHTML;
     btn.textContent = '正在处理…';
     btn.disabled = true;
-
     try {
       const proseEl = document.querySelector('.prose');
       if (!proseEl) throw new Error('未找到文章内容');
-
-      // 深拷贝以避免污染原 DOM
-      const clone = proseEl.cloneNode(true);
-
-      // 手动内联样式
-      inlineStyles(clone, WECHAT_CSS);
-
-      // 拼装完整 HTML
-      const html = `<div class="wechat-content" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#333;line-height:1.75;padding:20px 15px;max-width:100%;"><h1 style="font-size:28px;font-weight:700;color:#1a1a1a;text-align:left;margin:0 0 20px 0;line-height:1.4;border-bottom:none;">${shareTitle}</h1>${clone.innerHTML}</div>`;
-
-      // 复制到剪贴板（富文本）
+      let html = proseEl.innerHTML;
+      html = preventBreakAfterStrong(html);
+      html = transformCallouts(html);
+      html = inlineCSS(html);
+      const fullHtml = `<div class="wechat-content" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#333;line-height:1.75;text-align:left;padding:20px 15px;max-width:100%"><h1 style="font-size:28px;font-weight:700;color:#1a1a1a;text-align:left;margin:0 0 16px 0;line-height:1.4">${shareTitle}</h1>${html}</div>`;
       if (navigator.clipboard && navigator.clipboard.write) {
-        const blob = new Blob([html], { type: 'text/html' });
-        const clipboardItem = new ClipboardItem({ 'text/html': blob });
-        await navigator.clipboard.write([clipboardItem]);
+        const blob = new Blob([fullHtml], { type: 'text/html' });
+        await navigator.clipboard.write([new ClipboardItem({ 'text/html': blob })]);
       } else {
-        // fallback：直接写入 editable div 再 execCommand
         const container = document.createElement('div');
-        container.innerHTML = html;
-        container.style.position = 'fixed';
-        container.style.left = '-9999px';
+        container.innerHTML = fullHtml;
+        container.style.cssText = 'position:fixed;left:-9999px;top:0';
         document.body.appendChild(container);
         const range = document.createRange();
         range.selectNodeContents(container);
-        const sel = window.getSelection();
-        sel?.removeAllRanges();
-        sel?.addRange(range);
+        window.getSelection()?.removeAllRanges();
+        window.getSelection()?.addRange(range);
         document.execCommand('copy');
         document.body.removeChild(container);
       }
-
       btn.textContent = '✅ 已复制';
-      setTimeout(() => {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-      }, 2000);
+      setTimeout(() => { btn.innerHTML = originalHTML; btn.disabled = false; }, 2000);
     } catch (err) {
       console.error(err);
       btn.textContent = '❌ 失败';
-      setTimeout(() => {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-      }, 2000);
+      setTimeout(() => { btn.innerHTML = originalHTML; btn.disabled = false; }, 2000);
     }
   });
 </script>
