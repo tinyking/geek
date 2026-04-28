@@ -9,24 +9,35 @@ const tools = [
     desc: '快速生成公众号封面图',
     href: '/tools/cover',
     icon: '🎨',
+    external: false,
   },
   {
     title: 'Markdown 转微信公众号',
     desc: '将 Markdown 格式转换为微信公众号可用的格式',
     href: '/tools/md-to-wechat',
     icon: '📝',
+    external: false,
   },
   {
     title: 'Markdown 转 X (Twitter)',
     desc: '将 Markdown 内容转换为 X 平台的格式',
     href: '/tools/md-to-x',
     icon: '𝕏',
+    external: false,
   },
   {
     title: '二维码生成器',
     desc: '快速生成各种二维码',
     href: '/tools/qrcode',
     icon: '📱',
+    external: false,
+  },
+  {
+    title: 'Z2H 字符转换',
+    desc: '全角 / 半角字符互转，快速处理中文排版问题',
+    href: 'https://z2h.cn',
+    icon: '🔤',
+    external: true,
   },
 ];
 ---
@@ -42,8 +53,13 @@ const tools = [
           {tools.map((tool) => (
             <a
               href={tool.href}
-              class="group bg-white border border-[#E5E5E0] p-8 rounded-xl transition-all hover:shadow-lg hover:border-[#9CA3AF]"
+              target={tool.external ? '_blank' : '_self'}
+              rel={tool.external ? 'noopener noreferrer' : undefined}
+              class="group bg-white border border-[#E5E5E0] p-8 rounded-xl transition-all hover:shadow-lg hover:border-[#9CA3AF] relative"
             >
+              {tool.external && (
+                <span class="absolute top-4 right-4 text-[#9CA3AF] text-xs">↗</span>
+              )}
               <div class="text-4xl mb-4">{tool.icon}</div>
               <h2 class="text-xl font-semibold mb-2 group-hover:text-[#E57035] transition-colors">
                 {tool.title}
