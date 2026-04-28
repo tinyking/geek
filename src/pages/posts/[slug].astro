@@ -484,7 +484,7 @@ const { Content } = await post.render();
   function getFirstLineText(paragraph) {
     let firstLine = '';
     for (const node of Array.from(paragraph.childNodes)) {
-      if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName === 'BR') break;
+      if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') break;
       firstLine += node.textContent || '';
     }
     return firstLine;
@@ -492,8 +492,8 @@ const { Content } = await post.render();
 
   function getFirstBreakElement(paragraph) {
     for (const node of Array.from(paragraph.childNodes)) {
-      if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName === 'BR') {
-        return node as HTMLBRElement;
+      if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
+        return node;
       }
     }
     return null;
@@ -510,12 +510,12 @@ const { Content } = await post.render();
     }
     const parser = new DOMParser();
     const doc = parser.parseFromString(`<div>${html}</div>`, 'text/html');
-    const container = doc.firstChild as Element;
+    const container = doc.firstChild;
     for (const [selector, declarations] of Object.entries(styleMap)) {
       try {
         const elements = container.querySelectorAll(selector);
         for (const el of Array.from(elements)) {
-          (el as HTMLElement).style.cssText = declarations;
+          (el).style.cssText = declarations;
         }
       } catch {}
     }
