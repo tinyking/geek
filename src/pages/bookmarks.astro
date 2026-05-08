@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+const categories = [
+  {
+    name: '工程实践',
+    items: [
+      {
+        title: 'Harness 工程学习',
+        desc: '系统学习 Harness 持续交付平台',
+        href: 'https://walkinglabs.github.io/learn-harness-engineering/zh/',
+      },
+    ],
+  },
+  {
+    name: '开发工具',
+    items: [
+      {
+        title: 'Docus',
+        desc: '基于 Nuxt 的文档站点生成工具，开箱即用，支持 Markdown 编写',
+        href: 'https://docus.dev/en',
+      },
+    ],
+  },
+];
+---
+
+<BaseLayout>
+  <Navbar />
+  <main class="min-h-screen pt-24">
+    <div class="section-padding">
+      <div class="max-w-3xl mx-auto">
+        <h1 class="text-4xl font-semibold mb-12">收藏夹</h1>
+
+        {categories.map((category) => (
+          <div class="mb-12">
+            <h2 class="text-xl font-semibold mb-4">{category.name}</h2>
+            <div class="grid gap-4 md:grid-cols-2">
+              {category.items.map((item) => (
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="group bg-white border border-[#E5E5E0] p-6 rounded-xl transition-all hover:shadow-lg hover:border-[#9CA3AF] relative"
+                >
+                  <span class="absolute top-4 right-4 text-[#9CA3AF] text-xs">↗</span>
+                  <h3 class="text-lg font-semibold mb-2 group-hover:text-[#E57035] transition-colors">
+                    {item.title}
+                  </h3>
+                  <p class="text-[#6B6B6B] text-sm">
+                    {item.desc}
+                  </p>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

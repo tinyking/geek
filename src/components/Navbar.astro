@@ -32,6 +32,12 @@ const currentPath = Astro.url.pathname;
       >
         工具
       </a>
+      <a
+        href="/bookmarks"
+        class:list={["text-sm transition-colors", currentPath === '/bookmarks' ? 'text-black' : 'text-[#6B6B6B] hover:text-black']}
+      >
+        收藏夹
+      </a>
     </div>
   </div>
 </nav>
