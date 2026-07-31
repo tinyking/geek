@@ -12,7 +12,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <!-- TOPBAR -->
     <header class="topbar">
       <div class="topbar-in">
-        <div class="logo">档</div>
+        <div class="logo">朝</div>
         <div class="brand">
           <b>个人身份档案</b>
           <small>PERSONAL DOSSIER</small>
@@ -67,7 +67,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     <div class="field"><span class="lbl">代号</span><span class="val" data-bind="pinyin">JIAN CHAO</span></div>
                     <div class="field"><span class="lbl">身份</span><span class="val" data-bind="role">独立开发者</span></div>
                     <div class="field"><span class="lbl">坐标</span><span class="val" data-bind="city">杭州 · 中国</span></div>
-                    <div class="field"><span class="lbl">状态</span><span class="val status" data-bind="status">在册 · 可接洽新项目</span></div>
+                    <div class="field"><span class="lbl">状态</span><span class="val status" data-bind="status">ONLINE</span></div>
                   </div>
                 </div>
                 <div class="id-foot">
@@ -225,13 +225,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <div class="crow"><span class="clbl">GitHub</span><span class="cval" data-bind="github">github.com/chenyu</span><button class="copy" data-copy="github">复制</button></div>
               <div class="crow"><span class="clbl">坐标</span><span class="cval" data-bind="city">杭州 · 中国</span><button class="copy" data-copy="city">复制</button></div>
               <div style="margin-top:24px"><a class="btn btn-red" id="mailtoBtn" href="#">发送传讯 →</a></div>
-            </div>
-            <div class="stamp-pad reveal" id="stampPad">
-              <div class="big-seal" id="bigSeal"><span>核</span><span>验</span><span>通</span><span>过</span></div>
-              <h3>身份核验台</h3>
-              <p>点击下方按钮，为这份档案盖下属于你的印章。</p>
-              <button class="btn" id="stampBtn">盖章核验身份</button>
-              <div class="verify">累计核验次数 · <b id="verifyCount">0</b></div>
             </div>
           </div>
         </div>
@@ -535,12 +528,12 @@ footer{border-top:3px double var(--ink);padding:40px 0 60px;margin-top:30px}
     name:"建朝", pinyin:"JIAN CHAO",
     role:"独立开发者 · 数字产品设计师",
     city:"北京·中国",
-    status:"在册 · 可接洽新项目",
+    status:"ONLINE",
     motto:"把复杂留给系统，把简单留给人。",
     keywords:["前端工程","交互设计","数据可视化","开源","咖啡","城市漫游"],
     years:7, email:"tinyking86@gmail.com", wechat:"tinyking86", github:"github.com/tinyking"
   };
-  var STORE="dossier-profile-v1", STAMP_STORE="dossier-stamps-v1";
+  var STORE="dossier-profile-v1";
   var profile = load();
 
   function load(){
@@ -670,16 +663,6 @@ footer{border-top:3px double var(--ink);padding:40px 0 60px;margin-top:30px}
     });
   });
 
-  var stampCount = (function(){ try{ return parseInt(localStorage.getItem(STAMP_STORE),10)||0; }catch(e){ return 0; } })();
-  var vc=document.getElementById("verifyCount"); vc.textContent=stampCount;
-  document.getElementById("stampBtn").addEventListener("click",function(){
-    var seal=document.getElementById("bigSeal"), pad=document.getElementById("stampPad");
-    seal.classList.remove("slam"); void seal.offsetWidth; seal.classList.add("slam");
-    pad.classList.remove("shake"); void pad.offsetWidth; pad.classList.add("shake");
-    stampCount++; vc.textContent=stampCount;
-    try{ localStorage.setItem(STAMP_STORE,String(stampCount)); }catch(e){}
-  });
-
   document.querySelectorAll(".folder").forEach(function(f){
     f.addEventListener("click",function(e){
       if(e.target.classList.contains("copy")) return;
@@ -729,10 +712,18 @@ footer{border-top:3px double var(--ink);padding:40px 0 60px;margin-top:30px}
   ["cover","statement","skills","projects","timeline","contact"].forEach(function(id){ var s=document.getElementById(id); if(s) spy.observe(s); });
 
   (function(){
-    var d=new Date();
-    var wk=["日","一","二","三","四","五","六"][d.getDay()];
-    var pad=function(n){return n<10?"0"+n:n;};
-    document.getElementById("today").textContent = d.getFullYear()+"."+pad(d.getMonth()+1)+"."+pad(d.getDate())+" · 周"+wk;
+    // 按北京时间（Asia/Shanghai）计算当前日期，避免其他时区显示偏移
+    var fmt = new Intl.DateTimeFormat("zh-CN", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric", month: "2-digit", day: "2-digit",
+      weekday: "short"
+    });
+    var parts = fmt.formatToParts(new Date());
+    var get = function(t){ var p=parts.find(function(x){return x.type===t;}); return p?p.value:""; };
+    var y = get("year"), m = get("month"), dd = get("day");
+    // Intl 中文 weekday 形如"周五"，原格式为"周X"
+    var wk = get("weekday");
+    document.getElementById("today").textContent = y+"."+m+"."+dd+" · "+wk;
   })();
 
   bindProfile();
