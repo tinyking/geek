@@ -1,43 +1,99 @@
 ---
 const currentPath = Astro.url.pathname;
+const navItems = [
+  { href: '/', label: '首页', match: (p) => p === '/' },
+  { href: '/posts', label: '文章', match: (p) => p.startsWith('/posts') },
+  { href: '/bookmarks', label: '收藏夹', match: (p) => p === '/bookmarks' },
+  { href: '/tools', label: '工具', match: (p) => p.startsWith('/tools') },
+];
 ---
 
-<nav class="fixed top-0 left-0 right-0 z-50 bg-[#FAFAF8]/80 backdrop-blur-md border-b border-[#E5E5E0]">
-  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-    <a href="/" class="text-lg font-semibold tracking-tight">
+<a href="#main-content" class="skip-link">跳到主要内容</a>
+
+<nav class="fixed top-0 left-0 right-0 z-50 bg-bg-warm/80 backdrop-blur-md border-b border-border">
+  <div class="max-w-full mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="/" class="text-lg font-medium tracking-tight" aria-label="阅微漫记首页">
       阅微漫记
     </a>
+
+    {/* Desktop nav */}
     <div class="hidden md:flex items-center gap-8">
-      <a
-        href="/posts"
-        class:list={["text-sm transition-colors", currentPath.startsWith('/posts') ? 'text-black' : 'text-[#6B6B6B] hover:text-black']}
-      >
-        文章
-      </a>
-      <a
-        href="/skills"
-        class:list={["text-sm transition-colors", currentPath === '/skills' ? 'text-black' : 'text-[#6B6B6B] hover:text-black']}
-      >
-        技能
-      </a>
-      <a
-        href="/projects"
-        class:list={["text-sm transition-colors", currentPath === '/projects' ? 'text-black' : 'text-[#6B6B6B] hover:text-black']}
-      >
-        作品
-      </a>
-      <a
-        href="/tools"
-        class:list={["text-sm transition-colors", currentPath.startsWith('/tools') ? 'text-black' : 'text-[#6B6B6B] hover:text-black']}
-      >
-        工具
-      </a>
-      <a
-        href="/bookmarks"
-        class:list={["text-sm transition-colors", currentPath === '/bookmarks' ? 'text-black' : 'text-[#6B6B6B] hover:text-black']}
-      >
-        收藏夹
-      </a>
+      {navItems.map((item) => {
+        const isActive = item.match(currentPath);
+        return (
+          <a
+            href={item.href}
+            class:list={["text-sm transition-colors", isActive ? "text-ink-primary font-medium" : "text-ink-secondary hover:text-ink-primary"]}
+            aria-current={isActive ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        );
+      })}
+    </div>
+
+    {/* Mobile hamburger button */}
+    <button
+      id="menu-toggle"
+      class="md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-bg-card transition-colors"
+      aria-label="切换菜单"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <svg id="menu-icon-open" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+      <svg id="menu-icon-close" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  {/* Mobile menu */}
+  <div
+    id="mobile-menu"
+    class="md:hidden hidden border-t border-border bg-bg-warm/95 backdrop-blur-md"
+    role="menu"
+    aria-label="移动端导航"
+  >
+    <div class="px-6 py-4 space-y-1">
+      {navItems.map((item) => {
+        const isActive = item.match(currentPath);
+        return (
+          <a
+            href={item.href}
+            class:list={["block py-3 text-base transition-colors border-b border-border last:border-0", isActive ? "text-ink-primary font-medium" : "text-ink-secondary"]}
+            aria-current={isActive ? 'page' : undefined}
+            role="menuitem"
+          >
+            {item.label}
+          </a>
+        );
+      })}
     </div>
   </div>
 </nav>
+
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  const iconOpen = document.getElementById('menu-icon-open');
+  const iconClose = document.getElementById('menu-icon-close');
+
+  toggle?.addEventListener('click', () => {
+    const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!isExpanded));
+    menu?.classList.toggle('hidden');
+    iconOpen?.classList.toggle('hidden');
+    iconClose?.classList.toggle('hidden');
+  });
+
+  menu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      menu.classList.add('hidden');
+      toggle?.setAttribute('aria-expanded', 'false');
+      iconOpen?.classList.remove('hidden');
+      iconClose?.classList.add('hidden');
+    });
+  });
+</script>

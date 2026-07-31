@@ -44,10 +44,10 @@ const tools = [
 
 <BaseLayout>
   <Navbar />
-  <main class="min-h-screen pt-24">
+  <main id="main-content" class="min-h-screen pt-16">
     <div class="section-padding">
-      <div class="max-w-3xl mx-auto">
-        <h1 class="text-4xl font-semibold mb-12">工具箱</h1>
+      <div class="content-width">
+        <h1 class="text-4xl font-medium mb-12">工具箱</h1>
         
         <div class="grid gap-6 md:grid-cols-2">
           {tools.map((tool) => (
@@ -55,16 +55,16 @@ const tools = [
               href={tool.href}
               target={tool.external ? '_blank' : '_self'}
               rel={tool.external ? 'noopener noreferrer' : undefined}
-              class="group bg-white border border-[#E5E5E0] p-8 rounded-xl transition-all hover:shadow-lg hover:border-[#9CA3AF] relative"
+              class="group card-interactive p-8 relative"
             >
               {tool.external && (
-                <span class="absolute top-4 right-4 text-[#9CA3AF] text-xs">↗</span>
+                <span class="absolute top-4 right-4 text-ink-tertiary text-xs" aria-hidden="true">↗</span>
               )}
-              <div class="text-4xl mb-4">{tool.icon}</div>
-              <h2 class="text-xl font-semibold mb-2 group-hover:text-[#E57035] transition-colors">
+              <div class="text-4xl mb-4" aria-hidden="true">{tool.icon}</div>
+              <h2 class="text-xl font-medium mb-2 group-hover:text-accent transition-colors">
                 {tool.title}
               </h2>
-              <p class="text-[#6B6B6B] text-sm">
+              <p class="text-ink-secondary text-sm">
                 {tool.desc}
               </p>
             </a>

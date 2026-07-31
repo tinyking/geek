@@ -4,26 +4,62 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  ogType?: string;
+  bodyClass?: string;
 }
 
-const { 
-  title = '阅微漫记', 
-  description = '个人思考与作品分享' 
+const {
+  title = '阅微漫记',
+  description = '语霖的个人博客 — 记录技术探索、产品思考与生活感悟',
+  ogType = 'website',
+  bodyClass = '',
 } = Astro.props;
----
 
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://yuewei.dev').href;
+
+const isDossier = bodyClass.includes('dossier');
+const bodyClasses = isDossier
+  ? bodyClass
+  : ["min-h-full flex flex-col antialiased", bodyClass].filter(Boolean).join(' ');
+---
 <!doctype html>
 <html lang="zh-CN">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content={description} />
+		<meta name="author" content="语霖" />
+		<link rel="canonical" href={canonicalURL} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+		<!-- Dossier fonts (Noto Serif SC / Ma Shan Zheng / IBM Plex Mono) -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@latest/700.css" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@latest/900.css" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ma-shan-zheng@latest/400.css" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@latest/400.css" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@latest/600.css" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@latest/400.css" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@latest/500.css" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@latest/700.css" />
+
+		<!-- Open Graph -->
+		<meta property="og:type" content={ogType} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonicalURL} />
+		<meta property="og:site_name" content="阅微漫记" />
+		<meta property="og:locale" content="zh_CN" />
+
+		<!-- Twitter Card -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+
 		<title>{title}</title>
 		<!-- Google AdSense -->
 		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=pub-9508321495212724" crossorigin="anonymous" onerror="this.remove()"></script>
 	</head>
-	<body class="min-h-full flex flex-col antialiased">
+	<body class={bodyClasses}>
 		<slot />
 	</body>
 </html>

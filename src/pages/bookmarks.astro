@@ -79,27 +79,27 @@ const categories = [
 
 <BaseLayout>
   <Navbar />
-  <main class="min-h-screen pt-24">
+  <main id="main-content" class="min-h-screen pt-16">
     <div class="section-padding">
-      <div class="max-w-3xl mx-auto">
-        <h1 class="text-4xl font-semibold mb-12">收藏夹</h1>
+      <div class="content-width">
+        <h1 class="text-4xl font-medium mb-12">收藏夹</h1>
 
         {categories.map((category) => (
           <div class="mb-12">
-            <h2 class="text-xl font-semibold mb-4">{category.name}</h2>
+            <h2 class="text-xl font-medium mb-4">{category.name}</h2>
             <div class="grid gap-4 md:grid-cols-2">
               {category.items.map((item) => (
                 <a
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="group bg-white border border-[#E5E5E0] p-6 rounded-xl transition-all hover:shadow-lg hover:border-[#9CA3AF] relative"
+                  class="group card-interactive p-6 relative"
                 >
-                  <span class="absolute top-4 right-4 text-[#9CA3AF] text-xs">↗</span>
-                  <h3 class="text-lg font-semibold mb-2 group-hover:text-[#E57035] transition-colors">
+                  <span class="absolute top-4 right-4 text-ink-tertiary text-xs" aria-hidden="true">↗</span>
+                  <h3 class="text-lg font-medium mb-2 group-hover:text-accent transition-colors">
                     {item.title}
                   </h3>
-                  <p class="text-[#6B6B6B] text-sm">
+                  <p class="text-ink-secondary text-sm">
                     {item.desc}
                   </p>
                 </a>

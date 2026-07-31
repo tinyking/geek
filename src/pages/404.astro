@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout title="404 — 页面不存在 | 阅微漫记">
+  <Navbar />
+  <main id="main-content" class="min-h-screen pt-16 flex items-center">
+    <div class="section-padding">
+      <div class="content-width text-center">
+        <p class="text-accent text-sm font-medium tracking-widest uppercase mb-4">404</p>
+        <h1 class="text-4xl font-medium mb-4">页面走丢了</h1>
+        <p class="text-ink-secondary mb-10 max-w-md mx-auto">
+          你访问的页面可能已被移动或从未存在。不如回到正轨，继续探索。
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="/" class="btn-primary">返回首页 →</a>
+          <a href="/posts" class="btn-secondary">浏览文章</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
