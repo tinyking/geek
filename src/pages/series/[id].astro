@@ -107,7 +107,7 @@ const pageDesc = series.desc;
               <div class="inner">
                 <div class="articles-list">
                   {series.articles.map((a) => (
-                    <a class="article-row" href={a.url} target="_blank" rel="noopener">
+                    <a class="article-row" href={`/series/${series.id}/${a.no}`}>
                       <span class="article-no">NO.{a.no}</span>
                       <span class="article-date">{a.date}</span>
                       <span class="article-title">{a.title}</span>
