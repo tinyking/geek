@@ -161,7 +161,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <div class="pid">PRJ-001</div>
               <h3>「山海」可视化引擎</h3>
               <div class="ptags">D3.js / WebGL / Canvas</div>
-              <div class="folder-details"><div class="inner">面向大规模地理与关系数据的渲染引擎，支持百万级节点流畅交互。客户：<span class="redact">某研究院</span>。已开源核心模块。</div><span class="toggle">[ 收起 COLLAPSE ]</span></div>
+              <div class="folder-details"><div class="inner">面向大规模地理与关系数据的渲染引擎，支持百万级节点流畅交互。客户：<span class="redact">某研究院</span>。已开源核心模块。</div></div>
             </div>
             <div class="folder reveal">
               <div class="folder-tab">FILE 02</div>
@@ -169,7 +169,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <div class="pid">PRJ-002</div>
               <h3>「纸间」知识管理</h3>
               <div class="ptags">Electron / SQLite / Markdown</div>
-              <div class="folder-details"><div class="inner">本地优先的双链笔记工具，强调离线可用与数据主权。当前处于内测阶段，<span class="redact">预计 Q4 公测</span>。</div><span class="toggle">[ 收起 COLLAPSE ]</span></div>
+              <div class="folder-details"><div class="inner">本地优先的双链笔记工具，强调离线可用与数据主权。当前处于内测阶段，<span class="redact">预计 Q4 公测</span>。</div></div>
             </div>
             <div class="folder reveal">
               <div class="folder-tab">FILE 03</div>
@@ -177,7 +177,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <div class="pid">PRJ-003</div>
               <h3>「巷弄」漫步生成器</h3>
               <div class="ptags">Mapbox / Vue / 算法</div>
-              <div class="folder-details"><div class="inner">根据心情与时间自动生成城市漫步路线的小工具，已收录 12 座城市的隐藏路线。周末使用率最高。</div><span class="toggle">[ 收起 COLLAPSE ]</span></div>
+              <div class="folder-details"><div class="inner">根据心情与时间自动生成城市漫步路线的小工具，已收录 12 座城市的隐藏路线。周末使用率最高。</div></div>
             </div>
             <div class="folder reveal">
               <div class="folder-tab">FILE 04</div>
@@ -185,7 +185,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <div class="pid">PRJ-004</div>
               <h3>「回声」组件库</h3>
               <div class="ptags">TypeScript / 无障碍 / 主题</div>
-              <div class="folder-details"><div class="inner">一套克制、可访问、零依赖的 UI 组件库，GitHub <span class="redact">3.2k</span> Star，被多个团队用于生产环境。</div><span class="toggle">[ 收起 COLLAPSE ]</span></div>
+              <div class="folder-details"><div class="inner">一套克制、可访问、零依赖的 UI 组件库，GitHub <span class="redact">3.2k</span> Star，被多个团队用于生产环境。</div></div>
             </div>
           </div>
         </div>
@@ -196,31 +196,42 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div class="container">
           <div class="sec-head reveal">
             <div class="sec-num">04</div>
-            <div class="sec-title"><h2>文章</h2><small>WECHAT COLUMNS</small></div>
+            <div class="sec-title"><h2>文章</h2><small>ARTICLES</small></div>
             <div class="sec-rule"></div>
             <div class="sec-sq"></div>
           </div>
           <div class="essays-stats reveal" id="essaysStats">
             <div class="folder stat-folder">
-              <div class="folder-tab">STAT 01</div>
-              <span class="stamp ok">已发表</span>
-              <div class="pid">STAT-001</div>
-              <h3><b data-count="36" data-suffix="篇">0</b></h3>
-              <div class="ptags">PUBLISHED · 公众号原创文章</div>
+              <div class="folder-tab">SERIES 01</div>
+              <span class="stamp run">连载中</span>
+              <div class="pid">SERIES-001</div>
+              <h3>人生 Debug</h3>
+              <div class="ptags">ONGOING · 生活随笔</div>
+              <p class="stat-desc">把生活当程序，把烦恼当 Bug。一组以调试为隐喻的随笔，记录情绪、关系与节奏的修复日志。</p>
             </div>
             <div class="folder stat-folder">
-              <div class="folder-tab">STAT 02</div>
-              <span class="stamp run">累计</span>
-              <div class="pid">STAT-002</div>
-              <h3><b data-count="12" data-suffix="万">0</b></h3>
-              <div class="ptags">WORDS · 总字数</div>
+              <div class="folder-tab">SERIES 02</div>
+              <span class="stamp run">连载中</span>
+              <div class="pid">SERIES-002</div>
+              <h3>马伯庸式日记</h3>
+              <div class="ptags">ONGOING · 历史仿写</div>
+              <p class="stat-desc">以考据与细节为骨、以虚构与想象为皮。模仿马伯庸笔法，把日常琐碎写成历史档案。</p>
             </div>
             <div class="folder stat-folder">
-              <div class="folder-tab">STAT 03</div>
-              <span class="stamp maint">读者</span>
-              <div class="pid">STAT-003</div>
-              <h3><b data-count="4.2" data-suffix="k" data-format="k">0</b></h3>
-              <div class="ptags">READERS · 订阅数</div>
+              <div class="folder-tab">SERIES 03</div>
+              <span class="stamp ok">已完结</span>
+              <div class="pid">SERIES-003</div>
+              <h3>独立开发者的工具箱</h3>
+              <div class="ptags">COMPLETED · 工具评述</div>
+              <p class="stat-desc">写给独立开发者的工具清单。不是推荐，是使用三年后的反思——哪些值得留下，哪些应当抛弃。</p>
+            </div>
+            <div class="folder stat-folder">
+              <div class="folder-tab">SERIES 04</div>
+              <span class="stamp maint">不定期更新</span>
+              <div class="pid">SERIES-004</div>
+              <h3>城市漫游学</h3>
+              <div class="ptags">IRREGULAR · 城市观察</div>
+              <p class="stat-desc">用脚步丈量城市。把每一次漫步当作田野调查，记录街道、声响与瞬时的光。</p>
             </div>
           </div>
           <div class="series-grid" id="essaysGrid"></div>
@@ -455,7 +466,7 @@ section{padding:96px 0}
 /* projects */
 .proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:30px}
 .folder{position:relative;background:var(--manila);border:2px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:34px 22px 22px;cursor:pointer;transition:transform .25s,box-shadow .25s}
-.folder:hover{transform:translateY(-6px) rotate(-.4deg);box-shadow:10px 10px 0 var(--ink)}
+.folder.reveal:hover{transform:translateY(-6px) rotate(-.4deg);box-shadow:10px 10px 0 var(--ink)}
 .folder-tab{position:absolute;top:-15px;left:18px;background:var(--manila-d);border:2px solid var(--ink);border-bottom:0;border-radius:7px 7px 0 0;padding:3px 16px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--ink)}
 .folder .pid{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--red-deep)}
 .folder h3{font-family:'Noto Serif SC',serif;font-weight:900;font-size:22px;margin:6px 0 4px}
@@ -465,17 +476,20 @@ section{padding:96px 0}
 .folder .stamp.run{color:var(--blue)}
 .folder .stamp.maint{color:var(--ink)}
 .folder .redact{background:var(--ink);color:transparent;user-select:none;padding:0 4px;border-radius:1px}
-.folder-details{max-height:0;overflow:hidden;transition:max-height .5s ease}
-.folder.open .folder-details{max-height:260px}
+.folder-details{max-height:none;overflow:visible}
 .folder-details .inner{border-top:1.5px dashed var(--ink);margin-top:16px;padding-top:14px;font-size:13.5px;color:#3a3320}
-.folder-details .toggle{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--red-deep);margin-top:12px;display:inline-block}
 
 /* essays */
 .essays-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:30px;margin:0 0 36px}
-.stat-folder{padding-top:28px;padding-bottom:24px}
-.stat-folder h3{font-size:42px;line-height:1;margin:8px 0 6px;text-align:left}
-.stat-folder h3 b{font-family:'Noto Serif SC',serif;font-weight:900;color:var(--ink)}
-.stat-folder .ptags{margin-top:4px}
+.stat-folder{padding-top:28px;padding-bottom:24px;transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1)}
+.stat-folder:hover{transform:translateY(-6px) rotate(-.4deg);box-shadow:10px 10px 0 var(--ink)}
+.stat-folder:hover .folder-tab{transform:translateY(-2px)}
+.stat-folder .folder-tab{transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.stat-folder:hover h3{color:var(--red-deep)}
+.stat-folder h3{font-family:'Noto Serif SC',serif;font-weight:900;font-size:22px;line-height:1.25;margin:6px 0 8px;text-align:left;color:var(--ink);transition:color .3s ease}
+.stat-folder .ptags{margin-top:2px}
+.stat-desc{margin:14px 0 0;border-top:1.5px dashed var(--ink);padding-top:12px;font-size:13px;line-height:1.75;color:#3a3320;font-family:'Noto Serif SC',serif;transition:color .3s ease}
+.stat-folder:hover .stat-desc{color:#1a1a1a}
 .essays-grid{display:grid;grid-template-columns:1fr;gap:24px}
 .series-grid{display:grid;grid-template-columns:1fr;gap:24px}
 .series{position:relative;background:var(--paper);border:1.5px solid var(--ink);border-radius:2px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.04);transition:box-shadow .35s,transform .35s}
@@ -505,7 +519,7 @@ section{padding:96px 0}
 .series-article:hover .series-article-go{opacity:1;transform:translateX(0)}
 .essays-foot{text-align:center;margin-top:36px}
 .essays-foot .btn{display:inline-block}
-@media (max-width:920px){.essays-stats{grid-template-columns:1fr;gap:20px}.stat-folder h3{font-size:36px}.series-head{flex-wrap:wrap;gap:12px;padding:16px 18px}.series-title{font-size:19px}.series-meta{order:3;width:100%}}
+@media (max-width:920px){.essays-stats{grid-template-columns:1fr;gap:20px}.series-head{flex-wrap:wrap;gap:12px;padding:16px 18px}.series-title{font-size:19px}.series-meta{order:3;width:100%}}
 @media (max-width:560px){.essays-stats{gap:18px}.series-article{flex-wrap:wrap;gap:8px}.series-article-date{min-width:0}.series-article-no{min-width:48px}}
 
 /* timeline */
@@ -740,16 +754,6 @@ footer{border-top:3px double var(--ink);padding:40px 0 60px;margin-top:30px}
       function fallback(){ var t=document.createElement("textarea"); t.value=val; document.body.appendChild(t); t.select(); try{document.execCommand("copy");}catch(e){} document.body.removeChild(t); done(); }
     });
   });
-
-  document.querySelectorAll(".folder").forEach(function(f){
-    f.addEventListener("click",function(e){
-      if(e.target.classList.contains("copy")) return;
-      var open=f.classList.toggle("open");
-      var tg=f.querySelector(".toggle");
-      if(tg){ tg.textContent = open ? "[ 收起 COLLAPSE ]" : "[ 展开 EXPAND ]"; }
-    });
-  });
-  document.querySelectorAll(".folder .toggle").forEach(function(t){ t.textContent="[ 展开 EXPAND ]"; });
 
   function animateCount(el){
     var target=parseInt(el.getAttribute("data-count"),10)||0;
