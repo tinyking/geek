@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { SERIES, STATUS_CLASS } from '../data/series';
 ---
 
 <BaseLayout title="个人身份档案 · PERSONAL DOSSIER" description="一份可实时编辑的个人身份档案 — 封面、陈述、技能矩阵、项目卷宗、履历年表与传讯。" bodyClass="dossier">
   <div class="grid-bg"></div>
   <div class="noise"></div>
-  <div class="wm"><span class="a">档</span><span class="b">案</span></div>
+  <div class="wm"><span class="a">又</span><span class="b">见</span></div>
 
   <div class="app">
 
@@ -64,10 +65,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
                   </div>
                   <div class="fields">
-                    <div class="field"><span class="lbl">姓名</span><span class="val" data-bind="name">建朝</span></div>
-                    <div class="field"><span class="lbl">代号</span><span class="val" data-bind="pinyin">JIAN CHAO</span></div>
+                    <div class="field"><span class="lbl">姓名</span><span class="val" data-bind="name">观禾</span></div>
+                    <div class="field"><span class="lbl">代号</span><span class="val" data-bind="pinyin">GUAN HE</span></div>
                     <div class="field"><span class="lbl">身份</span><span class="val" data-bind="role">独立开发者</span></div>
-                    <div class="field"><span class="lbl">坐标</span><span class="val" data-bind="city">杭州 · 中国</span></div>
+                    <div class="field"><span class="lbl">坐标</span><span class="val" data-bind="city">北京·中国</span></div>
                     <div class="field"><span class="lbl">状态</span><span class="val status" data-bind="status">ONLINE</span></div>
                   </div>
                 </div>
@@ -201,38 +202,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div class="sec-sq"></div>
           </div>
           <div class="essays-stats reveal" id="essaysStats">
-            <div class="folder stat-folder">
-              <div class="folder-tab">SERIES 01</div>
-              <span class="stamp run">连载中</span>
-              <div class="pid">SERIES-001</div>
-              <h3>人生 Debug</h3>
-              <div class="ptags">ONGOING · 生活随笔</div>
-              <p class="stat-desc">把生活当程序，把烦恼当 Bug。一组以调试为隐喻的随笔，记录情绪、关系与节奏的修复日志。</p>
-            </div>
-            <div class="folder stat-folder">
-              <div class="folder-tab">SERIES 02</div>
-              <span class="stamp run">连载中</span>
-              <div class="pid">SERIES-002</div>
-              <h3>马伯庸式日记</h3>
-              <div class="ptags">ONGOING · 历史仿写</div>
-              <p class="stat-desc">以考据与细节为骨、以虚构与想象为皮。模仿马伯庸笔法，把日常琐碎写成历史档案。</p>
-            </div>
-            <div class="folder stat-folder">
-              <div class="folder-tab">SERIES 03</div>
-              <span class="stamp ok">已完结</span>
-              <div class="pid">SERIES-003</div>
-              <h3>独立开发者的工具箱</h3>
-              <div class="ptags">COMPLETED · 工具评述</div>
-              <p class="stat-desc">写给独立开发者的工具清单。不是推荐，是使用三年后的反思——哪些值得留下，哪些应当抛弃。</p>
-            </div>
-            <div class="folder stat-folder">
-              <div class="folder-tab">SERIES 04</div>
-              <span class="stamp maint">不定期更新</span>
-              <div class="pid">SERIES-004</div>
-              <h3>城市漫游学</h3>
-              <div class="ptags">IRREGULAR · 城市观察</div>
-              <p class="stat-desc">用脚步丈量城市。把每一次漫步当作田野调查，记录街道、声响与瞬时的光。</p>
-            </div>
+            {SERIES.map((s) => {
+              const stampClass = STATUS_CLASS[s.status] || 'run';
+              const statusEn = s.status === '连载中' ? 'ONGOING'
+                : s.status === '已完结' ? 'COMPLETED'
+                : 'IRREGULAR';
+              const seriesNo = s.tab.replace('SERIES ', 'SERIES-');
+              return (
+                <div class="folder stat-folder" data-id={s.id} role="button" tabindex="0" aria-label={`查看 ${s.title} 专辑`}>
+                  <div class="folder-tab">{s.tab}</div>
+                  <span class={`stamp ${stampClass}`}>{s.status}</span>
+                  <div class="pid">{seriesNo}</div>
+                  <h3>{s.title}</h3>
+                  <div class="ptags">{statusEn} · 共 {s.articles.length} 篇</div>
+                  <p class="stat-desc">{s.desc}</p>
+                  <span class="stat-go">查看专辑 →</span>
+                </div>
+              );
+            })}
           </div>
           <div class="series-grid" id="essaysGrid"></div>
           <div class="essays-foot reveal">
@@ -271,10 +258,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <div class="contact">
             <div class="reveal">
-              <div class="crow"><span class="clbl">邮箱</span><span class="cval" data-bind="email">hi@chenyu.studio</span><button class="copy" data-copy="email">复制</button></div>
-              <div class="crow"><span class="clbl">微信</span><span class="cval" data-bind="wechat">chenyu_dev</span><button class="copy" data-copy="wechat">复制</button></div>
-              <div class="crow"><span class="clbl">GitHub</span><span class="cval" data-bind="github">github.com/chenyu</span><button class="copy" data-copy="github">复制</button></div>
-              <div class="crow"><span class="clbl">坐标</span><span class="cval" data-bind="city">杭州 · 中国</span><button class="copy" data-copy="city">复制</button></div>
+              <div class="crow"><span class="clbl">邮箱</span><span class="cval" data-bind="email">tinyking86@gmail.com</span><button class="copy" data-copy="email">复制</button></div>
+              <div class="crow"><span class="clbl">微信</span><span class="cval" data-bind="wechat">tinyking86</span><button class="copy" data-copy="wechat">复制</button></div>
+              <div class="crow"><span class="clbl">GitHub</span><span class="cval" data-bind="github">github.com/tinyking</span><button class="copy" data-copy="github">复制</button></div>
+              <div class="crow"><span class="clbl">坐标</span><span class="cval" data-bind="city">北京·中国</span><button class="copy" data-copy="city">复制</button></div>
               <div style="margin-top:24px"><a class="btn btn-red" id="mailtoBtn" href="#">发送传讯 →</a></div>
             </div>
           </div>
@@ -350,7 +337,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 .logo{width:38px;height:38px;background:var(--red);color:var(--paper);display:grid;place-items:center;font-family:'Ma Shan Zheng',serif;font-size:24px;box-shadow:var(--hard);flex:none}
 .brand{display:flex;flex-direction:column;line-height:1.1}
 .brand b{font-family:'Noto Serif SC',serif;font-weight:700;font-size:15px;letter-spacing:.04em}
-.brand small{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.22em;color:var(--ink-soft);text-transform:uppercase}
+.brand small{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.22em;color:var(--ink-soft);text-transform:uppercase;padding-top:4px}
 .brand small i{color:var(--red);font-style:normal}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px}
 .meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;color:var(--ink-soft);text-transform:uppercase;display:flex;align-items:center;gap:8px}
@@ -490,6 +477,8 @@ section{padding:96px 0}
 .stat-folder .ptags{margin-top:2px}
 .stat-desc{margin:14px 0 0;border-top:1.5px dashed var(--ink);padding-top:12px;font-size:13px;line-height:1.75;color:#3a3320;font-family:'Noto Serif SC',serif;transition:color .3s ease}
 .stat-folder:hover .stat-desc{color:#1a1a1a}
+.stat-go{display:inline-block;margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--red-deep);text-transform:uppercase;opacity:.7;transition:opacity .3s ease,transform .3s ease}
+.stat-folder:hover .stat-go{opacity:1;transform:translateX(4px)}
 .essays-grid{display:grid;grid-template-columns:1fr;gap:24px}
 .series-grid{display:grid;grid-template-columns:1fr;gap:24px}
 .series{position:relative;background:var(--paper);border:1.5px solid var(--ink);border-radius:2px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.04);transition:box-shadow .35s,transform .35s}
@@ -613,11 +602,11 @@ footer{border-top:3px double var(--ink);padding:40px 0 60px;margin-top:30px}
 }
 </style>
 
-<script>
+<script is:client define:vars={{ SERIES, STATUS_CLASS }}>
 (function(){
   "use strict";
   var DEFAULT_PROFILE = {
-    name:"建朝", pinyin:"JIAN CHAO",
+    name:"观禾", pinyin:"GUAN HE",
     role:"独立开发者 · 数字产品设计师",
     city:"北京·中国",
     status:"ONLINE",
@@ -808,61 +797,11 @@ footer{border-top:3px double var(--ink);padding:40px 0 60px;margin-top:30px}
     document.getElementById("today").textContent = y+"."+m+"."+dd+" · "+wk;
   })();
 
-  // 文存专题数据：每个专题下挂多篇文章
-  var SERIES = [
-    {
-      tab:"SERIES 01",
-      title:"人生 Debug",
-      desc:"把生活当程序，把烦恼当 Bug。一组以调试为隐喻的随笔，记录情绪、关系与节奏的修复日志。",
-      status:"连载中",
-      articles:[
-        { no:"001", date:"2026.07.22", title:"凌晨三点的崩溃：如何给自己写一份错误报告", url:"#" },
-        { no:"002", date:"2026.07.08", title:"情绪内存泄漏：找出那些偷偷耗尽你的引用", url:"#" },
-        { no:"003", date:"2026.06.21", title:"重启不是解决一切：谈休息与重启的边界", url:"#" },
-        { no:"004", date:"2026.06.02", title:"版本控制你的人生：从 commit 信息学会复盘", url:"#" }
-      ]
-    },
-    {
-      tab:"SERIES 02",
-      title:"马伯庸式日记",
-      desc:"以考据与细节为骨、以虚构与想象为皮。模仿马伯庸笔法，把日常琐碎写成历史档案。",
-      status:"连载中",
-      articles:[
-        { no:"001", date:"2026.07.15", title:"地铁九号线见闻录：早高峰的人种志观察", url:"#" },
-        { no:"002", date:"2026.06.30", title:"咖啡馆考古笔记：一张杯垫背后的丝绸之路", url:"#" },
-        { no:"003", date:"2026.05.18", title:"外卖考：从一份麻辣烫还原当代市井生活", url:"#" }
-      ]
-    },
-    {
-      tab:"SERIES 03",
-      title:"独立开发者的工具箱",
-      desc:"写给独立开发者的工具清单。不是推荐，是使用三年后的反思——哪些值得留下，哪些应当抛弃。",
-      status:"已完结",
-      articles:[
-        { no:"001", date:"2026.04.26", title:"我用过最值的 12 款付费工具（按 ROI 排序）", url:"#" },
-        { no:"002", date:"2026.04.10", title:"记账这件小事：从随手记到 Beancount 的进阶之路", url:"#" },
-        { no:"003", date:"2026.03.22", title:"为什么我把所有笔记迁回了 Markdown", url:"#" },
-        { no:"004", date:"2026.03.05", title:"自动化你的周报：一条命令完成一周总结", url:"#" },
-        { no:"005", date:"2026.02.14", title:"静态网站的浪漫：把博客当作长跑而非短跑", url:"#" }
-      ]
-    },
-    {
-      tab:"SERIES 04",
-      title:"城市漫游学",
-      desc:"用脚步丈量城市。把每一次漫步当作田野调查，记录街道、声响与瞬时的光。",
-      status:"不定期更新",
-      articles:[
-        { no:"001", date:"2026.05.30", title:"北京胡同拓扑学：从烟袋斜街到杨梅竹斜街", url:"#" },
-        { no:"002", date:"2026.04.18", title:"上海梧桐树下的微型城市：法租界散步指南", url:"#" },
-        { no:"003", date:"2026.03.12", title:"成都的下午四点：玉林路上一杯茶的体积", url:"#" }
-      ]
-    }
-  ];
+  // 文存专题数据：从 src/data/series.ts 共享（与专辑详情页 /series/[id] 一致）
 
   (function(){
     var grid = document.getElementById("essaysGrid");
     if(!grid) return;
-    var STATUS_CLASS = { "连载中":"run", "已完结":"ok", "不定期更新":"maint" };
     var html = SERIES.map(function(s, i){
       var articles = s.articles.map(function(a){
         return '<a class="series-article" href="'+a.url+'" target="_blank" rel="noopener">'+
@@ -895,6 +834,27 @@ footer{border-top:3px double var(--ink);padding:40px 0 60px;margin-top:30px}
         // 点击文章链接不触发展开
         if(e.target.closest(".series-article")) return;
         el.classList.toggle("open");
+      });
+    });
+  })();
+
+  // 04 文章 - stat-folder 卡片点击在新 tab 打开专辑详情页
+  (function(){
+    var folders = document.querySelectorAll(".stat-folder[data-id]");
+    if(!folders.length) return;
+    var openSeries = function(id){
+      var url = "/series/" + encodeURIComponent(id);
+      window.open(url, "_blank", "noopener,noreferrer");
+    };
+    folders.forEach(function(f){
+      var id = f.getAttribute("data-id");
+      if(!id) return;
+      f.addEventListener("click", function(){ openSeries(id); });
+      f.addEventListener("keydown", function(e){
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          openSeries(id);
+        }
       });
     });
   })();
