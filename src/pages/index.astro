@@ -31,8 +31,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <a href="#statement" data-sec="statement"><span class="sq"></span>01 陈述</a>
       <a href="#skills" data-sec="skills"><span class="sq"></span>02 技能</a>
       <a href="#projects" data-sec="projects"><span class="sq"></span>03 卷宗</a>
-      <a href="#timeline" data-sec="timeline"><span class="sq"></span>04 年表</a>
-      <a href="#contact" data-sec="contact"><span class="sq"></span>05 传讯</a>
+      <a href="#essays" data-sec="essays"><span class="sq"></span>04 文存</a>
+      <a href="#timeline" data-sec="timeline"><span class="sq"></span>05 年表</a>
+      <a href="#contact" data-sec="contact"><span class="sq"></span>06 传讯</a>
     </nav>
 
     <main>
@@ -190,11 +191,32 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
       </section>
 
+      <!-- ESSAYS -->
+      <section id="essays">
+        <div class="container">
+          <div class="sec-head reveal">
+            <div class="sec-num">04</div>
+            <div class="sec-title"><h2>文存</h2><small>WECHAT COLUMNS</small></div>
+            <div class="sec-rule"></div>
+            <div class="sec-sq"></div>
+          </div>
+          <div class="essays-stats reveal">
+            <div class="stat"><b data-count="36" data-suffix="篇">0</b><span>已发表 PUBLISHED</span></div>
+            <div class="stat"><b data-count="12" data-suffix="万">0</b><span>累计字数 WORDS</span></div>
+            <div class="stat"><b data-count="4.2" data-suffix="k" data-format="k">0</b><span>订阅读者 READERS</span></div>
+          </div>
+          <div class="essays-grid" id="essaysGrid"></div>
+          <div class="essays-foot reveal">
+            <a class="btn btn-red" id="wechatColBtn" href="#" target="_blank" rel="noopener">关注公众号 →</a>
+          </div>
+        </div>
+      </section>
+
       <!-- TIMELINE -->
       <section id="timeline">
         <div class="container">
           <div class="sec-head reveal">
-            <div class="sec-num">04</div>
+            <div class="sec-num">05</div>
             <div class="sec-title"><h2>履历年表</h2><small>CHRONOLOGICAL LEDGER</small></div>
             <div class="sec-rule"></div>
             <div class="sec-sq"></div>
@@ -213,7 +235,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <section id="contact">
         <div class="container">
           <div class="sec-head reveal">
-            <div class="sec-num">05</div>
+            <div class="sec-num">06</div>
             <div class="sec-title"><h2>传讯</h2><small>TRANSMISSION CHANNELS</small></div>
             <div class="sec-rule"></div>
             <div class="sec-sq"></div>
@@ -429,6 +451,32 @@ section{padding:96px 0}
 .folder.open .folder-details{max-height:260px}
 .folder-details .inner{border-top:1.5px dashed var(--ink);margin-top:16px;padding-top:14px;font-size:13.5px;color:#3a3320}
 .folder-details .toggle{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--red-deep);margin-top:12px;display:inline-block}
+
+/* essays */
+.essays-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:0 0 32px;padding:22px 24px;background:rgba(255,255,255,.5);border:1px solid var(--border);border-radius:2px}
+.essays-stats .stat{text-align:center}
+.essays-stats .stat b{display:block;font-family:'Noto Serif SC',serif;font-weight:900;font-size:32px;color:var(--ink);line-height:1.1}
+.essays-stats .stat span{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--text-secondary);margin-top:6px;display:block}
+.essays-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
+.essay{position:relative;display:block;padding:22px 24px 18px;background:var(--paper);border:1.5px dashed var(--ink);text-decoration:none;color:var(--ink);transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s,background .25s;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.essay:hover{transform:rotate(0) translateY(-3px)!important;box-shadow:0 14px 30px -12px rgba(27,39,56,.22),0 0 0 1px var(--red-deep);background:#fffdf6}
+.essay-top{display:flex;justify-content:space-between;align-items:baseline;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:12px}
+.essay-no{color:var(--red-deep)}
+.essay-date{padding:2px 6px;border:1px solid var(--ink);border-radius:1px}
+.essay-stamp{position:absolute;top:18px;right:18px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.18em;padding:3px 8px;color:var(--red-deep);border:1.5px solid var(--red-deep);transform:rotate(4deg);opacity:.85}
+.essay-stamp.ok{color:var(--red);border-color:var(--red)}
+.essay-stamp.run{color:var(--blue);border-color:var(--blue)}
+.essay-stamp.maint{color:var(--ink);border-color:var(--ink)}
+.essay h3{font-family:'Noto Serif SC',serif;font-weight:700;font-size:20px;line-height:1.35;margin:8px 0 0;color:var(--ink)}
+.essay-rule{width:36px;height:2px;background:var(--red);margin:12px 0 10px}
+.essay-excerpt{font-size:13.5px;line-height:1.7;color:#3a3320;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.essay-foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1.5px dashed var(--border)}
+.essay-seal{font-family:'Ma Shan Zheng',cursive;font-size:18px;color:var(--red);opacity:.7}
+.essay-go{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--red-deep)}
+.essays-foot{text-align:center;margin-top:36px}
+.essays-foot .btn{display:inline-block}
+@media (max-width:920px){.essays-grid{grid-template-columns:1fr}.essays-stats{grid-template-columns:repeat(3,1fr);gap:12px;padding:16px}.essays-stats .stat b{font-size:24px}}
+@media (max-width:560px){.essays-stats{grid-template-columns:1fr;gap:14px}.essay{padding:18px 16px 14px}.essay h3{font-size:17px}}
 
 /* timeline */
 .timeline{position:relative;padding-left:0}
@@ -709,7 +757,7 @@ footer{border-top:3px double var(--ink);padding:40px 0 60px;margin-top:30px}
       }
     });
   },{rootMargin:"-45% 0px -50% 0px"});
-  ["cover","statement","skills","projects","timeline","contact"].forEach(function(id){ var s=document.getElementById(id); if(s) spy.observe(s); });
+  ["cover","statement","skills","projects","essays","timeline","contact"].forEach(function(id){ var s=document.getElementById(id); if(s) spy.observe(s); });
 
   (function(){
     // 按北京时间（Asia/Shanghai）计算当前日期，避免其他时区显示偏移
@@ -724,6 +772,38 @@ footer{border-top:3px double var(--ink);padding:40px 0 60px;margin-top:30px}
     // Intl 中文 weekday 形如"周五"，原格式为"周X"
     var wk = get("weekday");
     document.getElementById("today").textContent = y+"."+m+"."+dd+" · "+wk;
+  })();
+
+  // 文存剪报数据
+  var ESSAYS = [
+    { no:"001", date:"2026.07.15", title:"在工具泛滥的时代，我如何选择写作软件", excerpt:"过去十年我试过 30+ 写作工具，最终留下来的只有三个。本文不讲哪个最好，只讲筛选标准——以及为什么「够用」比「强大」更重要。", tag:"原创", url:"#" },
+    { no:"002", date:"2026.06.28", title:"独立开发者的第一年：收入、焦虑与边界", excerpt:"辞职一年整，把真实数字摊开来看。收入没有想象中可怕，焦虑没有想象中煎熬，但「边界」是这一年最大的功课。", tag:"原创", url:"#" },
+    { no:"003", date:"2026.06.10", title:"把命令行当笔记本：我的 200 条 alias 整理", excerpt:"别名不是偷懒，是把常用操作压缩成一个动词。这是我维护了五年的命令行字典，按场景分类，复制即用。", tag:"原创", url:"#" },
+    { no:"004", date:"2026.05.22", title:"从 React 到 Vue 再到 Svelte：框架之外的事", excerpt:"换框架不是技术选型，是审美选型。本文不评优劣，只记录三次切换中，那些与框架无关、却始终重要的东西。", tag:"精选", url:"#" }
+  ];
+
+  (function(){
+    var grid = document.getElementById("essaysGrid");
+    if(!grid) return;
+    var TAG_CLASS = { "原创":"ok", "转载":"run", "精选":"maint" };
+    var html = ESSAYS.map(function(e, i){
+      var rot = (i % 2 === 0 ? -1 : 1) * (0.6 + Math.random() * 0.8);
+      var stampClass = TAG_CLASS[e.tag] || "ok";
+      return '<a class="essay reveal" href="'+e.url+'" target="_blank" rel="noopener" style="transform:rotate('+rot.toFixed(2)+'deg)">'+
+        '<div class="essay-top"><span class="essay-no">NO.'+e.no+'</span><span class="essay-date">'+e.date+'</span></div>'+
+        '<div class="essay-stamp '+stampClass+'">'+e.tag+'</div>'+
+        '<h3>'+e.title+'</h3>'+
+        '<div class="essay-rule"></div>'+
+        '<p class="essay-excerpt">'+e.excerpt+'</p>'+
+        '<div class="essay-foot"><span class="essay-seal">观</span><span class="essay-go">前往阅读 →</span></div>'+
+        '</a>';
+    }).join("");
+    grid.innerHTML = html;
+
+    var btn = document.getElementById("wechatColBtn");
+    if(btn && ESSAYS.length && ESSAYS[0].url && ESSAYS[0].url !== "#"){
+      // 有真实链接时启用，否则保持 # 占位
+    }
   })();
 
   bindProfile();
