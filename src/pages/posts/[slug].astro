@@ -14,9 +14,37 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await post.render();
+
+const pageTitle = `${post.data.title} | 阅微漫记`;
+const pageDescription = post.data.description ?? post.data.excerpt;
+const pageOGImage = post.data.ogImage
+  ? new URL(post.data.ogImage, Astro.site ?? new URL('https://www.wangjianchao.cn')).href
+  : undefined;
+const canonicalURL = post.data.canonicalURL
+  ?? new URL(Astro.url.pathname, Astro.site ?? new URL('https://www.wangjianchao.cn')).href;
+
+// 文章 BlogPosting 结构化数据
+const blogPostingSchema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": post.data.title,
+  "description": pageDescription,
+  "datePublished": post.data.date.toISOString(),
+  "dateModified": (post.data.updatedDate ?? post.data.date).toISOString(),
+  "author": { "@type": "Person", "name": post.data.author },
+  "image": pageOGImage ?? new URL('/images/og-default.png', Astro.site ?? new URL('https://www.wangjianchao.cn')).href,
+  "publisher": { "@type": "Person", "name": "语霖" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalURL },
+  "keywords": post.data.tags.join(', '),
+};
 ---
 
-<BaseLayout>
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  ogType="article"
+  ogImage={pageOGImage}
+>
   <Navbar />
   <main id="main-content" class="min-h-screen pt-16">
     <article class="section-padding">
@@ -107,6 +135,9 @@ const { Content } = await post.render();
   </main>
   <Footer />
 </BaseLayout>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} is:inline />
 
 <script define:vars={{ title: post.data.title }}>
   const pageUrl = window.location.origin + window.location.pathname;

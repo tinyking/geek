@@ -3,7 +3,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Navbar from '../../components/Navbar.astro';
 ---
 
-<BaseLayout>
+<BaseLayout
+  title="Markdown 转微信公众号 | 阅微漫记"
+  description="将 Markdown 内容转换为微信公众号编辑器可粘贴的富文本格式。"
+  robots="noindex, follow"
+>
   <Navbar />
   <main class="pt-16">
     <iframe 

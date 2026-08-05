@@ -5,6 +5,8 @@ interface Props {
   title?: string;
   description?: string;
   ogType?: string;
+  ogImage?: string;
+  robots?: string;
   bodyClass?: string;
 }
 
@@ -12,15 +14,33 @@ const {
   title = '阅微漫记',
   description = '语霖的个人博客 — 记录技术探索、产品思考与生活感悟',
   ogType = 'website',
+  ogImage,
+  robots = 'index, follow',
   bodyClass = '',
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://yuewei.dev').href;
+const siteName = '阅微漫记';
+const authorName = '语霖';
+const siteURL = Astro.site ?? new URL('https://www.wangjianchao.cn');
+const siteDescription = '语霖的个人博客 — 记录技术探索、产品思考与生活感悟';
+const canonicalURL = new URL(Astro.url.pathname, siteURL).href;
+const defaultOGImage = new URL('/images/og-default.png', siteURL).href;
+const finalOGImage = ogImage ?? defaultOGImage;
 
 const isDossier = bodyClass.includes('dossier');
 const bodyClasses = isDossier
   ? bodyClass
   : ["min-h-full flex flex-col antialiased", bodyClass].filter(Boolean).join(' ');
+
+// 全站 WebSite 结构化数据（使用固定描述，而非页面级 description）
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": siteName,
+  "url": siteURL.href,
+  "inLanguage": "zh-CN",
+  "description": siteDescription,
+};
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -28,9 +48,18 @@ const bodyClasses = isDossier
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content={description} />
-		<meta name="author" content="语霖" />
+		<meta name="author" content={authorName} />
+		<meta name="robots" content={robots} />
+		<meta name="theme-color" content="#e57035" />
 		<link rel="canonical" href={canonicalURL} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="manifest" href="/manifest.json" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<link rel="alternate" type="application/rss+xml" title={`${siteName} RSS`} href="/rss.xml" />
+
+		<!-- 字体 preconnect 优化 -->
+		<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+		<link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
 
 		<!-- Dossier fonts (Noto Serif SC / Ma Shan Zheng / IBM Plex Mono) -->
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@latest/700.css" />
@@ -47,17 +76,25 @@ const bodyClasses = isDossier
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonicalURL} />
-		<meta property="og:site_name" content="阅微漫记" />
+		<meta property="og:site_name" content={siteName} />
 		<meta property="og:locale" content="zh_CN" />
+		<meta property="og:image" content={finalOGImage} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content={title} />
 
 		<!-- Twitter Card -->
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={finalOGImage} />
 
 		<title>{title}</title>
 		<!-- Google AdSense -->
 		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=pub-9508321495212724" crossorigin="anonymous" onerror="this.remove()"></script>
+
+		<!-- JSON-LD: WebSite -->
+		<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 	</head>
 	<body class={bodyClasses}>
 		<slot />

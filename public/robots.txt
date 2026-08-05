@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /tools/
+Disallow: /404
+
+Sitemap: https://www.wangjianchao.cn/sitemap-index.xml

@@ -9,7 +9,10 @@ const posts = (await getCollection('posts')).sort(
 );
 ---
 
-<BaseLayout>
+<BaseLayout
+  title="全部文章 | 阅微漫记"
+  description="浏览语霖发布的全部技术文章与思考随笔，涵盖前端工程、产品设计、个人成长等主题。"
+>
   <Navbar />
   <main id="main-content" class="min-h-screen pt-16">
     <div class="section-padding">

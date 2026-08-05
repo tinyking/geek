@@ -4,7 +4,11 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<BaseLayout title="404 — 页面不存在 | 阅微漫记">
+<BaseLayout
+  title="404 — 页面不存在 | 阅微漫记"
+  description="您访问的页面不存在或已被移动。"
+  robots="noindex, follow"
+>
   <Navbar />
   <main id="main-content" class="min-h-screen pt-16 flex items-center">
     <div class="section-padding">
