@@ -1,8 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Navbar from '../../components/Navbar.astro';
-import Footer from '../../components/Footer.astro';
 
 const posts = (await getCollection('posts')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
@@ -12,46 +10,385 @@ const posts = (await getCollection('posts')).sort(
 <BaseLayout
   title="全部文章 | 阅微漫记"
   description="浏览语霖发布的全部技术文章与思考随笔，涵盖前端工程、产品设计、个人成长等主题。"
+  bodyClass="dossier"
 >
-  <Navbar />
-  <main id="main-content" class="min-h-screen pt-16">
-    <div class="section-padding">
-      <div class="content-width">
-        <h1 class="text-4xl font-medium mb-12">文章</h1>
-        
-        <div class="space-y-8">
-          {posts.map((post) => (
-            <a 
-              href={`/posts/${post.slug}`}
-              class="group card-interactive p-6"
-            >
-              <article>
-                <div class="flex items-center gap-3 mb-3">
-                  <time class="text-sm text-ink-secondary">
-                    {post.data.date.toLocaleDateString('zh-CN')}
-                  </time>
-                  <span class="text-border">·</span>
-                  <span class="text-sm text-ink-secondary">
-                    {post.data.readingTime} 分钟阅读
-                  </span>
-                </div>
-                <h2 class="text-xl font-medium mb-2 group-hover:text-accent transition-colors">
-                  {post.data.title}
-                </h2>
-                <p class="text-ink-secondary line-clamp-2">
-                  {post.data.excerpt}
-                </p>
-                <div class="flex flex-wrap gap-2 mt-4">
-                  {post.data.tags.map((tag) => (
-                    <span class="tag">{tag}</span>
-                  ))}
-                </div>
-              </article>
-            </a>
-          ))}
-        </div>
+  <div class="grid-bg"></div>
+  <div class="noise"></div>
+  <div class="wm"><span class="a">又</span><span class="b">见</span></div>
+
+  <header class="topbar">
+    <div class="topbar-in">
+      <div class="logo">朝</div>
+      <div class="brand">
+        <b>观禾</b>
+        <small>浮生观禾，静心成长</small>
+      </div>
+      <div class="topbar-right">
+        <span class="meta"><span class="dot"></span>在册</span>
+        <span class="meta">NO. POS</span>
+        <span class="meta" id="today">——</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="dossier-main">
+    <div class="container">
+      <a class="back-link" href="/">← 返回首页</a>
+
+      <header class="page-head">
+        <div class="stamp">ARCHIVE · 卷宗</div>
+        <h1 class="page-title">文章 <span class="en">· ARTICLES</span></h1>
+        <div class="rule"></div>
+        <p class="page-sub">共 <b>{posts.length}</b> 篇档案，按时间倒序排列</p>
+      </header>
+
+      <div class="folder-list">
+        {posts.map((post, i) => (
+          <a class="folder" href={`/posts/${post.slug}`}>
+            <div class="folder-no">NO. {String(i + 1).padStart(3, '0')}</div>
+            <div class="folder-body">
+              <div class="folder-meta">
+                <time>{post.data.date.toLocaleDateString('zh-CN')}</time>
+                <span class="sep">·</span>
+                <span>{post.data.readingTime} 分钟阅读</span>
+              </div>
+              <h2 class="folder-title">{post.data.title}</h2>
+              <p class="folder-excerpt">{post.data.excerpt}</p>
+              <div class="folder-tags">
+                {post.data.tags.map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   </main>
-  <Footer />
+
+  <style is:global>
+    /* === dossier 主题 token（与 404.astro 一致） === */
+    body.dossier {
+      --paper: #f0e4cd;
+      --paper-2: #e6dcc4;
+      --paper-3: #fbfaf4;
+      --ink: #171310;
+      --ink-2: #2c241c;
+      --red: #c13a2b;
+      --red-deep: #8b2a1f;
+      --manila: #d9a441;
+      --manila-d: #b8862e;
+      --border: #c9bea3;
+      --text-primary: #1a1a1a;
+      --text-secondary: #6b6b6b;
+      background: var(--paper);
+      color: var(--text-primary);
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    /* 背景三层 */
+    .grid-bg {
+      background-image:
+        linear-gradient(to right, rgba(27,19,16,.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(27,19,16,.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .noise {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
+      opacity: .06;
+      mix-blend-mode: multiply;
+    }
+    .grid-bg, .noise, .wm { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .wm { overflow: hidden; }
+    .wm span {
+      position: absolute;
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: 46vw;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(27,19,16,.06);
+      user-select: none;
+      line-height: .8;
+    }
+    .wm .a { top: -12%; left: -7%; }
+    .wm .b { bottom: -22%; right: -9%; }
+
+    /* topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--paper);
+      border-bottom: 2px solid var(--ink);
+    }
+    .topbar-in {
+      width: min(1240px, 94vw);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 11px 0;
+    }
+    .logo {
+      width: 38px;
+      height: 38px;
+      background: var(--red);
+      color: var(--paper);
+      display: grid;
+      place-items: center;
+      font-family: 'Ma Shan Zheng', serif;
+      font-size: 24px;
+      box-shadow: 3px 3px 0 var(--ink);
+      flex: none;
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .brand b {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: .04em;
+    }
+    .brand small {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: .22em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      padding-top: 4px;
+    }
+    .topbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: .12em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 0 rgba(197,61,35,.6);
+      animation: pulse 2.2s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(197,61,35,.55); }
+      70% { box-shadow: 0 0 0 8px rgba(197,61,35,0); }
+      100% { box-shadow: 0 0 0 0 rgba(197,61,35,0); }
+    }
+
+    /* main */
+    .dossier-main {
+      position: relative;
+      z-index: 1;
+      padding: 56px 24px 100px;
+    }
+    .container {
+      width: min(880px, 100%);
+      margin: 0 auto;
+    }
+
+    /* 返回链接 */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      background: var(--paper-2);
+      transition: all .2s;
+      margin-bottom: 32px;
+    }
+    .back-link:hover {
+      color: var(--paper);
+      background: var(--ink);
+      border-color: var(--ink);
+    }
+
+    /* 页头 */
+    .page-head {
+      margin-bottom: 48px;
+    }
+    .stamp {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      padding: 5px 12px;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 2px;
+      margin-bottom: 20px;
+      transform: rotate(-1deg);
+    }
+    .page-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(32px, 5vw, 48px);
+      letter-spacing: 2px;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .page-title .en {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: .45em;
+      letter-spacing: .15em;
+      color: var(--text-secondary);
+      font-weight: 500;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+    .rule {
+      width: 60px;
+      height: 3px;
+      background: var(--red);
+      margin-bottom: 16px;
+    }
+    .page-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: .1em;
+      color: var(--text-secondary);
+    }
+    .page-sub b {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    /* folder 卡片列表 */
+    .folder-list {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .folder {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: var(--paper-3);
+      border: 1.5px solid var(--ink);
+      box-shadow: 6px 6px 0 var(--ink);
+      padding: 24px 28px;
+      position: relative;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .folder::before {
+      content: '';
+      position: absolute;
+      top: -1.5px;
+      left: 24px;
+      width: 80px;
+      height: 4px;
+      background: var(--manila);
+    }
+    .folder:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 9px 9px 0 var(--ink);
+    }
+    .folder-no {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: .2em;
+      color: var(--manila-d);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .folder-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .1em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .folder-meta .sep {
+      color: var(--border);
+    }
+    .folder-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: clamp(20px, 2.4vw, 24px);
+      letter-spacing: .5px;
+      color: var(--ink);
+      line-height: 1.4;
+      margin-bottom: 10px;
+      transition: color .2s;
+    }
+    .folder:hover .folder-title {
+      color: var(--red);
+    }
+    .folder-excerpt {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 14.5px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .folder-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: var(--ink-2);
+      background: var(--paper-2);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 640px) {
+      .dossier-main { padding: 40px 16px 80px; }
+      .folder { padding: 20px 20px; box-shadow: 4px 4px 0 var(--ink); }
+      .folder:hover { box-shadow: 6px 6px 0 var(--ink); }
+      .brand small { display: none; }
+    }
+  </style>
+
+  <script is:client>
+    (function() {
+      const el = document.getElementById('today');
+      if (!el) return;
+      try {
+        const now = new Date();
+        const fmt = new Intl.DateTimeFormat('zh-CN', {
+          timeZone: 'Asia/Shanghai',
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hour12: false
+        });
+        el.textContent = fmt.format(now).replace(/\//g, '.');
+      } catch (e) {
+        el.textContent = '——';
+      }
+    })();
+  </script>
 </BaseLayout>
