@@ -1,0 +1,86 @@
+---
+/**
+ * Google AdSense 广告位组件
+ *
+ * 使用：
+ *   <AdUnit slot="1234567890" format="auto" />
+ *
+ * 说明：
+ * - 必须配合 BaseLayout.astro 中全局加载的 adsbygoogle.js 库使用
+ * - 每个广告位会自动调用 (adsbygoogle = window.adsbygoogle || []).push({})
+ * - 在 SSR/SSG 静态输出下，使用 is:inline 确保 push 脚本原样输出
+ *
+ * 常用 format:
+ * - "auto"：自适应（推荐）
+ * - "horizontal" / "vertical" / "rectangle"
+ * - 若指定 width/height，则使用固定尺寸
+ */
+
+interface Props {
+  /** AdSense 广告单元 ID（data-ad-slot） */
+  slot: string;
+  /** 广告格式，默认 auto */
+  format?: string;
+  /** 是否响应式（默认 true） */
+  responsive?: boolean;
+  /** 固定宽度（与 format=auto 互斥） */
+  width?: number | string;
+  /** 固定高度 */
+  height?: number | string;
+  /** 额外样式类名 */
+  class?: string;
+  /** 无广告时的兜底文案（aria） */
+  label?: string;
+}
+
+const {
+  slot,
+  format = 'auto',
+  responsive = true,
+  width,
+  height,
+  class: className = '',
+  label = '广告位',
+} = Astro.props;
+
+const styleStr = [
+  width ? `width:${typeof width === 'number' ? `${width}px` : width};` : '',
+  height ? `height:${typeof height === 'number' ? `${height}px` : height};` : '',
+  'display:block;',
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<div class={`ad-unit-wrap ${className}`} aria-label={label}>
+  <ins
+    class="adsbygoogle"
+    style={styleStr}
+    data-ad-client="ca-pub-9508321495212724"
+    data-ad-slot={slot}
+    data-ad-format={width || height ? undefined : format}
+    data-full-width-responsive={width || height ? undefined : responsive ? 'true' : 'false'}
+  ></ins>
+</div>
+
+<script is:inline>
+  (function () {
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {
+      // 静默失败，避免 AdSense 库未加载完成时抛错
+    }
+  })();
+</script>
+
+<style>
+  .ad-unit-wrap {
+    margin: 32px auto;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .ad-unit-wrap :global(ins.adsbygoogle) {
+    margin: 0 auto;
+  }
+</style>

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdUnit from '../../components/AdUnit.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -90,8 +91,16 @@ const postNo = `POS-${String(post.slug).slice(0, 6).toUpperCase()}`;
           )}
         </header>
 
+        <div class="ad-top">
+          <AdUnit slot="3847291023" format="auto" label="文章顶部广告" />
+        </div>
+
         <div class="prose">
           <Content />
+        </div>
+
+        <div class="ad-bottom">
+          <AdUnit slot="2958174061" format="auto" label="文章底部广告" />
         </div>
 
         <footer class="article-foot">
@@ -519,6 +528,19 @@ const postNo = `POS-${String(post.slug).slice(0, 6).toUpperCase()}`;
       background: var(--ink);
       color: var(--paper);
     }
+
+    /* 广告位 — 文章顶部 / 底部 */
+    .ad-top, .ad-bottom {
+      margin: 28px 0;
+      padding: 16px;
+      background: var(--paper-2);
+      border: 1px dashed var(--border);
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ad-bottom { margin-top: 40px; }
 
     @media (max-width: 640px) {
       .dossier-main { padding: 40px 16px 80px; }

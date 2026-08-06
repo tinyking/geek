@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { SERIES, STATUS_CLASS } from '../../../data/series';
+import AdUnit from '../../../components/AdUnit.astro';
 
 export function getStaticPaths() {
   const paths: Array<{
@@ -1158,6 +1159,10 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? FALLBACK_B
       <!-- ARTICLE BODY -->
       <section id="body">
         <div class="container">
+          <div class="ad-top">
+            <AdUnit slot="4710382094" format="auto" label="文章顶部广告" />
+          </div>
+
           <div class="article-body reveal">
             {articleBody.map((block) => {
               if (block.type === 'h2') {
@@ -1415,6 +1420,10 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? FALLBACK_B
             <div class="article-end-rule">
               <span>END · 完</span>
             </div>
+          </div>
+
+          <div class="ad-bottom">
+            <AdUnit slot="5186920417" format="auto" label="文章底部广告" />
           </div>
 
           <!-- 上一篇 / 下一篇 -->
@@ -2134,6 +2143,20 @@ body.dossier-article {
   background: repeating-linear-gradient(90deg, var(--ink) 0 4px, transparent 4px 8px);
   opacity: .35;
 }
+
+/* 广告位 — 文章顶部 / 底部 */
+.dossier-article .ad-top,
+.dossier-article .ad-bottom {
+  margin: 24px 0;
+  padding: 16px;
+  background: var(--paper-2);
+  border: 1px dashed var(--border);
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dossier-article .ad-bottom { margin-top: 36px; }
 
 /* NAV (prev / next) */
 .article-nav {
