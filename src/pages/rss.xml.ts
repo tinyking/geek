@@ -8,7 +8,7 @@ export async function GET(context: APIContext) {
   );
 
   return rss({
-    title: '阅微漫记',
+    title: '观禾·浮生观禾，静心成长',
     description: '语霖的个人博客 — 记录技术探索、产品思考与生活感悟',
     site: context.site ?? 'https://www.wangjianchao.cn',
     items: posts.map((post) => ({

@@ -13,7 +13,7 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await post.render();
 
-const pageTitle = `${post.data.title} | 阅微漫记`;
+const pageTitle = `${post.data.title} | 观禾·浮生观禾，静心成长`;
 const pageDescription = post.data.description ?? post.data.excerpt;
 const pageOGImage = post.data.ogImage
   ? new URL(post.data.ogImage, Astro.site ?? new URL('https://www.wangjianchao.cn')).href
