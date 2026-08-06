@@ -683,7 +683,6 @@ footer{border-top:3px double var(--ink);padding:40px 0 60px;margin-top:30px}
     var bcNum = buildBarcode(document.getElementById("barcode"), (profile.name||"")+(profile.pinyin||""));
     document.getElementById("barcodeNum").textContent = bcNum;
     buildBarcode(document.getElementById("footBar"), (profile.name||"")+"foot");
-    document.title = (profile.name||"档案")+" · 个人身份档案";
     syncEditorInputs();
   }
 
