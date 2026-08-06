@@ -1,29 +1,310 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Navbar from '../components/Navbar.astro';
-import Footer from '../components/Footer.astro';
 ---
 
 <BaseLayout
-  title="404 — 页面不存在 | 阅微漫记"
-  description="您访问的页面不存在或已被移动。"
+  title="404 — 档案不存在 | 阅微漫记"
+  description="您访问的档案编号不存在或已被归档移除。"
   robots="noindex, follow"
+  bodyClass="dossier"
 >
-  <Navbar />
-  <main id="main-content" class="min-h-screen pt-16 flex items-center">
-    <div class="section-padding">
-      <div class="content-width text-center">
-        <p class="text-accent text-sm font-medium tracking-widest uppercase mb-4">404</p>
-        <h1 class="text-4xl font-medium mb-4">页面走丢了</h1>
-        <p class="text-ink-secondary mb-10 max-w-md mx-auto">
-          你访问的页面可能已被移动或从未存在。不如回到正轨，继续探索。
-        </p>
-        <div class="flex flex-wrap justify-center gap-4">
-          <a href="/" class="btn-primary">返回首页 →</a>
-          <a href="/posts" class="btn-secondary">浏览文章</a>
-        </div>
+  <div class="grid-bg"></div>
+  <div class="noise"></div>
+  <div class="wm"><span class="a">又</span><span class="b">见</span></div>
+
+  <header class="topbar">
+    <div class="topbar-in">
+      <a class="topbar-logo" href="/">
+        <span class="logo-mark">朝</span>
+        <span class="logo-text">观禾 · 语霖</span>
+      </a>
+      <span class="topbar-sep">/</span>
+      <span class="topbar-section">档案 · ARCHIVE</span>
+      <div class="topbar-right">
+        <span class="status-pill err">遗失 · MISSING</span>
+        <span class="meta" id="dossierNo">NO. 404</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="dossier-main">
+    <div class="container not-found">
+      <div class="nf-stamp">FILE NOT FOUND</div>
+      <div class="nf-no">404</div>
+      <div class="nf-rule"></div>
+      <h1 class="nf-title">这份档案，<span class="rd">不在卷宗里</span></h1>
+      <p class="nf-sub">
+        你翻到的这一页，可能是编号写错了，也可能是档案已被重新归档。<br>
+        卷宗还在，持证人还在，请回到入口，重新翻阅。
+      </p>
+      <div class="nf-actions">
+        <a class="btn btn-red" href="/">← 返回首页</a>
+        <a class="btn btn-ghost" href="/series/life-debug">翻阅「人生 Debug」</a>
+      </div>
+      <div class="nf-meta">
+        <span><b>状态</b> · 遗失</span>
+        <span><b>原因</b> · 路径不存在</span>
+        <span><b>建议</b> · 从首页重新进入</span>
       </div>
     </div>
   </main>
-  <Footer />
+
+  <style is:global>
+    /* 复用首页 dossier 主题 token，与 index.astro 保持一致 */
+    body.dossier {
+      --paper: #f0e4cd;
+      --paper-2: #e6dcc4;
+      --paper-3: #fbfaf4;
+      --ink: #171310;
+      --ink-2: #2c241c;
+      --red: #c13a2b;
+      --red-deep: #8b2a1f;
+      --manila: #d9a441;
+      --manila-d: #b8862e;
+      --border: #c9bea3;
+      --text-primary: #1a1a1a;
+      --text-secondary: #6b6b6b;
+      background: var(--paper);
+      color: var(--text-primary);
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(to right, rgba(27,19,16,.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(27,19,16,.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .noise {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
+      opacity: .06;
+      mix-blend-mode: multiply;
+    }
+    .grid-bg, .noise, .wm { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .wm { overflow: hidden; }
+    .wm span {
+      position: absolute;
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: 46vw;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(27,19,16,.06);
+      user-select: none;
+      line-height: .8;
+    }
+    .wm .a { top: -12%; left: -7%; }
+    .wm .b { bottom: -22%; right: -9%; }
+
+    /* topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--paper);
+      border-bottom: 2px solid var(--ink);
+    }
+    .topbar-in {
+      width: min(1240px, 94vw);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 11px 0;
+    }
+    .topbar-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+    .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: var(--red);
+      color: var(--paper);
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 18px;
+      border-radius: 2px;
+    }
+    .logo-text {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: 16px;
+      letter-spacing: 2px;
+    }
+    .topbar-sep { color: var(--border); }
+    .topbar-section {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+    .topbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .status-pill {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      padding: 4px 10px;
+      border-radius: 2px;
+      text-transform: uppercase;
+    }
+    .status-pill.err {
+      background: var(--red);
+      color: var(--paper);
+    }
+    .topbar-right .meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--text-secondary);
+    }
+
+    /* main */
+    .dossier-main {
+      position: relative;
+      z-index: 1;
+      padding: 80px 24px 100px;
+    }
+    .container {
+      width: min(880px, 100%);
+      margin: 0 auto;
+    }
+
+    .not-found {
+      background: var(--paper-3);
+      border: 1.5px solid var(--ink);
+      box-shadow: 8px 8px 0 var(--ink);
+      padding: 56px 56px 44px;
+      position: relative;
+    }
+    .not-found::before {
+      content: '';
+      position: absolute;
+      top: -1.5px;
+      left: 32px;
+      width: 120px;
+      height: 4px;
+      background: var(--red);
+    }
+
+    .nf-stamp {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      padding: 5px 12px;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 2px;
+      margin-bottom: 28px;
+      transform: rotate(-1deg);
+    }
+    .nf-no {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+      font-size: clamp(80px, 16vw, 140px);
+      line-height: 1;
+      color: var(--red);
+      letter-spacing: -2px;
+      margin-bottom: 16px;
+    }
+    .nf-rule {
+      width: 60px;
+      height: 3px;
+      background: var(--ink);
+      margin-bottom: 22px;
+    }
+    .nf-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(24px, 3.6vw, 34px);
+      letter-spacing: 2px;
+      color: var(--ink);
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+    .nf-title .rd { color: var(--red); }
+    .nf-sub {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 15px;
+      line-height: 2;
+      color: var(--text-secondary);
+      max-width: 540px;
+      margin-bottom: 32px;
+    }
+
+    .nf-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 22px;
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-decoration: none;
+      border: 1.5px solid var(--ink);
+      border-radius: 2px;
+      transition: transform .2s, box-shadow .2s, background .2s, color .2s;
+    }
+    .btn-red {
+      background: var(--red);
+      color: var(--paper);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+    .btn-red:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink);
+    }
+    .btn-ghost:hover {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .nf-meta {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      padding-top: 24px;
+      border-top: 1px dashed var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+    .nf-meta b {
+      color: var(--ink);
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .not-found { padding: 36px 24px 28px; box-shadow: 5px 5px 0 var(--ink); }
+      .nf-no { font-size: 80px; }
+      .nf-actions { flex-direction: column; align-items: stretch; }
+      .nf-meta { gap: 14px; }
+      .topbar-section { display: none; }
+    }
+  </style>
 </BaseLayout>
