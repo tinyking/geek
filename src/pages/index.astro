@@ -45,12 +45,12 @@ import { SERIES, STATUS_CLASS } from '../data/series';
             <div class="cover-left">
               <div class="kicker">卷宗 VOL.2026 · 持证人 CARD HOLDER</div>
               <div class="name-block">
-                <div class="vname" data-bind="name">观禾</div>
-                <div class="vseal" id="nameSeal">观禾之印</div>
+                <div class="vname" data-bind="name">王建朝</div>
+                <div class="vseal" id="nameSeal">王建朝之印</div>
               </div>
-              <div class="pinyin" data-bind="pinyin">GUAN&nbsp;&nbsp;HE</div>
-              <div class="role" data-bind="role">独立开发者 · 数字产品设计师</div>
-              <p class="motto" data-bind="motto">把复杂留给系统，把简单留给人。</p>
+              <div class="pinyin" data-bind="pinyin">WANG&nbsp;&nbsp;JIAN&nbsp;&nbsp;CHAO</div>
+              <div class="role" data-bind="role">人生 Debug</div>
+              <p class="motto" data-bind="motto">一个 40 岁程序员重新设计人生系统的长期实验。用工程思维，拆解职业、成长、认知与个人价值重构。记录一个技术人在 AI 时代，寻找第二增长曲线的真实过程。</p>
             </div>
 
             <div class="card-wrap">
@@ -65,9 +65,9 @@ import { SERIES, STATUS_CLASS } from '../data/series';
                     <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
                   </div>
                   <div class="fields">
-                    <div class="field"><span class="lbl">姓名</span><span class="val" data-bind="name">观禾</span></div>
-                    <div class="field"><span class="lbl">代号</span><span class="val" data-bind="pinyin">GUAN HE</span></div>
-                    <div class="field"><span class="lbl">身份</span><span class="val" data-bind="role">独立开发者</span></div>
+                    <div class="field"><span class="lbl">姓名</span><span class="val" data-bind="name">王建朝</span></div>
+                    <div class="field"><span class="lbl">代号</span><span class="val" data-bind="pinyin">WANG JIAN CHAO</span></div>
+                    <div class="field"><span class="lbl">身份</span><span class="val" data-bind="role">人生 Debug</span></div>
                     <div class="field"><span class="lbl">坐标</span><span class="val" data-bind="city">北京·中国</span></div>
                     <div class="field"><span class="lbl">状态</span><span class="val status" data-bind="status">ONLINE</span></div>
                   </div>
@@ -359,7 +359,7 @@ import { SERIES, STATUS_CLASS } from '../data/series';
 .pinyin{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-soft);margin:20px 0 6px}
 .role{font-family:'Noto Serif SC',serif;font-weight:700;font-size:clamp(20px,2.4vw,28px);display:flex;align-items:center;gap:10px}
 .role::before{content:'/';color:var(--red);font-weight:900}
-.motto{margin-top:16px;border-left:3px solid var(--red);padding-left:14px;color:var(--ink-soft);font-size:15px;max-width:34ch}
+.motto{margin-top:16px;border-left:3px solid var(--red);padding-left:14px;color:var(--ink-soft);font-size:14px;line-height:1.85;max-width:46ch}
 .hint{margin-top:22px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:var(--ink-soft)}
 .hint b{color:var(--red);cursor:pointer;border-bottom:1px dashed var(--red)}
 
@@ -603,12 +603,12 @@ footer{border-top:3px double var(--ink);padding:40px 0 60px;margin-top:30px}
 (function(){
   "use strict";
   var DEFAULT_PROFILE = {
-    name:"观禾", pinyin:"GUAN HE",
-    role:"独立开发者 · 数字产品设计师",
+    name:"王建朝", pinyin:"WANG JIAN CHAO",
+    role:"人生 Debug",
     city:"北京·中国",
     status:"ONLINE",
-    motto:"把复杂留给系统，把简单留给人。",
-    keywords:["中年突围","人生 Debug","请教员当老师","马伯庸式日记","AI 倍增器","落子无悔"],
+    motto:"一个 40 岁程序员重新设计人生系统的长期实验。用工程思维，拆解职业、成长、认知与个人价值重构。记录一个技术人在 AI 时代，寻找第二增长曲线的真实过程。",
+    keywords:["中年突围","人生 Debug","第二增长曲线","AI 倍增器","工程思维","落子无悔"],
     years:20, email:"tinyking86@gmail.com", wechat:"tinyking86", github:"github.com/tinyking"
   };
   var STORE="dossier-profile-v1";
