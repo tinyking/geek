@@ -289,50 +289,16 @@ const STATUS_EN: Record<string, string> = {
 
 <style is:global>
 /* ===========================================================
-   首页 Life OS · 编辑风格
+   首页 Life OS · 编辑风格（页面特有样式）
+   共享设计系统（tokens / topbar / 印章 / 章头 / 落款 / 动画）
+   已移至 src/styles/global.css 的 body.dossier-home 作用域，
+   供首页与系列详情页等共用。
    依赖 body.dossier 的 token：--paper / --paper-2 / --paper-3
    --ink / --ink-soft / --red / --red-deep / --line / --hard
    字体由 BaseLayout 全局注入，不再重复声明。
    =========================================================== */
-body.dossier-home {
-  --los-paper: var(--paper);
-  --los-paper-2: var(--paper-2);
-  --los-paper-3: var(--paper-3);
-  --los-ink: var(--ink);
-  --los-ink2: var(--ink-soft);
-  --los-seal: var(--red);
-  --los-seal-b: var(--red-deep);
-  --los-line: var(--line);
-  --los-fig: var(--paper-3);
 
-  --los-serif: 'Noto Serif SC', serif;
-  --los-mono: 'IBM Plex Mono', ui-monospace, monospace;
-
-  font-family: var(--los-serif);
-  background: var(--los-paper);
-  color: var(--los-ink);
-  line-height: 1.9;
-}
-
-body.dossier-home ::selection { background: var(--los-seal); color: var(--los-paper); }
-
-/* ---------- 通用容器 ---------- */
-body.dossier-home .wrap {
-  max-width: 1160px;
-  margin: 0 auto;
-  padding: 0 32px;
-}
-body.dossier-home main { display: block; }
-body.dossier-home section { scroll-margin-top: 90px; }
-body.dossier-home em { font-style: normal; color: var(--los-seal); }
-
-/* ---------- 进度线 & 目录轨 ---------- */
-body.dossier-home #pb {
-  position: fixed; top: 0; left: 0;
-  height: 2px; width: 0;
-  background: var(--los-seal);
-  z-index: 99;
-}
+/* ---------- 目录轨（首页专用） ---------- */
 body.dossier-home .rail {
   position: fixed; right: 26px; top: 50%;
   transform: translateY(-50%);
@@ -353,67 +319,6 @@ body.dossier-home .rail a.on::before {
   width: 14px; height: 1px; background: var(--los-seal);
 }
 @media (max-width: 1100px) { body.dossier-home .rail { display: none; } }
-
-/* ---------- 页眉 ---------- */
-body.dossier-home .topbar-home {
-  position: sticky; top: 0;
-  background: var(--los-paper);
-  border-bottom: 1px solid var(--los-line);
-  z-index: 80;
-}
-body.dossier-home .bar {
-  display: flex; align-items: center; justify-content: space-between;
-  height: 72px;
-}
-body.dossier-home .brand {
-  display: flex; align-items: center; gap: 12px;
-  font-weight: 900; font-size: 18px;
-  letter-spacing: .12em;
-  color: var(--los-ink);
-}
-body.dossier-home .seal-s {
-  width: 24px; height: 24px;
-  background: var(--los-seal); color: var(--los-paper);
-  border-radius: 3px;
-  display: grid; place-items: center;
-  font-size: 13px; font-weight: 600;
-}
-body.dossier-home .topbar-home nav { display: flex; gap: 30px; }
-body.dossier-home .topbar-home nav a {
-  font-family: var(--los-mono);
-  font-size: 12px; letter-spacing: .25em;
-  color: var(--los-ink2);
-  transition: color .25s;
-}
-body.dossier-home .topbar-home nav a:hover { color: var(--los-seal); }
-@media (max-width: 760px) { body.dossier-home .topbar-home nav a:not(:last-child) { display: none; } }
-
-/* ---------- 古代方印 · 篆体回退 ---------- */
-body.dossier-home .seal-square {
-  font-family: 'Ma Shan Zheng', var(--los-serif);
-  width: 96px; height: 96px;
-  background: var(--los-seal);
-  border-radius: 7px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  place-items: center;
-  color: var(--los-paper);
-  font-size: 34px; line-height: 1;
-  transform: rotate(-2deg);
-  box-shadow: 0 12px 28px rgba(179, 39, 43, .3);
-  background-image:
-    radial-gradient(rgba(246, 243, 236, .20) 1px, transparent 1.4px),
-    radial-gradient(rgba(246, 243, 236, .13) 1px, transparent 1.6px);
-  background-size: 23px 23px, 31px 31px;
-  background-position: 3px 7px, 11px 15px;
-}
-/* 传统读序：右列上→下（语 霖），再左列上→下（之 印） */
-body.dossier-home .seal-square span:nth-child(1) { grid-area: 1 / 2 / 2 / 3; }
-body.dossier-home .seal-square span:nth-child(2) { grid-area: 2 / 2 / 3 / 3; }
-body.dossier-home .seal-square span:nth-child(3) { grid-area: 1 / 1 / 2 / 2; }
-body.dossier-home .seal-square span:nth-child(4) { grid-area: 2 / 1 / 3 / 2; }
-body.dossier-home .seal-lg { width: 108px; height: 108px; font-size: 38px; margin: 0 auto; }
 
 /* ---------- 00 Hero ---------- */
 body.dossier-home .hero { position: relative; padding: 110px 0 120px; }
@@ -501,32 +406,6 @@ body.dossier-home .readout span {
   body.dossier-home .readout div { border-top: 1px solid var(--los-line); }
   body.dossier-home .readout div:nth-child(-n+2) { border-top: none; }
   body.dossier-home .readout div:nth-child(3) { border-left: none; }
-}
-
-/* ---------- 章头 ---------- */
-body.dossier-home .ch-head {
-  display: flex; align-items: baseline; gap: 20px;
-  margin-bottom: 64px;
-}
-body.dossier-home .ch-no {
-  font-family: var(--los-mono);
-  font-size: 12px; color: var(--los-seal);
-  letter-spacing: .2em;
-}
-body.dossier-home .ch-head h2 {
-  font-family: var(--los-serif);
-  font-size: clamp(28px, 4.2vw, 46px);
-  font-weight: 900; letter-spacing: .02em;
-  color: var(--los-ink);
-}
-body.dossier-home .ch-en {
-  font-family: var(--los-mono);
-  font-size: 11px; letter-spacing: .35em;
-  color: var(--los-ink2);
-}
-body.dossier-home .ch-line {
-  flex: 1; height: 1px; background: var(--los-line);
-  align-self: center;
 }
 
 /* ---------- 01 起源 · 宣言体 ---------- */
@@ -928,38 +807,6 @@ body.dossier-home .tl-item p {
   color: var(--los-ink2);
   max-width: 760px;
 }
-
-/* ---------- 落款 ---------- */
-body.dossier-home .end-footer {
-  margin-top: 140px;
-  border-top: 1px solid var(--los-line);
-  padding: 96px 0 44px;
-}
-body.dossier-home .end { text-align: center; }
-body.dossier-home .f-motto {
-  margin-top: 36px;
-  font-size: 15px; letter-spacing: .35em;
-  color: var(--los-ink2);
-}
-body.dossier-home .f-meta {
-  margin-top: 72px;
-  display: flex; justify-content: space-between;
-  gap: 16px; flex-wrap: wrap;
-  font-family: var(--los-mono);
-  font-size: 11px; letter-spacing: .15em;
-  color: var(--los-ink2);
-  border-top: 1px solid var(--los-line);
-  padding-top: 26px;
-  text-align: left;
-}
-body.dossier-home .f-meta a:hover { color: var(--los-seal); }
-
-/* ---------- 显现动画 ---------- */
-body.dossier-home .rv {
-  opacity: 0; transform: translateY(26px);
-  transition: opacity .9s, transform .9s cubic-bezier(.2, .7, .2, 1);
-}
-body.dossier-home .rv.in { opacity: 1; transform: none; }
 
 /* ---------- 公众号二维码弹窗（保留原交互） ---------- */
 body.dossier-home .qr-overlay {

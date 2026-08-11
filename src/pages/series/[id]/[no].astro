@@ -37,16 +37,6 @@ const statusEn = series.status === '连载中' ? 'ONGOING'
 const prev = index > 0 ? series.articles[index - 1] : null;
 const next = index < total - 1 ? series.articles[index + 1] : null;
 
-// 顶部日期（北京时间）
-const fmt = new Intl.DateTimeFormat('zh-CN', {
-  timeZone: 'Asia/Shanghai',
-  year: 'numeric', month: '2-digit', day: '2-digit',
-  weekday: 'short'
-});
-const parts = fmt.formatToParts(new Date());
-const get = (t: string) => parts.find(p => p.type === t)?.value ?? '';
-const today = `${get('year')}.${get('month')}.${get('day')} · ${get('weekday')}`;
-
 const pageTitle = `${article.title} · ${series.title}`;
 const pageDesc = `${series.desc} — ${article.title}（发表于 ${article.date}）`;
 
@@ -68,71 +58,59 @@ const breadcrumbSchema = {
 const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFallbackBody(series.desc, article.no, article.date);
 ---
 
-<BaseLayout title={pageTitle} description={pageDesc} ogType="article" bodyClass="dossier dossier-article">
-  <div class="grid-bg"></div>
-  <div class="noise"></div>
-  <div class="wm"><span class="a">又</span><span class="b">见</span></div>
+<BaseLayout title={pageTitle} description={pageDesc} ogType="article" bodyClass="dossier dossier-home dossier-article">
+  <!-- 阅读进度线 -->
+  <div id="pb"></div>
 
-  <div class="app">
+  <!-- 页眉 -->
+  <header class="topbar-home">
+    <div class="wrap bar">
+      <a class="brand" href="/" aria-label="返回首页">
+        <span class="seal-s">语</span>
+        <span class="brand-name">语霖</span>
+      </a>
+      <nav>
+        <a href="/#research">研究</a>
+        <a href="/#system">系统</a>
+        <a href="/#projects">项目</a>
+        <a href="/#about">关于</a>
+      </nav>
+    </div>
+  </header>
 
-    <!-- TOPBAR -->
-    <header class="topbar">
-      <div class="topbar-in">
-        <a class="logo" href="/" aria-label="返回首页">朝</a>
-        <div class="brand">
-          <b>观禾</b>
-          <small>浮生观禾，静心成长</small>
+  <main>
+    <!-- ============ 文章封面 ============ -->
+    <section class="article-hero-sec">
+      <div class="wrap art-wrap">
+        <a class="back-link" href={`/series/${series.id}`} aria-label={`返回 ${series.title} 专辑`}>
+          <span class="arrow">←</span>
+          <span>返回专辑 · RETURN TO SERIES</span>
+        </a>
+
+        <div class="ch-head art-ch-head">
+          <span class="ch-no">{series.tab} · NO.{article.no}</span>
+          <h1 class="art-h1">{article.title}</h1>
+          <span class="ch-en">{statusEn}</span>
+          <i class="ch-line"></i>
         </div>
-        <div class="topbar-right">
-          <span class="meta"><span class="dot"></span>ONLINE</span>
-          <span class="meta">{series.tab} · NO.{article.no}</span>
-          <span class="meta" id="today">{today}</span>
+
+        <div class="art-meta rv">
+          <a class="art-series-link" href={`/series/${series.id}`}>{series.title}</a>
+          <span class={`r-stamp ${stampClass}`}>{series.status}</span>
+          <span class="art-date">{article.date}</span>
+          <span class="art-index">NO.{article.no} / {String(total).padStart(3, '0')}</span>
         </div>
       </div>
-    </header>
+    </section>
 
-    <main>
-      <!-- ARTICLE HEAD -->
-      <section class="article-cover" id="cover">
-        <div class="container">
-          <a class="back-link" href={`/series/${series.id}`} aria-label={`返回 ${series.title} 专辑`}>
-            <span class="arrow">←</span>
-            <span>返回专辑 RETURN TO SERIES</span>
-          </a>
-
-          <article class="article-hero reveal">
-            <div class="article-meta-row">
-              <span class="series-tab">{series.tab}</span>
-              <a class="series-link" href={`/series/${series.id}`}>{series.title}</a>
-              <span class="article-no-tag">NO.{article.no} / {String(total).padStart(3, '0')}</span>
-            </div>
-
-            <h1 class="article-title">{article.title}</h1>
-
-            <div class="article-meta-row sub">
-              <span class="meta-item"><b class={`stamp-dot ${stampClass}`}>●</b>{series.status}</span>
-              <span class="meta-item date">{article.date}</span>
-              <span class="meta-item">{statusEn}</span>
-            </div>
-
-            <div class="article-stamp-pad">
-              <div class={`article-stamp ${stampClass}`}>
-                <span class="article-stamp-cn">{series.status}</span>
-                <span class="article-stamp-en">{statusEn}</span>
-              </div>
-            </div>
-          </article>
+    <!-- ============ 文章正文 ============ -->
+    <section id="body">
+      <div class="wrap art-wrap">
+        <div class="ad-top">
+          <AdUnit slot="6252683541" format="auto" label="文章顶部广告" />
         </div>
-      </section>
 
-      <!-- ARTICLE BODY -->
-      <section id="body">
-        <div class="container">
-          <div class="ad-top">
-            <AdUnit slot="6252683541" format="auto" label="文章顶部广告" />
-          </div>
-
-          <div class="article-body reveal">
+        <article class="article-body rv">
             {articleBody.map((block) => {
               if (block.type === 'h2') {
                 return (
@@ -389,410 +367,239 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
             <div class="article-end-rule">
               <span>END · 完</span>
             </div>
-          </div>
+        </article>
 
-          <div class="ad-bottom">
-            <AdUnit slot="6252683541" format="auto" label="文章底部广告" />
-          </div>
-
-          <!-- 上一篇 / 下一篇 -->
-          <nav class="article-nav reveal">
-            {prev ? (
-              <a class="nav-card prev" href={`/series/${series.id}/${prev.no}`}>
-                <span class="nav-label">← 上一篇 PREVIOUS</span>
-                <span class="nav-title">NO.{prev.no} · {prev.title}</span>
-              </a>
-            ) : (
-              <span class="nav-card placeholder">已是第一篇 · AT BEGINNING</span>
-            )}
-            {next ? (
-              <a class="nav-card next" href={`/series/${series.id}/${next.no}`}>
-                <span class="nav-label">下一篇 NEXT →</span>
-                <span class="nav-title">NO.{next.no} · {next.title}</span>
-              </a>
-            ) : (
-              <span class="nav-card placeholder">已是最后一篇 · THE END</span>
-            )}
-          </nav>
-
-          <div class="article-foot reveal">
-            <a class="btn btn-red" href={`/series/${series.id}`}>← 返回专辑目录</a>
-          </div>
+        <div class="ad-bottom">
+          <AdUnit slot="6252683541" format="auto" label="文章底部广告" />
         </div>
-      </section>
-    </main>
 
-    <!-- FOOT -->
-    <footer class="foot">
-      <div class="container">
-        <div class="foot-row">
-          <span class="foot-logo">观禾 · GUAN HE</span>
-          <span class="foot-meta">© {new Date().getFullYear()} · 浮生观禾，静心成长</span>
+        <!-- 上一篇 / 下一篇 -->
+        <nav class="article-nav rv">
+          {prev ? (
+            <a class="nav-card prev" href={`/series/${series.id}/${prev.no}`}>
+              <span class="nav-label">← 上一篇 PREVIOUS</span>
+              <span class="nav-title">NO.{prev.no} · {prev.title}</span>
+            </a>
+          ) : (
+            <span class="nav-card placeholder">已是第一篇 · AT BEGINNING</span>
+          )}
+          {next ? (
+            <a class="nav-card next" href={`/series/${series.id}/${next.no}`}>
+              <span class="nav-label">下一篇 NEXT →</span>
+              <span class="nav-title">NO.{next.no} · {next.title}</span>
+            </a>
+          ) : (
+            <span class="nav-card placeholder">已是最后一篇 · THE END</span>
+          )}
+        </nav>
+
+        <div class="link-line rv">
+          <a href={`/series/${series.id}`}>← 返回专辑目录</a>
         </div>
       </div>
-    </footer>
+    </section>
+  </main>
 
-  </div>
+  <!-- 落款 -->
+  <footer class="end-footer">
+    <div class="wrap end">
+      <div class="seal-square seal-lg" role="img" aria-label="语霖之印">
+        <span>语</span><span>霖</span><span>之</span><span>印</span>
+      </div>
+      <p class="f-motto">执笔为语 · 心落成霖</p>
+      <div class="f-meta">
+        <span>© 2026 语霖 · WANGJIANCHAO.CN</span>
+        <a href="#body">回到正文 ↑</a>
+      </div>
+    </div>
+  </footer>
 </BaseLayout>
 
 <!-- JSON-LD: BreadcrumbList -->
 <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
 
 <style is:global>
-/* ============ ARTICLE DETAIL PAGE ============ */
+/* ============ ARTICLE DETAIL PAGE — Life OS 风格 ============ */
+/* 共享设计系统（tokens / topbar / 印章 / 章头 / 落款 / 动画）
+   已在 src/styles/global.css 的 body.dossier-home 作用域统一声明。 */
 body.dossier-article {
-  background: var(--paper);
+  font-family: var(--los-serif);
+  background: var(--los-paper);
+  color: var(--los-ink);
+  line-height: 1.9;
 }
+body.dossier-article ::selection { background: var(--los-seal); color: var(--los-paper); }
+body.dossier-article main { display: block; }
+body.dossier-article section { scroll-margin-top: 90px; }
 
-/* 背景层 */
-.dossier-article .grid-bg,
-.dossier-article .noise,
-.dossier-article .wm {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-.dossier-article .grid-bg {
-  background-image:
-    linear-gradient(rgba(27,39,56,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(27,39,56,.04) 1px, transparent 1px);
-  background-size: 28px 28px;
-}
-.dossier-article .noise {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
-  opacity: .06;
-  mix-blend-mode: multiply;
-}
-.dossier-article .wm { overflow: hidden; }
-.dossier-article .wm span {
-  position: absolute;
-  font-family: 'Noto Serif SC', serif;
-  font-weight: 900;
-  font-size: 46vw;
-  color: transparent;
-  -webkit-text-stroke: 1.5px rgba(27,39,56,.06);
-  user-select: none;
-  line-height: .8;
-}
-.dossier-article .wm .a { top: -12%; left: -7%; animation: drift 14s ease-in-out infinite alternate; }
-.dossier-article .wm .b { bottom: -22%; right: -9%; animation: drift 17s ease-in-out infinite alternate-reverse; }
-@keyframes drift {
-  from { transform: translate(0, 0); }
-  to   { transform: translate(20px, -16px); }
-}
-
-.dossier-article .app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  z-index: 1;
-}
-
-/* TOPBAR */
-.dossier-article .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--paper);
-  border-bottom: 1.5px solid var(--ink);
-}
-.dossier-article .topbar-in {
-  width: min(1240px, 94vw);
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 11px 0;
-}
-.dossier-article .logo {
-  width: 38px;
-  height: 38px;
-  background: var(--red);
-  color: var(--paper);
-  display: grid;
-  place-items: center;
-  font-family: 'Ma Shan Zheng', serif;
-  font-size: 24px;
-  box-shadow: 4px 4px 0 var(--ink);
-  flex: none;
-  text-decoration: none;
-  cursor: pointer;
-}
-.dossier-article .brand {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
-.dossier-article .brand b {
-  font-family: 'Noto Serif SC', serif;
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: .04em;
-}
-.dossier-article .brand small {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9.5px;
-  letter-spacing: .22em;
-  color: var(--ink-soft);
-  text-transform: uppercase;
-  padding-top: 4px;
-}
-.dossier-article .topbar-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.dossier-article .meta {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: .12em;
-  color: var(--ink-soft);
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.dossier-article .meta .dot {
-  width: 7px;
-  height: 7px;
-  background: var(--red);
-  border-radius: 50%;
-  display: inline-block;
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .35; }
-}
-
-/* MAIN */
-.dossier-article main {
-  flex: 1;
-  padding: 0 0 80px;
-}
-.dossier-article .container {
+/* 文章用窄容器（长文阅读舒适） */
+body.dossier-article .art-wrap {
   max-width: 760px;
   margin: 0 auto;
-  padding: 0 28px;
+  padding: 0 32px;
 }
 
-/* BACK LINK */
-.back-link {
+/* 返回链接 */
+body.dossier-article .back-link {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin: 36px 0 28px;
-  font-family: 'IBM Plex Mono', monospace;
+  margin: 28px 0 0;
+  font-family: var(--los-mono);
   font-size: 11px;
-  letter-spacing: .14em;
-  color: var(--red-deep);
+  letter-spacing: .18em;
+  color: var(--los-ink2);
   text-decoration: none;
   text-transform: uppercase;
-  transition: color .25s ease;
+  transition: color .25s;
 }
-.back-link .arrow {
+body.dossier-article .back-link .arrow {
   display: inline-block;
-  transition: transform .25s ease;
+  transition: transform .25s;
 }
-.back-link:hover { color: var(--red); }
-.back-link:hover .arrow { transform: translateX(-4px); }
+body.dossier-article .back-link:hover { color: var(--los-seal); }
+body.dossier-article .back-link:hover .arrow { transform: translateX(-4px); }
 
-/* ARTICLE HERO */
-.article-cover { padding-top: 8px; }
-.article-hero {
-  position: relative;
+/* 文章封面 hero */
+body.dossier-article .article-hero-sec {
   padding: 24px 0 40px;
-  border-bottom: 1.5px dashed var(--ink);
+  border-bottom: 1px solid var(--los-line);
 }
-.article-meta-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 18px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  letter-spacing: .12em;
-  color: var(--text-secondary);
-}
-.article-meta-row.sub { gap: 18px; margin-bottom: 0; }
-.article-meta-row .series-tab {
-  color: var(--paper);
-  background: var(--ink);
-  padding: 4px 12px;
-  border-radius: 1px;
-  letter-spacing: .18em;
-}
-.series-link {
-  color: var(--red-deep);
-  text-decoration: none;
-  border-bottom: 1px dotted var(--red-deep);
-  padding-bottom: 1px;
-  transition: color .25s ease;
-}
-.series-link:hover { color: var(--red); }
-.article-no-tag {
-  color: var(--ink-soft);
-  letter-spacing: .14em;
-}
-.meta-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.meta-item.date { color: var(--ink); }
-
-.stamp-dot {
-  font-size: 8px;
-  font-weight: 600;
-}
-.stamp-dot.ok { color: var(--red); }
-.stamp-dot.run { color: var(--blue); }
-.stamp-dot.maint { color: var(--ink); }
-
-.article-title {
-  font-family: 'Noto Serif SC', serif;
+body.dossier-article .art-ch-head { margin: 36px 0 28px; }
+body.dossier-article .art-h1 {
+  font-family: var(--los-serif);
+  font-size: clamp(26px, 4vw, 40px);
   font-weight: 900;
-  font-size: clamp(28px, 4.5vw, 42px);
-  line-height: 1.25;
-  margin: 8px 0 24px;
-  color: var(--ink);
-  letter-spacing: -.01em;
+  letter-spacing: .01em;
+  color: var(--los-ink);
+  margin: 0;
+  line-height: 1.3;
 }
-
-/* STAMP PAD */
-.article-stamp-pad {
-  position: absolute;
-  top: 18px;
-  right: 0;
+body.dossier-article .art-meta {
   display: flex;
-  justify-content: flex-end;
+  align-items: baseline;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-family: var(--los-mono);
+  font-size: 12px;
+  color: var(--los-ink2);
 }
-.article-stamp {
-  width: 96px;
-  height: 96px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  border: 3px double currentColor;
-  border-radius: 50%;
-  font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
-  font-size: 16px;
+body.dossier-article .art-series-link {
+  font-family: var(--los-serif);
+  font-size: 14px;
   font-weight: 700;
-  transform: rotate(-8deg);
-  opacity: .85;
+  color: var(--los-ink);
+  text-decoration: none;
+  transition: color .25s;
 }
-.article-stamp .article-stamp-en {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 8px;
-  letter-spacing: .14em;
-  font-weight: 600;
-}
-.article-stamp.ok { color: var(--red); }
-.article-stamp.run { color: var(--blue); }
-.article-stamp.maint { color: var(--ink); }
+body.dossier-article .art-series-link:hover { color: var(--los-seal); }
+body.dossier-article .art-date { letter-spacing: .1em; color: var(--los-ink); }
+body.dossier-article .art-index { letter-spacing: .15em; }
 
-/* ARTICLE BODY */
-.article-body {
-  padding: 44px 0 24px;
-  font-family: 'Noto Serif SC', serif;
+/* 文章正文 */
+body.dossier-article .article-body {
+  padding: 48px 0 32px;
+  font-family: var(--los-serif);
 }
-.prose-p {
+body.dossier-article .prose-p {
   font-size: 16px;
   line-height: 1.95;
-  color: #2a2a26;
+  color: var(--los-ink);
   margin: 0 0 22px;
   text-align: justify;
   text-justify: inter-ideograph;
 }
-.prose-h2 {
-  font-family: 'Noto Serif SC', serif;
+body.dossier-article .prose-h2 {
+  font-family: var(--los-serif);
   font-weight: 900;
   font-size: 22px;
-  color: var(--ink);
+  color: var(--los-ink);
   margin: 40px 0 16px;
   padding-left: 14px;
-  border-left: 4px solid var(--red);
+  border-left: 4px solid var(--los-seal);
   line-height: 1.4;
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding-bottom: 10px;
-  border-bottom: 1.5px solid var(--ink);
+  border-bottom: 1px solid var(--los-line);
 }
-.prose-kicker {
-  font-family: 'IBM Plex Mono', monospace;
+body.dossier-article .prose-kicker {
+  font-family: var(--los-mono);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .24em;
-  color: var(--red);
+  color: var(--los-seal);
   text-transform: uppercase;
 }
-.prose-h2-text {
-  font-family: 'Noto Serif SC', serif;
+body.dossier-article .prose-h2-text {
+  font-family: var(--los-serif);
   font-weight: 900;
   font-size: 22px;
   line-height: 1.4;
 }
+body.dossier-article .prose-h3 {
+  font-family: var(--los-serif);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--los-ink);
+  margin: 28px 0 10px;
+  line-height: 1.5;
+}
 
 /* CALLOUT: 引言卡片 */
-.prose-callout {
+body.dossier-article .prose-callout {
   position: relative;
   margin: 12px 0 32px;
   padding: 22px 24px 18px;
-  background: var(--paper-3);
-  border: 1.5px solid var(--ink);
-  box-shadow: 4px 4px 0 var(--red);
+  background: var(--los-paper-3);
+  border: 1px solid var(--los-line);
+  border-left: 3px solid var(--los-seal);
   overflow: hidden;
 }
-.prose-callout-mark {
+body.dossier-article .prose-callout-mark {
   position: absolute;
   top: -10px;
   left: 16px;
-  font-family: 'Noto Serif SC', serif;
+  font-family: var(--los-serif);
   font-size: 64px;
   font-weight: 900;
-  color: var(--red);
+  color: var(--los-seal);
   line-height: 1;
+  opacity: .5;
 }
-.prose-callout-text {
+body.dossier-article .prose-callout-text {
   margin: 0;
   padding-left: 8px;
-  font-family: 'Noto Serif SC', serif;
+  font-family: var(--los-serif);
   font-size: 15px;
   font-weight: 700;
   line-height: 1.8;
-  color: var(--ink);
+  color: var(--los-ink);
 }
 
 /* CODE: 终端风代码块 */
-.prose-code {
+body.dossier-article .prose-code {
   margin: 12px 0 24px;
   padding: 0;
   background: #1E293B;
-  border-radius: 6px;
+  border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 4px 14px -6px rgba(15,23,42,.4);
 }
-.prose-code-title {
+body.dossier-article .prose-code-title {
   display: block;
   padding: 8px 14px;
   background: #0F172A;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--los-mono);
   font-size: 11px;
   letter-spacing: .14em;
   color: #94A3B8;
   border-bottom: 1px solid rgba(255,255,255,.06);
 }
-.prose-code code {
+body.dossier-article .prose-code code {
   display: block;
   padding: 12px 14px;
-  font-family: 'IBM Plex Mono', 'SF Mono', Consolas, Monaco, monospace;
+  font-family: var(--los-mono);
   font-size: 13px;
   line-height: 1.7;
   color: #E2E8F0;
@@ -801,246 +608,228 @@ body.dossier-article {
 }
 
 /* FLOW: SVG 节点链路图 */
-.prose-flow {
+body.dossier-article .prose-flow {
   margin: 16px auto 28px;
   padding: 0;
   max-width: 260px;
-  background: var(--paper-3);
-  border: 1.5px solid var(--ink);
-  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--los-paper-3);
+  border: 1px solid var(--los-line);
   overflow: hidden;
 }
-.prose-flow svg {
+body.dossier-article .prose-flow svg {
   display: block;
   width: 100%;
   height: auto;
 }
 
-/* KVLIST: 键值对列表（接口协议说明） */
-.prose-kvlist {
+/* KVLIST: 键值对列表 */
+body.dossier-article .prose-kvlist {
   margin: 16px 0 24px;
   padding: 18px 20px;
   background: #1E293B;
   border-radius: 2px;
-  box-shadow: 4px 4px 0 var(--ink);
   position: relative;
 }
-.prose-kvlist::before {
+body.dossier-article .prose-kvlist::before {
   content: 'CONSOLE · text';
   position: absolute;
   top: 8px;
   right: 14px;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--los-mono);
   font-size: 10px;
   color: #64748B;
   letter-spacing: 1.2px;
 }
-.prose-kvlist .kv-row {
+body.dossier-article .prose-kvlist .kv-row {
   display: flex;
   align-items: baseline;
   gap: 12px;
   padding: 6px 0;
-  font-family: 'IBM Plex Mono', 'SF Mono', Consolas, Monaco, monospace;
+  font-family: var(--los-mono);
   font-size: 13px;
   line-height: 1.7;
   color: #E2E8F0;
   border-bottom: 1px dashed rgba(226, 232, 240, 0.1);
 }
-.prose-kvlist .kv-row:last-child {
-  border-bottom: none;
-}
-.prose-kvlist .kv-k {
+body.dossier-article .prose-kvlist .kv-row:last-child { border-bottom: none; }
+body.dossier-article .prose-kvlist .kv-k {
   flex: 0 0 64px;
   color: #94A3B8;
   letter-spacing: 1px;
 }
-.prose-kvlist .kv-arrow {
+body.dossier-article .prose-kvlist .kv-arrow {
   flex: 0 0 16px;
-  color: var(--red);
+  color: var(--los-seal);
   font-weight: 700;
 }
-.prose-kvlist .kv-v {
+body.dossier-article .prose-kvlist .kv-v {
   flex: 1;
   color: #F8FAFC;
   font-weight: 600;
 }
 
-/* ARCH: SVG 系统架构图（根 → 多分支 → 底部汇聚） */
-.prose-arch {
+/* ARCH: SVG 系统架构图 */
+body.dossier-article .prose-arch {
   margin: 16px auto 28px;
   padding: 0;
   max-width: 100%;
-  background: var(--paper-3);
-  border: 1.5px solid var(--ink);
-  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--los-paper-3);
+  border: 1px solid var(--los-line);
   overflow: hidden;
 }
-.prose-arch svg {
+body.dossier-article .prose-arch svg {
   display: block;
   width: 100%;
   height: auto;
 }
 
 /* DIARY: 马伯庸式日记 */
-.prose-diary {
+body.dossier-article .prose-diary {
   margin: 20px 0 32px;
   padding: 0;
-  border: 1.5px solid var(--ink);
-  background: var(--paper-2);
-  box-shadow: 6px 6px 0 var(--ink);
+  border: 1px solid var(--los-line);
+  background: var(--los-paper-2);
   overflow: hidden;
 }
-
-/* 日记头部：日期 / 天气 / 地点（终端风 kvlist 风格） */
-.diary-meta {
+body.dossier-article .diary-meta {
   padding: 14px 20px;
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--los-ink);
+  color: var(--los-paper);
   display: flex;
   flex-wrap: wrap;
   gap: 10px 28px;
-  border-bottom: 1.5px solid var(--ink);
 }
-.diary-meta-row {
+body.dossier-article .diary-meta-row {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--los-mono);
 }
-.dm-k {
+body.dossier-article .dm-k {
   font-size: 9px;
   letter-spacing: 1.5px;
-  color: var(--manila);
+  color: var(--los-manila, #e7c486);
   text-transform: uppercase;
   font-weight: 700;
 }
-.dm-v {
+body.dossier-article .dm-v {
   font-size: 13px;
-  color: var(--paper);
-  font-family: 'Noto Serif SC', serif;
+  color: var(--los-paper);
+  font-family: var(--los-serif);
   font-weight: 600;
 }
-
-/* 日记章节 */
-.diary-section {
+body.dossier-article .diary-section {
   padding: 18px 20px 8px;
-  border-bottom: 1.5px dashed var(--border);
+  border-bottom: 1px dashed var(--los-line);
 }
-.diary-section:last-child {
-  border-bottom: none;
-}
-.diary-sec-head {
+body.dossier-article .diary-section:last-child { border-bottom: none; }
+body.dossier-article .diary-sec-head {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--ink);
+  border-bottom: 1px solid var(--los-line);
 }
-.diary-kicker {
-  font-family: 'IBM Plex Mono', monospace;
+body.dossier-article .diary-kicker {
+  font-family: var(--los-mono);
   font-size: 9px;
   letter-spacing: 1.5px;
   font-weight: 700;
-  color: var(--paper);
-  background: var(--red);
+  color: var(--los-paper);
+  background: var(--los-seal);
   padding: 3px 6px;
   border-radius: 2px;
 }
-.diary-sec-title {
-  font-family: 'Noto Serif SC', serif;
+body.dossier-article .diary-sec-title {
+  font-family: var(--los-serif);
   font-size: 17px;
   font-weight: 900;
-  color: var(--ink);
+  color: var(--los-ink);
   margin: 0;
   letter-spacing: 0.5px;
 }
-
-/* 日记条目列表 */
-.diary-items {
+body.dossier-article .diary-items {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-.diary-item {
+body.dossier-article .diary-item {
   position: relative;
   padding: 6px 0 6px 22px;
-  font-family: 'Noto Serif SC', serif;
+  font-family: var(--los-serif);
   font-size: 14.5px;
   line-height: 1.85;
-  color: var(--text-primary);
-  border-bottom: 1px dotted var(--border);
+  color: var(--los-ink);
+  border-bottom: 1px dotted var(--los-line);
 }
-.diary-item:last-child {
-  border-bottom: none;
-}
-.diary-item::before {
+body.dossier-article .diary-item:last-child { border-bottom: none; }
+body.dossier-article .diary-item::before {
   content: '·';
   position: absolute;
   left: 6px;
   top: 4px;
-  color: var(--red);
+  color: var(--los-seal);
   font-weight: 900;
   font-size: 18px;
   line-height: 1.4;
 }
-
-/* 注脚（笺注） */
-.diary-footnote {
+body.dossier-article .diary-footnote {
   margin: 14px 0 6px;
   padding: 10px 14px;
-  background: var(--paper-3);
-  border-left: 3px solid var(--red);
+  background: var(--los-paper-3);
+  border-left: 3px solid var(--los-seal);
   display: flex;
   gap: 10px;
   align-items: flex-start;
 }
-.df-mark {
+body.dossier-article .df-mark {
   flex-shrink: 0;
   font-family: 'Ma Shan Zheng', cursive;
   font-size: 22px;
-  color: var(--red);
+  color: var(--los-seal);
   line-height: 1;
   padding-top: 2px;
 }
-.df-text {
-  font-family: 'Noto Serif SC', serif;
+body.dossier-article .df-text {
+  font-family: var(--los-serif);
   font-style: italic;
   font-size: 13.5px;
   line-height: 1.8;
-  color: var(--text-secondary);
+  color: var(--los-ink2);
 }
 
-.prose-quote {
+/* QUOTE */
+body.dossier-article .prose-quote {
   margin: 24px 0;
   padding: 14px 20px;
-  background: var(--paper-2);
-  border-left: 4px solid var(--ink);
+  background: var(--los-paper-2);
+  border-left: 3px solid var(--los-ink);
   font-size: 15px;
   line-height: 1.8;
-  color: #3a3320;
+  color: var(--los-ink);
   font-style: italic;
 }
 
 /* HR: 居中三点分隔 */
-.prose-hr {
+body.dossier-article .prose-hr {
   border: 0;
   margin: 36px 0;
   height: 16px;
   display: block;
   position: relative;
 }
-.prose-hr::before {
+body.dossier-article .prose-hr::before {
   content: '· · ·';
   position: absolute;
   left: 0;
   right: 0;
   text-align: center;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--los-mono);
   font-size: 18px;
   letter-spacing: .8em;
-  color: var(--ink-soft);
-  background: var(--paper);
+  color: var(--los-ink2);
+  background: var(--los-paper);
   display: block;
   padding: 0 12px;
   width: fit-content;
@@ -1048,227 +837,169 @@ body.dossier-article {
   top: 50%;
   transform: translateY(-50%);
 }
-.prose-hr::after {
+body.dossier-article .prose-hr::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
   top: 50%;
   height: 1px;
-  background: repeating-linear-gradient(90deg, var(--border) 0 4px, transparent 4px 8px);
+  background: var(--los-line);
   z-index: -1;
 }
 
 /* LIST */
-.prose-list {
+body.dossier-article .prose-list {
   margin: 8px 0 24px;
   padding: 0 0 0 28px;
   list-style: none;
 }
-.prose-list li {
-  font-family: 'Noto Serif SC', serif;
+body.dossier-article .prose-list li {
+  font-family: var(--los-serif);
   font-size: 16px;
   line-height: 1.95;
-  color: #2a2a26;
+  color: var(--los-ink);
   margin: 6px 0;
   position: relative;
   padding-left: 18px;
 }
-.prose-list li::before {
+body.dossier-article .prose-list li::before {
   content: '※';
   position: absolute;
   left: 0;
-  color: var(--red);
+  color: var(--los-seal);
   font-size: 14px;
   font-weight: 700;
 }
 
-.prose-h3 {
-  font-family: 'Noto Serif SC', serif;
-  font-weight: 700;
-  font-size: 17px;
-  color: var(--ink);
-  margin: 28px 0 10px;
-  line-height: 1.5;
-}
-
 /* END RULE */
-.article-end-rule {
+body.dossier-article .article-end-rule {
   margin: 56px 0 8px;
   display: flex;
   align-items: center;
   gap: 14px;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--los-mono);
   font-size: 10px;
   letter-spacing: .24em;
-  color: var(--ink-soft);
+  color: var(--los-ink2);
   text-transform: uppercase;
 }
-.article-end-rule::before,
-.article-end-rule::after {
+body.dossier-article .article-end-rule::before,
+body.dossier-article .article-end-rule::after {
   content: '';
   flex: 1;
-  height: 1.5px;
-  background: repeating-linear-gradient(90deg, var(--ink) 0 4px, transparent 4px 8px);
-  opacity: .35;
+  height: 1px;
+  background: var(--los-line);
 }
 
-/* 广告位 — 文章顶部 / 底部 */
-.dossier-article .ad-top,
-.dossier-article .ad-bottom {
+/* 广告位 */
+body.dossier-article .ad-top,
+body.dossier-article .ad-bottom {
   margin: 24px 0;
   padding: 16px;
-  background: var(--paper-2);
-  border: 1px dashed var(--border);
+  background: var(--los-paper-2);
+  border: 1px dashed var(--los-line);
   min-height: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.dossier-article .ad-bottom { margin-top: 36px; }
+body.dossier-article .ad-bottom { margin-top: 36px; }
 
 /* NAV (prev / next) */
-.article-nav {
+body.dossier-article .article-nav {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin: 36px 0 24px;
 }
-.nav-card {
+body.dossier-article .nav-card {
   display: flex;
   flex-direction: column;
   gap: 6px;
   padding: 18px 20px;
-  background: var(--paper-3);
-  border: 1.5px solid var(--ink);
+  background: var(--los-paper-3);
+  border: 1px solid var(--los-line);
   text-decoration: none;
-  color: var(--ink);
-  transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+  color: var(--los-ink);
+  transition: transform .25s, border-color .25s;
   cursor: pointer;
 }
-.nav-card:hover {
+body.dossier-article .nav-card:hover {
   transform: translateY(-3px);
-  box-shadow: 4px 4px 0 var(--ink);
-  background: var(--manila);
+  border-color: var(--los-seal);
 }
-.nav-card.next { text-align: right; }
-.nav-card.placeholder {
+body.dossier-article .nav-card.next { text-align: right; }
+body.dossier-article .nav-card.placeholder {
   cursor: default;
   opacity: .4;
   background: transparent;
   border-style: dashed;
 }
-.nav-card.placeholder:hover {
+body.dossier-article .nav-card.placeholder:hover {
   transform: none;
-  box-shadow: none;
-  background: transparent;
+  border-color: var(--los-line);
 }
-.nav-label {
-  font-family: 'IBM Plex Mono', monospace;
+body.dossier-article .nav-label {
+  font-family: var(--los-mono);
   font-size: 10px;
   letter-spacing: .14em;
-  color: var(--red-deep);
+  color: var(--los-seal);
   text-transform: uppercase;
 }
-.nav-title {
-  font-family: 'Noto Serif SC', serif;
+body.dossier-article .nav-title {
+  font-family: var(--los-serif);
   font-weight: 700;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--ink);
+  color: var(--los-ink);
 }
 
-/* FOOT */
-.article-foot {
+/* 链接行 */
+body.dossier-article .link-line {
+  margin-top: 24px;
   text-align: center;
-  margin-top: 36px;
 }
-.dossier-article .btn {
-  display: inline-block;
-  font-family: 'IBM Plex Mono', monospace;
+body.dossier-article .link-line a {
+  font-family: var(--los-mono);
   font-size: 12px;
-  letter-spacing: .14em;
-  padding: 12px 28px;
+  letter-spacing: .18em;
+  color: var(--los-ink2);
   text-decoration: none;
-  text-transform: uppercase;
-  transition: transform .25s ease, box-shadow .25s ease;
-  cursor: pointer;
-  border-radius: 1px;
+  transition: color .25s;
 }
-.dossier-article .btn-red {
-  background: var(--red);
-  color: var(--paper);
-  border: 1.5px solid var(--ink);
-  box-shadow: 4px 4px 0 var(--ink);
-}
-.dossier-article .btn-red:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--ink);
-}
-
-/* FOOTER */
-.dossier-article .foot {
-  border-top: 1.5px solid var(--ink);
-  background: var(--paper-2);
-  padding: 22px 0;
-  margin-top: auto;
-}
-.foot-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  letter-spacing: .14em;
-  color: var(--text-secondary);
-}
-.foot-logo {
-  font-family: 'Noto Serif SC', serif;
-  font-weight: 700;
-  color: var(--ink);
-  letter-spacing: .04em;
-  font-size: 12px;
-}
-
-/* REVEAL */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1);
-}
-.reveal.in {
-  opacity: 1;
-  transform: none;
-}
+body.dossier-article .link-line a:hover { color: var(--los-seal); }
 
 /* RESPONSIVE */
-@media (max-width: 720px) {
-  .dossier-article .container { padding: 0 20px; }
-  .article-hero { padding: 16px 0 28px; }
-  .article-title { font-size: 26px; }
-  .article-stamp-pad { display: none; }
-
-  .article-nav {
+@media (max-width: 760px) {
+  body.dossier-article .art-wrap { padding: 0 20px; }
+  body.dossier-article .art-h1 { font-size: 24px; }
+  body.dossier-article .article-nav {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  .nav-card.next { text-align: left; }
-
-  .prose-h2 { font-size: 19px; }
-  .prose-p { font-size: 15px; }
-
-  .foot-row { justify-content: center; text-align: center; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1 !important; transform: none !important; }
+  body.dossier-article .nav-card.next { text-align: left; }
+  body.dossier-article .prose-h2 { font-size: 19px; }
+  body.dossier-article .prose-p { font-size: 15px; }
 }
 </style>
 
 <script>
-  // reveal on scroll
+  // 阅读进度线
+  (function() {
+    var pb = document.getElementById('pb');
+    if (!pb) return;
+    function onScroll() {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      var p = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      pb.style.width = p + '%';
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  // 显现动画
   (function() {
     var io = new IntersectionObserver(function(entries) {
       entries.forEach(function(en) {
@@ -1278,6 +1009,6 @@ body.dossier-article {
         }
       });
     }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+    document.querySelectorAll('.rv').forEach(function(el) { io.observe(el); });
   })();
 </script>
