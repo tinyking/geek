@@ -8,6 +8,7 @@ interface Props {
   ogImage?: string;
   robots?: string;
   bodyClass?: string;
+  noAds?: boolean;
 }
 
 const {
@@ -17,6 +18,7 @@ const {
   ogImage,
   robots = 'index, follow',
   bodyClass = '',
+  noAds = false,
 } = Astro.props;
 
 const siteName = '观禾·浮生观禾，静心成长';
@@ -90,8 +92,10 @@ const websiteSchema = {
 		<meta name="twitter:image" content={finalOGImage} />
 
 		<title>{title}</title>
-		<!-- Google AdSense -->
-		<script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9508321495212724" crossorigin="anonymous"></script>
+		{/* Google AdSense — 首页禁用，其他页面保留 */}
+		{!noAds && (
+			<script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9508321495212724" crossorigin="anonymous"></script>
+		)}
 
 		<!-- JSON-LD: WebSite -->
 		<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
