@@ -9,17 +9,13 @@
  * - 必须配合 BaseLayout.astro 中全局加载的 adsbygoogle.js 库使用
  * - 每个广告位会自动调用 (adsbygoogle = window.adsbygoogle || []).push({})
  * - 在 SSR/SSG 静态输出下，使用 is:inline 确保 push 脚本原样输出
- *
- * 常用 format:
- * - "auto"：自适应（推荐）
- * - "horizontal" / "vertical" / "rectangle"
- * - 若指定 width/height，则使用固定尺寸
+ * - 预留布局空间与背景骨架，彻底避免 CLS 累积布局偏移
  */
 
 interface Props {
   /** AdSense 广告单元 ID（data-ad-slot） */
   slot: string;
-  /** 广告格式，默认 auto */
+  /** 广告格式，默认 auto ("auto" | "horizontal" | "vertical" | "rectangle") */
   format?: string;
   /** 是否响应式（默认 true） */
   responsive?: boolean;
@@ -27,6 +23,8 @@ interface Props {
   width?: number | string;
   /** 固定高度 */
   height?: number | string;
+  /** 最小预留高度，防止 CLS (如 100px, 250px) */
+  minHeight?: number | string;
   /** 额外样式类名 */
   class?: string;
   /** 无广告时的兜底文案（aria） */
@@ -39,20 +37,28 @@ const {
   responsive = true,
   width,
   height,
+  minHeight = format === 'rectangle' ? '250px' : '100px',
   class: className = '',
-  label = '广告位',
+  label = '赞助广告位',
 } = Astro.props;
 
+const calculatedMinHeight = typeof minHeight === 'number' ? `${minHeight}px` : minHeight;
+
 const styleStr = [
-  width ? `width:${typeof width === 'number' ? `${width}px` : width};` : '',
+  width ? `width:${typeof width === 'number' ? `${width}px` : width};` : 'min-width:250px;width:100%;',
   height ? `height:${typeof height === 'number' ? `${height}px` : height};` : '',
+  `min-height:${calculatedMinHeight};`,
   'display:block;',
 ]
   .filter(Boolean)
   .join(' ');
 ---
 
-<div class={`ad-unit-wrap ${className}`} aria-label={label}>
+<div
+  class={`ad-unit-wrap ${className}`}
+  style={`min-height: ${calculatedMinHeight};`}
+  aria-label={label}
+>
   <ins
     class="adsbygoogle"
     style={styleStr}
@@ -65,10 +71,75 @@ const styleStr = [
 
 <script is:inline>
   (function () {
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      // 静默失败，避免 AdSense 库未加载完成时抛错
+    var scriptEl = document.currentScript;
+    var wrapEl = scriptEl ? scriptEl.previousElementSibling : null;
+    var insEl = wrapEl ? wrapEl.querySelector('ins.adsbygoogle') : null;
+
+    if (!insEl || !wrapEl) return;
+
+    function markFilled() {
+      wrapEl.classList.add('ad-filled');
+    }
+
+    function pushAd() {
+      if (insEl.getAttribute('data-ad-status') === 'filled' || insEl.getAttribute('data-adsbygoogle-status')) {
+        markFilled();
+        return true;
+      }
+      if (insEl.offsetWidth <= 0) {
+        return false;
+      }
+
+      insEl.setAttribute('data-ad-status', 'filled');
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) {
+        console.warn('[AdSense] push error:', e);
+      }
+
+      // 监听 iframe 注入以移除骨架背景
+      var observer = new MutationObserver(function (mutations) {
+        if (wrapEl.querySelector('iframe') || insEl.getAttribute('data-ad-status') === 'filled') {
+          markFilled();
+          observer.disconnect();
+        }
+      });
+      observer.observe(insEl, { childList: true, subtree: true, attributes: true });
+
+      return true;
+    }
+
+    function init() {
+      if (pushAd()) return;
+
+      if ('ResizeObserver' in window) {
+        var ro = new ResizeObserver(function (entries) {
+          for (var i = 0; i < entries.length; i++) {
+            if (entries[i].contentRect.width > 0) {
+              ro.disconnect();
+              pushAd();
+              break;
+            }
+          }
+        });
+        ro.observe(insEl);
+      } else {
+        var tries = 0;
+        var timer = setInterval(function () {
+          tries++;
+          if (pushAd() || tries > 25) {
+            clearInterval(timer);
+          }
+        }, 200);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        requestAnimationFrame(init);
+      });
+    } else {
+      requestAnimationFrame(init);
     }
   })();
 </script>
@@ -77,10 +148,52 @@ const styleStr = [
   .ad-unit-wrap {
     margin: 32px auto;
     text-align: center;
+    width: 100%;
     max-width: 100%;
+    position: relative;
+    background: var(--los-paper-3, #fbfaf4);
+    border: 1px dashed var(--los-line, #e3dec3);
+    border-radius: 4px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    contain: layout style;
+    transition: background 0.3s ease, border-color 0.3s ease;
     overflow: hidden;
+  }
+  .ad-unit-wrap::before {
+    content: "ADVERTISEMENT · 赞助内容";
+    position: absolute;
+    top: 6px;
+    left: 12px;
+    font-family: var(--los-mono, monospace);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--los-ink2, #a09888);
+    letter-spacing: .12em;
+    pointer-events: none;
+    opacity: 0.6;
+    z-index: 0;
+  }
+  .ad-unit-wrap.ad-filled,
+  .ad-unit-wrap:has(iframe),
+  .ad-unit-wrap:has(ins[data-ad-status="filled"]) {
+    background: transparent;
+    border-color: transparent;
+  }
+  .ad-unit-wrap.ad-filled::before,
+  .ad-unit-wrap:has(iframe)::before,
+  .ad-unit-wrap:has(ins[data-ad-status="filled"])::before {
+    display: none;
   }
   .ad-unit-wrap :global(ins.adsbygoogle) {
     margin: 0 auto;
+    display: block !important;
+    width: 100%;
+    min-width: 250px;
+    position: relative;
+    z-index: 1;
   }
 </style>
+

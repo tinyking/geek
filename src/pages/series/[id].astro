@@ -26,9 +26,45 @@ const latest = series.articles[series.articles.length - 1];
 
 const pageTitle = `${series.title} · 文章专辑`;
 const pageDesc = series.desc;
+
+const siteBase = Astro.site ?? new URL('https://www.wangjianchao.cn');
+const canonicalURL = new URL(Astro.url.pathname, siteBase).href;
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": siteBase.href },
+    { "@type": "ListItem", "position": 2, "name": series.title, "item": canonicalURL },
+  ],
+};
+
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": series.title,
+  "description": series.desc,
+  "url": canonicalURL,
+  "inLanguage": "zh-CN",
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": series.articles.length,
+    "itemListElement": series.articles.map((art, idx) => ({
+      "@type": "ListItem",
+      "position": idx + 1,
+      "name": art.title,
+      "url": new URL(`/series/${series.id}/${art.no}`, siteBase).href,
+    })),
+  },
+};
 ---
 
 <BaseLayout title={pageTitle} description={pageDesc} bodyClass="dossier dossier-home dossier-series">
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  </Fragment>
+
   <!-- 阅读进度线 -->
   <div id="pb"></div>
 
@@ -43,6 +79,7 @@ const pageDesc = series.desc;
         <a href="/#research">研究</a>
         <a href="/#system">系统</a>
         <a href="/#projects">项目</a>
+        <a href="/tools">工具</a>
         <a href="/#about">关于</a>
       </nav>
     </div>
@@ -52,10 +89,13 @@ const pageDesc = series.desc;
     <!-- ============ 系列封面 ============ -->
     <section class="series-hero-sec">
       <div class="wrap">
-        <a class="back-link" href="/" aria-label="返回首页">
-          <span class="arrow">←</span>
-          <span>返回首页 · RETURN HOME</span>
-        </a>
+        <nav class="breadcrumb-nav-dossier" aria-label="面包屑导航">
+          <ol class="breadcrumb-list-dossier">
+            <li><a href="/">首页</a></li>
+            <li class="sep">/</li>
+            <li class="active" aria-current="page">专辑: {series.title}</li>
+          </ol>
+        </nav>
 
         <div class="ch-head series-ch-head">
           <span class="ch-no">{series.tab}</span>
@@ -136,6 +176,39 @@ const pageDesc = series.desc;
 
 <style is:global>
 /* ============ SERIES DETAIL PAGE — Life OS 风格 ============ */
+body.dossier-series .breadcrumb-nav-dossier {
+  margin: 28px 0 0;
+  font-family: var(--los-mono);
+  font-size: 12px;
+  letter-spacing: .12em;
+}
+body.dossier-series .breadcrumb-list-dossier {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: var(--los-ink2);
+}
+body.dossier-series .breadcrumb-list-dossier a {
+  color: var(--los-ink);
+  text-decoration: none;
+  transition: color .25s;
+}
+body.dossier-series .breadcrumb-list-dossier a:hover {
+  color: var(--los-seal);
+  text-decoration: underline;
+}
+body.dossier-series .breadcrumb-list-dossier .sep {
+  color: var(--los-line);
+}
+body.dossier-series .breadcrumb-list-dossier .active {
+  color: var(--los-seal);
+  font-weight: 700;
+}
+
 body.dossier-series {
   font-family: var(--los-serif);
   background: var(--los-paper);

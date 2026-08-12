@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SERIES, STATUS_CLASS } from '../data/series';
+import AuthorProfileCard from '../components/AuthorProfileCard.astro';
 
 // 跨系列按日期倒序的扁平文章流，还原 #007/#006/#005 那种单卷连续节奏
 const flatArticles = SERIES.flatMap((s) =>
@@ -34,7 +35,8 @@ const STATUS_EN: Record<string, string> = {
     <a href="#research" data-sec="research">02</a>
     <a href="#system" data-sec="system">03</a>
     <a href="#projects" data-sec="projects">04</a>
-    <a href="#about" data-sec="about">05</a>
+    <a href="#tools" data-sec="tools">05</a>
+    <a href="#about" data-sec="about">06</a>
   </aside>
 
   <!-- 页眉 -->
@@ -48,6 +50,7 @@ const STATUS_EN: Record<string, string> = {
         <a href="#research">研究</a>
         <a href="#system">系统</a>
         <a href="#projects">项目</a>
+        <a href="#tools">工具</a>
         <a href="#about">关于</a>
       </nav>
     </div>
@@ -61,6 +64,9 @@ const STATUS_EN: Record<string, string> = {
       <p class="lede">一个 40 岁程序员重新设计人生系统的长期实验。用工程思维，重新审视职业、认知、成长和个人价值，在 AI 时代寻找第二增长曲线。</p>
       <div class="cta-row">
         <a class="cta" href="#origin">开始阅读</a>
+        <button type="button" class="cta cta-sub" data-action="open-qr-modal" id="heroQrBtn">
+          关注公众号【爱语霖爱生活】 ↗
+        </button>
         <span class="scroll-hint">SCROLL — 01 / 起源</span>
       </div>
       <aside class="side">
@@ -125,23 +131,25 @@ const STATUS_EN: Record<string, string> = {
               const statusEn = STATUS_EN[s.status] || 'ONGOING';
               const latest = s.articles[s.articles.length - 1];
               return (
-                <a class="r-item rv series-card" href={`/series/${s.id}`}>
-                  <div class="r-top">
-                    <span class="r-no">{String(i + 1).padStart(2, '0')}</span>
-                    <h4>{s.title}</h4>
-                    <span class={`r-stamp ${stampClass}`}>{s.status}</span>
-                    <span class="r-pct">{s.articles.length}<small>篇</small></span>
-                  </div>
-                  <p>{s.desc}</p>
+                <div class="r-item rv series-card">
+                  <a class="r-main-link" href={`/series/${s.id}`}>
+                    <div class="r-top">
+                      <span class="r-no">{String(i + 1).padStart(2, '0')}</span>
+                      <h4>{s.title}</h4>
+                      <span class={`r-stamp ${stampClass}`}>{s.status}</span>
+                      <span class="r-pct">{s.articles.length}<small>篇</small></span>
+                    </div>
+                    <p>{s.desc}</p>
+                  </a>
                   <div class="r-foot">
-                    <span class="r-latest">
+                    <a class="r-latest" href={`/series/${s.id}/${latest.no}`} title={`阅读《${latest.title}》`}>
                       <i>最新</i>
                       <b>#{latest.no}</b>
                       <em>{latest.title}</em>
-                    </span>
+                    </a>
                     <span class="r-latest-date">{latest.date}</span>
                   </div>
-                </a>
+                </div>
               );
             })}
           </div>
@@ -215,24 +223,88 @@ const STATUS_EN: Record<string, string> = {
           </div>
           <div class="fig">
             <div class="fig-bar">FIG.02 — WANGJIANCHAO.CN</div>
-            <div class="fig-body">
-              <div class="web-sk">
-                <div class="sk sk1"></div>
-                <div class="sk sk2"></div>
-                <div class="sk sk3"></div>
-                <div class="sk sk4"></div>
-              </div>
+            <div class="fig-body fig-body-img">
+              <img src="/images/sitepage.svg" alt="WANGJIANCHAO.CN 网站首页预览" class="site-preview-img" width="1200" height="675" />
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ 05 关于 ============ -->
-    <section id="about">
+    <!-- ============ 05 工具间 ============ -->
+    <section id="tools">
       <div class="wrap">
         <div class="ch-head">
           <span class="ch-no">05</span>
+          <h2>工具间</h2>
+          <span class="ch-en">TOOLS</span>
+          <i class="ch-line"></i>
+        </div>
+        <div class="split">
+          <div class="left rv">
+            <h3>工欲善其事，<br>必先<em>利其器</em>。</h3>
+            <p>收存几件日常写作、排版与推广用的小工具。简约实用，随用随取。</p>
+            <div class="series-meta-sum">
+              <span><b>5</b> 件工具</span>
+              <span><b class="on">在册</b></span>
+            </div>
+            <div class="link-line" style="margin-top: 28px;">
+              <a href="/tools">进入完整工具间 ↗</a>
+            </div>
+          </div>
+          <div class="right">
+            <div class="tools-preview-grid">
+              <a class="t-card rv" href="/tools/cover">
+                <div class="t-no">TLS-CVR</div>
+                <div class="t-head">
+                  <span class="t-icon">🎨</span>
+                  <h4>封面生成器</h4>
+                </div>
+                <p>快速生成公众号封面图，支持极简美学排版与导出。</p>
+                <span class="t-link">使用工具 →</span>
+              </a>
+              <a class="t-card rv" href="/tools/md-to-wechat">
+                <div class="t-no">TLS-MWX</div>
+                <div class="t-head">
+                  <span class="t-icon">📝</span>
+                  <h4>Markdown 转微信</h4>
+                </div>
+                <p>将 Markdown 格式转换为微信公众号直接粘贴的美观排版。</p>
+                <span class="t-link">使用工具 →</span>
+              </a>
+              <a class="t-card rv" href="/tools/md-to-x">
+                <div class="t-no">TLS-MDX</div>
+                <div class="t-head">
+                  <span class="t-icon">𝕏</span>
+                  <h4>Markdown 转 X</h4>
+                </div>
+                <p>格式化转换推文长文与长图排版，适合多平台分发。</p>
+                <span class="t-link">使用工具 →</span>
+              </a>
+              <a class="t-card rv" href="/tools/qrcode">
+                <div class="t-no">TLS-QR</div>
+                <div class="t-head">
+                  <span class="t-icon">📱</span>
+                  <h4>二维码生成器</h4>
+                </div>
+                <p>在线一键生成高清晰度二维码，支持自定义参数。</p>
+                <span class="t-link">使用工具 →</span>
+              </a>
+            </div>
+            <div class="tools-more-bar rv">
+              <span>还有 Z2H 字符转换等更多实用工具</span>
+              <a href="/tools" class="btn-all-tools">进入工具间 (5) ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 06 关于 ============ -->
+    <section id="about">
+      <div class="wrap">
+        <div class="ch-head">
+          <span class="ch-no">06</span>
           <h2>关于我</h2>
           <span class="ch-en">STORY</span>
           <i class="ch-line"></i>
@@ -259,6 +331,11 @@ const STATUS_EN: Record<string, string> = {
             <p>把个人经验沉淀成可复用的模型、系统和方法论，帮助更多 35-45 岁的技术人找到第二增长曲线。前途是光明的，道路是曲折的，但每天挖一箕土，山总会矮一点。</p>
           </div>
         </div>
+
+        <!-- 私域流量与作者 IP 卡片 -->
+        <div style="margin-top: 48px;">
+          <AuthorProfileCard showTitle={false} />
+        </div>
       </div>
     </section>
   </main>
@@ -281,7 +358,7 @@ const STATUS_EN: Record<string, string> = {
   <div class="qr-overlay" id="qrOverlay" role="dialog" aria-modal="true" aria-label="公众号二维码">
     <div class="qr-card">
       <button class="qr-close" id="qrClose" aria-label="关闭">×</button>
-      <div class="qr-title">公众号 · 语霖</div>
+      <div class="qr-title">公众号 · 爱语霖爱生活</div>
       <img class="qr-img" src="/images/wechat-qr.jpg" alt="公众号二维码" width="240" height="240" />
       <div class="qr-tip">扫一扫，关注这个还在中年突围的普通人</div>
     </div>
@@ -361,6 +438,17 @@ body.dossier-home .cta:hover {
   background: var(--los-seal);
   border-color: var(--los-seal);
   color: var(--los-paper);
+}
+body.dossier-home .cta-sub {
+  background: var(--los-paper-2, #e6dcc4);
+  border-color: var(--los-seal, #c13a2b);
+  color: var(--los-seal, #c13a2b);
+  letter-spacing: .15em;
+  cursor: pointer;
+}
+body.dossier-home .cta-sub:hover {
+  background: var(--los-seal, #c13a2b);
+  color: #fff;
 }
 body.dossier-home .scroll-hint {
   font-family: var(--los-mono);
@@ -518,6 +606,11 @@ body.dossier-home .r-item {
   color: inherit;
   transition: padding-left .3s;
 }
+body.dossier-home .r-main-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
 body.dossier-home .r-item:last-child { border-bottom: 1px solid var(--los-line); }
 body.dossier-home .series-card:hover { padding-left: 16px; }
 body.dossier-home .r-top {
@@ -534,7 +627,7 @@ body.dossier-home .r-top h4 {
   color: var(--los-ink);
   transition: color .25s;
 }
-body.dossier-home .series-card:hover .r-top h4 { color: var(--los-seal); }
+body.dossier-home .r-main-link:hover .r-top h4 { color: var(--los-seal); }
 
 /* 状态印戳 */
 body.dossier-home .r-stamp {
@@ -577,6 +670,14 @@ body.dossier-home .r-foot {
 body.dossier-home .r-latest {
   display: flex; align-items: baseline; gap: 12px;
   flex: 1; min-width: 0;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity .2s;
+}
+body.dossier-home .r-latest:hover em {
+  color: var(--los-seal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 body.dossier-home .r-latest i {
   font-family: var(--los-mono);
@@ -765,10 +866,131 @@ body.dossier-home .web-sk .sk1 { width: 64%; height: 20px; background: var(--los
 body.dossier-home .web-sk .sk2 { width: 90%; height: 10px; }
 body.dossier-home .web-sk .sk3 { width: 82%; height: 10px; }
 body.dossier-home .web-sk .sk4 { width: 40%; height: 10px; }
+body.dossier-home .fig-body-img {
+  padding: 16px;
+  min-height: auto;
+  display: flex; align-items: center; justify-content: center;
+}
+body.dossier-home .site-preview-img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  border: 1px solid var(--los-line);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  display: block;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+body.dossier-home .site-preview-img:hover {
+  transform: scale(1.01);
+}
 @media (max-width: 900px) {
   body.dossier-home .proj,
   body.dossier-home .proj.alt { grid-template-columns: 1fr; }
   body.dossier-home .proj.alt .p-text { order: 0; }
+}
+
+/* ---------- 05 工具间 ---------- */
+body.dossier-home #tools {
+  padding: 120px 0;
+  border-top: 1px solid var(--los-line);
+}
+body.dossier-home .tools-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+body.dossier-home .t-card {
+  background: var(--los-paper-3, #fbfaf4);
+  border: 1px solid var(--los-line);
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--los-ink);
+  transition: transform .25s, border-color .25s, background-color .25s, box-shadow .25s;
+  position: relative;
+}
+body.dossier-home .t-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--los-seal);
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(193, 58, 43, 0.08);
+}
+body.dossier-home .t-no {
+  font-family: var(--los-mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  color: var(--los-ink2);
+  margin-bottom: 12px;
+}
+body.dossier-home .t-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+body.dossier-home .t-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+body.dossier-home .t-head h4 {
+  font-family: var(--los-serif);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--los-ink);
+  margin: 0;
+}
+body.dossier-home .t-card p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--los-ink2);
+  margin-bottom: 16px;
+  flex: 1;
+}
+body.dossier-home .t-link {
+  font-family: var(--los-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--los-seal);
+  transition: letter-spacing .2s;
+}
+body.dossier-home .t-card:hover .t-link {
+  letter-spacing: 2px;
+}
+body.dossier-home .tools-more-bar {
+  margin-top: 24px;
+  padding: 16px 20px;
+  border: 1px dashed var(--los-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+  color: var(--los-ink2);
+}
+body.dossier-home .btn-all-tools {
+  font-family: var(--los-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--los-paper);
+  background: var(--los-seal);
+  padding: 8px 18px;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: opacity .2s, transform .2s;
+}
+body.dossier-home .btn-all-tools:hover {
+  opacity: .9;
+  transform: translateY(-1px);
+}
+@media (max-width: 640px) {
+  body.dossier-home .tools-preview-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---------- 06 关于 · 时间线 ---------- */
@@ -910,24 +1132,30 @@ body.dossier-home .qr-tip {
   addEventListener('scroll', spy, { passive: true });
   spy();
 
-  // 公众号二维码弹窗（保留原交互）
-  var wechatBtn = document.getElementById('wechatColBtn');
+  // 公众号二维码弹窗
   var qrOverlay = document.getElementById('qrOverlay');
   var qrClose = document.getElementById('qrClose');
   if (qrOverlay) {
-    var openQr = function () {
+    var openQr = function (e) {
+      if (e && e.preventDefault) e.preventDefault();
       qrOverlay.classList.add('open');
+      qrOverlay.classList.add('active');
       document.body.style.overflow = 'hidden';
     };
     var closeQr = function () {
       qrOverlay.classList.remove('open');
+      qrOverlay.classList.remove('active');
       document.body.style.overflow = '';
     };
-    if (wechatBtn) wechatBtn.addEventListener('click', function (e) { e.preventDefault(); openQr(); });
+
+    document.querySelectorAll('#heroQrBtn, #wechatColBtn, [data-action="open-qr-modal"]').forEach(function (btn) {
+      btn.addEventListener('click', openQr);
+    });
+
     if (qrClose) qrClose.addEventListener('click', closeQr);
     qrOverlay.addEventListener('click', function (e) { if (e.target === qrOverlay) closeQr(); });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && qrOverlay.classList.contains('open')) closeQr();
+      if (e.key === 'Escape' && (qrOverlay.classList.contains('open') || qrOverlay.classList.contains('active'))) closeQr();
     });
   }
 })();

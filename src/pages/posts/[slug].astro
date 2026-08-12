@@ -1,26 +1,50 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AdUnit from '../../components/AdUnit.astro';
+import SocialShare from '../../components/SocialShare.astro';
+import AuthorProfileCard from '../../components/AuthorProfileCard.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
-  return posts.map((post) => ({
-    params: { slug: post.slug },
-    props: { post },
-  }));
+  const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+  return sortedPosts.map((post, index) => {
+    const prevPost = index > 0 ? sortedPosts[index - 1] : null;
+    const nextPost = index < sortedPosts.length - 1 ? sortedPosts[index + 1] : null;
+
+    const currentTags = new Set(post.data.tags);
+    const relatedPosts = sortedPosts
+      .filter((p) => p.id !== post.id)
+      .map((p) => {
+        const overlap = p.data.tags.filter((t) => currentTags.has(t)).length;
+        return { post: p, overlap };
+      })
+      .sort((a, b) => {
+        if (b.overlap !== a.overlap) return b.overlap - a.overlap;
+        return b.post.data.date.getTime() - a.post.data.date.getTime();
+      })
+      .slice(0, 3)
+      .map((item) => item.post);
+
+    return {
+      params: { slug: post.id },
+      props: { post, prevPost, nextPost, relatedPosts },
+    };
+  });
 }
 
-const { post } = Astro.props;
-const { Content } = await post.render();
+const { post, prevPost, nextPost, relatedPosts } = Astro.props;
+const { Content } = await render(post);
 
+const siteBase = Astro.site ?? new URL('https://www.wangjianchao.cn');
 const pageTitle = `${post.data.title} | 观禾·浮生观禾，静心成长`;
 const pageDescription = post.data.description ?? post.data.excerpt;
 const pageOGImage = post.data.ogImage
-  ? new URL(post.data.ogImage, Astro.site ?? new URL('https://www.wangjianchao.cn')).href
-  : undefined;
+  ? new URL(post.data.ogImage, siteBase).href
+  : new URL(`/og/posts/${post.id}.svg`, siteBase).href;
 const canonicalURL = post.data.canonicalURL
-  ?? new URL(Astro.url.pathname, Astro.site ?? new URL('https://www.wangjianchao.cn')).href;
+  ?? new URL(Astro.url.pathname, siteBase).href;
 
 // 文章 BlogPosting 结构化数据
 const blogPostingSchema = {
@@ -30,14 +54,26 @@ const blogPostingSchema = {
   "description": pageDescription,
   "datePublished": post.data.date.toISOString(),
   "dateModified": (post.data.updatedDate ?? post.data.date).toISOString(),
-  "author": { "@type": "Person", "name": post.data.author },
-  "image": pageOGImage ?? new URL('/images/og-default.png', Astro.site ?? new URL('https://www.wangjianchao.cn')).href,
-  "publisher": { "@type": "Person", "name": "语霖" },
+  "author": { "@type": "Person", "name": post.data.author, "url": siteBase.href },
+  "image": pageOGImage,
+  "publisher": { "@type": "Person", "name": "语霖", "url": siteBase.href },
   "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalURL },
   "keywords": post.data.tags.join(', '),
+  "inLanguage": "zh-CN",
 };
 
-const postNo = `POS-${String(post.slug).slice(0, 6).toUpperCase()}`;
+// 面包屑结构化数据
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": siteBase.href },
+    { "@type": "ListItem", "position": 2, "name": "文章档案", "item": new URL('/posts', siteBase).href },
+    { "@type": "ListItem", "position": 3, "name": post.data.title, "item": canonicalURL },
+  ],
+};
+
+const postNo = `POS-${String(post.id).slice(0, 6).toUpperCase()}`;
 ---
 
 <BaseLayout
@@ -47,6 +83,11 @@ const postNo = `POS-${String(post.slug).slice(0, 6).toUpperCase()}`;
   ogImage={pageOGImage}
   bodyClass="dossier"
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
   <div class="grid-bg"></div>
   <div class="noise"></div>
   <div class="wm"><span class="a">又</span><span class="b">见</span></div>
@@ -68,7 +109,15 @@ const postNo = `POS-${String(post.slug).slice(0, 6).toUpperCase()}`;
 
   <main class="dossier-main">
     <div class="container">
-      <a class="back-link" href="/posts">← 返回文章列表</a>
+      <nav class="breadcrumb-nav" aria-label="面包屑导航">
+        <ol class="breadcrumb-list">
+          <li><a href="/">首页</a></li>
+          <li class="sep">/</li>
+          <li><a href="/posts">文章档案</a></li>
+          <li class="sep">/</li>
+          <li class="active" aria-current="page">{post.data.title}</li>
+        </ol>
+      </nav>
 
       <article class="article">
         <header class="article-head">
@@ -91,17 +140,76 @@ const postNo = `POS-${String(post.slug).slice(0, 6).toUpperCase()}`;
           )}
         </header>
 
-        <div class="ad-top">
-          <AdUnit slot="6252683541" format="auto" label="文章顶部广告" />
-        </div>
-
         <div class="prose">
           <Content />
         </div>
 
         <div class="ad-bottom">
-          <AdUnit slot="6252683541" format="auto" label="文章底部广告" />
+          <AdUnit slot="6252683541" format="auto" minHeight="120px" label="文章底部赞助推荐" />
         </div>
+
+        <AuthorProfileCard />
+
+        <!-- 相关文章推荐 -->
+        {relatedPosts && relatedPosts.length > 0 && (
+          <section class="related-posts-sec">
+            <div class="rel-head">
+              <span class="rel-stamp">RECOMMENDED · 关联阅读</span>
+              <h3 class="rel-title">基于主题标签的深度关联推荐</h3>
+            </div>
+            <div class="rel-grid">
+              {relatedPosts.map((rPost) => (
+                <a href={`/posts/${rPost.id}`} class="rel-card">
+                  <div class="rel-card-meta">
+                    <time>{rPost.data.date.toLocaleDateString('zh-CN')}</time>
+                    <span>{rPost.data.readingTime} 分钟阅读</span>
+                  </div>
+                  <h4 class="rel-card-title">{rPost.data.title}</h4>
+                  <p class="rel-card-excerpt">{rPost.data.excerpt}</p>
+                  <div class="rel-card-tags">
+                    {rPost.data.tags.slice(0, 3).map((t) => (
+                      <span class="rel-tag">{t}</span>
+                    ))}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <SocialShare
+          title={post.data.title}
+          url={canonicalURL}
+          ogImage={pageOGImage}
+          description={pageDescription}
+          showWechatCopy={true}
+        />
+
+        <!-- 上一篇 / 下一篇导航 -->
+        <nav class="post-nav-sec" aria-label="文章翻页">
+          {prevPost ? (
+            <a href={`/posts/${prevPost.id}`} class="pns-card prev">
+              <span class="pns-label">← 上一篇 PREVIOUS</span>
+              <span class="pns-title">{prevPost.data.title}</span>
+            </a>
+          ) : (
+            <div class="pns-card disabled">
+              <span class="pns-label">PREVIOUS</span>
+              <span class="pns-title">已是最新发表文章</span>
+            </div>
+          )}
+          {nextPost ? (
+            <a href={`/posts/${nextPost.id}`} class="pns-card next">
+              <span class="pns-label">下一篇 NEXT →</span>
+              <span class="pns-title">{nextPost.data.title}</span>
+            </a>
+          ) : (
+            <div class="pns-card disabled">
+              <span class="pns-label">NEXT</span>
+              <span class="pns-title">已是最早发表文章</span>
+            </div>
+          )}
+        </nav>
 
         <footer class="article-foot">
           <div class="article-foot-in">
@@ -125,6 +233,186 @@ const postNo = `POS-${String(post.slug).slice(0, 6).toUpperCase()}`;
   </main>
 
   <style is:global>
+    /* 相关文章推荐组件样式 */
+    .related-posts-sec {
+      margin: 48px 0 32px;
+      padding: 24px;
+      background: var(--los-paper-3, #fbfaf4);
+      border: 1px solid var(--los-line, #e3dec3);
+      border-radius: 4px;
+    }
+    .rel-head {
+      margin-bottom: 20px;
+    }
+    .rel-stamp {
+      font-family: var(--los-mono, monospace);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--los-seal, #c13a2b);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .rel-title {
+      font-family: var(--los-serif, serif);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--los-ink, #171310);
+      margin: 0;
+    }
+    .rel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .rel-card {
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      background: #ffffff;
+      border: 1px solid var(--los-line, #e3dec3);
+      border-radius: 4px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .rel-card:hover {
+      border-color: var(--los-seal, #c13a2b);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(193, 58, 43, 0.08);
+    }
+    .rel-card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--los-mono, monospace);
+      font-size: 11px;
+      color: var(--los-ink2, #736b5e);
+      margin-bottom: 8px;
+    }
+    .rel-card-title {
+      font-family: var(--los-serif, serif);
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--los-ink, #171310);
+      margin: 0 0 8px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .rel-card-excerpt {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--los-ink2, #736b5e);
+      margin: 0 0 12px 0;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .rel-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .rel-tag {
+      font-family: var(--los-mono, monospace);
+      font-size: 10px;
+      color: var(--los-seal, #c13a2b);
+      background: var(--los-paper-2, #f4f1e7);
+      padding: 2px 6px;
+      border-radius: 2px;
+    }
+
+    /* 上一篇 / 下一篇 翻页控制卡片 */
+    .post-nav-sec {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 32px 0 40px;
+    }
+    @media (max-width: 640px) {
+      .post-nav-sec {
+        grid-template-columns: 1fr;
+      }
+    }
+    .pns-card {
+      display: flex;
+      flex-direction: column;
+      padding: 16px 20px;
+      background: var(--los-paper-3, #fbfaf4);
+      border: 1px solid var(--los-line, #e3dec3);
+      border-radius: 4px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .2s, background .2s, transform .2s;
+    }
+    .pns-card:not(.disabled):hover {
+      border-color: var(--los-seal, #c13a2b);
+      background: #ffffff;
+      transform: translateY(-2px);
+    }
+    .pns-card.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--los-paper-2, #f4f1e7);
+    }
+    .pns-label {
+      font-family: var(--los-mono, monospace);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--los-seal, #c13a2b);
+      letter-spacing: .1em;
+      margin-bottom: 6px;
+    }
+    .pns-title {
+      font-family: var(--los-serif, serif);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--los-ink, #171310);
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 面包屑导航样式 */
+    .breadcrumb-nav {
+      margin-bottom: 24px;
+      font-family: var(--los-mono, 'IBM Plex Mono', monospace);
+      font-size: 13px;
+    }
+    .breadcrumb-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      color: var(--text-secondary, #6b6b6b);
+    }
+    .breadcrumb-list a {
+      color: var(--ink, #171310);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .breadcrumb-list a:hover {
+      color: var(--red, #c13a2b);
+      text-decoration: underline;
+    }
+    .breadcrumb-list .sep {
+      color: var(--border, #c9bea3);
+    }
+    .breadcrumb-list .active {
+      color: var(--red, #c13a2b);
+      font-weight: 600;
+    }
+
     /* === dossier 主题 token（与 404.astro 一致） === */
     body.dossier {
       --paper: #f0e4cd;

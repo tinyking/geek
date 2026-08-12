@@ -5,6 +5,37 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 const posts = (await getCollection('posts')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
+
+const siteBase = Astro.site ?? new URL('https://www.wangjianchao.cn');
+const canonicalURL = new URL(Astro.url.pathname, siteBase).href;
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": siteBase.href },
+    { "@type": "ListItem", "position": 2, "name": "文章档案", "item": canonicalURL },
+  ],
+};
+
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "文章档案",
+  "description": "浏览语霖发布的全部技术文章与思考随笔，涵盖前端工程、产品设计、个人成长等主题。",
+  "url": canonicalURL,
+  "inLanguage": "zh-CN",
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": posts.length,
+    "itemListElement": posts.map((post, idx) => ({
+      "@type": "ListItem",
+      "position": idx + 1,
+      "name": post.data.title,
+      "url": new URL(`/posts/${post.id}`, siteBase).href,
+    })),
+  },
+};
 ---
 
 <BaseLayout
@@ -12,6 +43,11 @@ const posts = (await getCollection('posts')).sort(
   description="浏览语霖发布的全部技术文章与思考随笔，涵盖前端工程、产品设计、个人成长等主题。"
   bodyClass="dossier"
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  </Fragment>
+
   <div class="grid-bg"></div>
   <div class="noise"></div>
   <div class="wm"><span class="a">又</span><span class="b">见</span></div>
@@ -33,7 +69,13 @@ const posts = (await getCollection('posts')).sort(
 
   <main class="dossier-main">
     <div class="container">
-      <a class="back-link" href="/">← 返回首页</a>
+      <nav class="breadcrumb-nav" aria-label="面包屑导航">
+        <ol class="breadcrumb-list">
+          <li><a href="/">首页</a></li>
+          <li class="sep">/</li>
+          <li class="active" aria-current="page">文章档案</li>
+        </ol>
+      </nav>
 
       <header class="page-head">
         <div class="stamp">ARCHIVE · 卷宗</div>
@@ -44,7 +86,7 @@ const posts = (await getCollection('posts')).sort(
 
       <div class="folder-list">
         {posts.map((post, i) => (
-          <a class="folder" href={`/posts/${post.slug}`}>
+          <a class="folder" href={`/posts/${post.id}`}>
             <div class="folder-no">NO. {String(i + 1).padStart(3, '0')}</div>
             <div class="folder-body">
               <div class="folder-meta">
@@ -68,6 +110,38 @@ const posts = (await getCollection('posts')).sort(
 
   <style is:global>
     /* === dossier 主题 token（与 404.astro 一致） === */
+    .breadcrumb-nav {
+      margin-bottom: 24px;
+      font-family: var(--los-mono, 'IBM Plex Mono', monospace);
+      font-size: 13px;
+    }
+    .breadcrumb-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      color: var(--text-secondary, #6b6b6b);
+    }
+    .breadcrumb-list a {
+      color: var(--ink, #171310);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .breadcrumb-list a:hover {
+      color: var(--red, #c13a2b);
+      text-decoration: underline;
+    }
+    .breadcrumb-list .sep {
+      color: var(--border, #c9bea3);
+    }
+    .breadcrumb-list .active {
+      color: var(--red, #c13a2b);
+      font-weight: 600;
+    }
+
     body.dossier {
       --paper: #f0e4cd;
       --paper-2: #e6dcc4;

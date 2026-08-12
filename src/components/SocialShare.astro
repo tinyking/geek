@@ -1,0 +1,617 @@
+---
+interface Props {
+  title: string;
+  url: string;
+  ogImage: string;
+  description?: string;
+  showWechatCopy?: boolean;
+}
+
+const {
+  title,
+  url,
+  ogImage,
+  description = '',
+  showWechatCopy = true,
+} = Astro.props;
+---
+
+<!-- 1. 侧边悬浮分享栏 (Desktop Floating Share Toolbar) -->
+<aside class="floating-share-bar" aria-label="快捷分享工具栏">
+  <button
+    type="button"
+    class="f-share-btn btn-wechat"
+    title="微信分享与预览卡片"
+    data-action="open-share-modal"
+  >
+    <span class="f-icon">💬</span>
+    <span class="f-tooltip">微信分享</span>
+  </button>
+
+  <button
+    type="button"
+    class="f-share-btn btn-x"
+    title="分享到 X (Twitter)"
+    data-action="share-x"
+  >
+    <span class="f-icon">𝕏</span>
+    <span class="f-tooltip">分享到 X</span>
+  </button>
+
+  <button
+    type="button"
+    class="f-share-btn btn-copy"
+    title="复制文章链接"
+    data-action="copy-link"
+  >
+    <span class="f-icon">🔗</span>
+    <span class="f-tooltip">复制链接</span>
+  </button>
+
+  {showWechatCopy && (
+    <button
+      type="button"
+      class="f-share-btn btn-copy-wx"
+      title="复制排版至公众号"
+      data-action="copy-wechat-format"
+    >
+      <span class="f-icon">📝</span>
+      <span class="f-tooltip">公众号排版</span>
+    </button>
+  )}
+</aside>
+
+<!-- 2. 文章底部整幅分享卡片 (Article Footer Share Block) -->
+<div class="article-share-block rv">
+  <div class="share-block-head">
+    <div class="sb-title">
+      <span class="sb-seal">阅</span>
+      <div>
+        <h4>分享与分发 · SHARE CARD</h4>
+        <p>支持一键生成微信预览卡片、分享至 X (Twitter) 或复制链接</p>
+      </div>
+    </div>
+    <div class="sb-stamp">WANGJIANCHAO.CN</div>
+  </div>
+
+  <div class="share-actions-grid">
+    <button type="button" class="s-act-btn act-wechat" data-action="open-share-modal">
+      <span class="s-icon">💬</span>
+      <div class="s-text">
+        <span class="s-label">微信分享</span>
+        <span class="s-sub">扫码卡片与二维码</span>
+      </div>
+    </button>
+
+    <button type="button" class="s-act-btn act-x" data-action="share-x">
+      <span class="s-icon">𝕏</span>
+      <div class="s-text">
+        <span class="s-label">分享到 X</span>
+        <span class="s-sub">Twitter 快捷推文</span>
+      </div>
+    </button>
+
+    <button type="button" class="s-act-btn act-copy" data-action="copy-link">
+      <span class="s-icon">🔗</span>
+      <div class="s-text">
+        <span class="s-label">复制链接</span>
+        <span class="s-sub">快速分享地址</span>
+      </div>
+    </button>
+
+    {showWechatCopy && (
+      <button type="button" class="s-act-btn act-wx" data-action="copy-wechat-format">
+        <span class="s-icon">📝</span>
+        <div class="s-text">
+          <span class="s-label">复制公众号格式</span>
+          <span class="s-sub">一键粘贴至富文本</span>
+        </div>
+      </button>
+    )}
+  </div>
+</div>
+
+<!-- 3. 微信分享 & 动态 OG 卡片弹窗 Modal -->
+<div id="share-modal" class="share-modal-overlay" aria-hidden="true">
+  <div class="share-modal-card">
+    <button type="button" class="modal-close-btn" id="close-share-modal" aria-label="关闭弹窗">✕</button>
+    
+    <div class="modal-header">
+      <span class="modal-badge">DOSSIER SHARE</span>
+      <h3>微信扫码与分享卡片</h3>
+      <p>扫码直接阅读，或保存/复制卡片分享至朋友圈与社群</p>
+    </div>
+
+    <div class="modal-body-split">
+      <!-- OG 预览图 -->
+      <div class="og-preview-box">
+        <span class="box-tag">动态生成 OG Preview</span>
+        <img src={ogImage} alt={title} class="og-img-render" loading="lazy" />
+        <div class="og-actions">
+          <a href={ogImage} download="share-card.svg" target="_blank" class="btn-dl-card">
+            下载分享卡片 ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- 二维码与链接 -->
+      <div class="qr-code-box">
+        <div class="qr-frame">
+          <img
+            id="modal-qr-img"
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(url)}`}
+            alt="文章二维码"
+            class="qr-img"
+          />
+        </div>
+        <span class="qr-hint">微信手机扫码阅读</span>
+        
+        <div class="copy-url-group">
+          <input type="text" readonly value={url} id="share-url-input" class="share-url-input" />
+          <button type="button" id="modal-copy-link-btn" class="btn-copy-modal">复制</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast 提示框 -->
+<div id="share-toast" class="share-toast" aria-live="polite"></div>
+
+<style is:global>
+  /* 1. 侧边悬浮分享栏 */
+  .floating-share-bar {
+    position: fixed;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 90;
+  }
+  .f-share-btn {
+    width: 44px;
+    height: 44px;
+    background: var(--los-paper-2, #e6dcc4);
+    border: 1px solid var(--los-line, #c9bea3);
+    color: var(--los-ink, #171310);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform .2s, background .2s, border-color .2s;
+    box-shadow: 2px 2px 0 var(--los-ink, #171310);
+  }
+  .f-share-btn:hover {
+    transform: translate(-2px, -2px);
+    background: var(--los-seal, #c13a2b);
+    color: #fff;
+    border-color: var(--los-seal, #c13a2b);
+  }
+  .f-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+  .f-tooltip {
+    position: absolute;
+    left: 100%;
+    margin-left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--los-ink, #171310);
+    color: var(--los-paper, #faf7f2);
+    font-family: var(--los-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 4px 8px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+    border-radius: 2px;
+  }
+  .f-share-btn:hover .f-tooltip {
+    opacity: 1;
+  }
+
+  /* 2. 文章底部整幅分享卡片 */
+  .article-share-block {
+    margin: 48px 0;
+    padding: 28px;
+    background: var(--los-paper-2, #e6dcc4);
+    border: 1px solid var(--los-line, #c9bea3);
+    position: relative;
+  }
+  .share-block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--los-line, #c9bea3);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .sb-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .sb-seal {
+    width: 32px;
+    height: 32px;
+    background: var(--los-seal, #c13a2b);
+    color: var(--los-paper, #faf7f2);
+    display: grid;
+    place-items: center;
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 18px;
+  }
+  .sb-title h4 {
+    font-family: var(--los-serif, serif);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--los-ink, #171310);
+    margin: 0;
+  }
+  .sb-title p {
+    font-size: 12px;
+    color: var(--los-ink2, #554b42);
+    margin: 2px 0 0 0;
+  }
+  .sb-stamp {
+    font-family: var(--los-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--los-seal, #c13a2b);
+    font-weight: 600;
+  }
+
+  .share-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .s-act-btn {
+    background: var(--los-paper, #faf7f2);
+    border: 1px solid var(--los-line, #c9bea3);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: transform .2s, border-color .2s, background .2s, box-shadow .2s;
+  }
+  .s-act-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--los-seal, #c13a2b);
+    box-shadow: 0 4px 12px rgba(193, 58, 43, 0.08);
+  }
+  .s-icon {
+    font-size: 24px;
+    line-height: 1;
+    flex: none;
+  }
+  .s-text {
+    display: flex;
+    flex-direction: column;
+  }
+  .s-label {
+    font-family: var(--los-serif, serif);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--los-ink, #171310);
+  }
+  .s-sub {
+    font-size: 11px;
+    color: var(--los-ink2, #6b6b6b);
+    margin-top: 2px;
+  }
+
+  /* 3. 弹窗 Modal */
+  .share-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(23, 19, 16, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .share-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .share-modal-card {
+    background: var(--los-paper, #faf7f2);
+    border: 2px solid var(--los-ink, #171310);
+    box-shadow: 10px 10px 0 var(--los-ink, #171310);
+    width: min(820px, 92vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 32px;
+    position: relative;
+    transform: translateY(16px);
+    transition: transform .25s ease;
+  }
+  .share-modal-overlay.active .share-modal-card {
+    transform: translateY(0);
+  }
+  .modal-close-btn {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 32px;
+    height: 32px;
+    background: var(--los-paper-2, #e6dcc4);
+    border: 1px solid var(--los-line, #c9bea3);
+    font-size: 16px;
+    color: var(--los-ink, #171310);
+    cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  .modal-close-btn:hover {
+    background: var(--los-seal, #c13a2b);
+    color: #fff;
+  }
+  .modal-header {
+    margin-bottom: 24px;
+  }
+  .modal-badge {
+    font-family: var(--los-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--los-seal, #c13a2b);
+    font-weight: 700;
+  }
+  .modal-header h3 {
+    font-family: var(--los-serif, serif);
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--los-ink, #171310);
+    margin: 6px 0 4px 0;
+  }
+  .modal-header p {
+    font-size: 13px;
+    color: var(--los-ink2, #554b42);
+    margin: 0;
+  }
+
+  .modal-body-split {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 28px;
+    align-items: start;
+  }
+  .og-preview-box {
+    background: var(--los-paper-2, #e6dcc4);
+    border: 1px solid var(--los-line, #c9bea3);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .box-tag {
+    font-family: var(--los-mono, monospace);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--los-ink2, #6b6b6b);
+  }
+  .og-img-render {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--los-line, #c9bea3);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    background: #fff;
+  }
+  .og-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .btn-dl-card {
+    font-family: var(--los-mono, monospace);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--los-paper, #faf7f2);
+    background: var(--los-seal, #c13a2b);
+    padding: 6px 14px;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: opacity .2s;
+  }
+  .btn-dl-card:hover {
+    opacity: 0.9;
+  }
+
+  .qr-code-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--los-paper-2, #e6dcc4);
+    border: 1px solid var(--los-line, #c9bea3);
+    padding: 20px 16px;
+  }
+  .qr-frame {
+    background: #fff;
+    padding: 10px;
+    border: 1px solid var(--los-line, #c9bea3);
+    margin-bottom: 10px;
+  }
+  .qr-img {
+    width: 150px;
+    height: 150px;
+    display: block;
+  }
+  .qr-hint {
+    font-size: 12px;
+    color: var(--los-ink2, #554b42);
+    margin-bottom: 16px;
+  }
+  .copy-url-group {
+    display: flex;
+    width: 100%;
+    gap: 4px;
+  }
+  .share-url-input {
+    flex: 1;
+    font-family: var(--los-mono, monospace);
+    font-size: 11px;
+    padding: 6px 8px;
+    border: 1px solid var(--los-line, #c9bea3);
+    background: var(--los-paper, #faf7f2);
+    color: var(--los-ink, #171310);
+  }
+  .btn-copy-modal {
+    font-family: var(--los-mono, monospace);
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--los-ink, #171310);
+    color: var(--los-paper, #faf7f2);
+    border: none;
+    padding: 0 12px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .btn-copy-modal:hover {
+    background: var(--los-seal, #c13a2b);
+  }
+
+  /* Toast Notification */
+  .share-toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--los-ink, #171310);
+    color: var(--los-paper, #faf7f2);
+    font-family: var(--los-mono, monospace);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 4px;
+    border: 1px solid var(--los-seal, #c13a2b);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 1000;
+  }
+  .share-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 1080px) {
+    .floating-share-bar {
+      display: none;
+    }
+  }
+  @media (max-width: 680px) {
+    .modal-body-split {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    // 页面 URL 与标题
+    const shareTitle = document.title;
+    const shareUrl = window.location.href;
+
+    // Toast 提示
+    function showToast(msg) {
+      const toast = document.getElementById('share-toast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // Modal 开关
+    const modal = document.getElementById('share-modal');
+    const closeBtn = document.getElementById('close-share-modal');
+
+    function openModal() {
+      if (modal) {
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+    }
+    function closeModal() {
+      if (modal) {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    // 复制链接功能
+    async function copyLink() {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(shareUrl);
+        } else {
+          const input = document.createElement('input');
+          input.value = shareUrl;
+          document.body.appendChild(input);
+          input.select();
+          document.execCommand('copy');
+          document.body.removeChild(input);
+        }
+        showToast('✅ 文章链接已复制到剪贴板');
+      } catch (err) {
+        showToast('❌ 复制链接失败，请手动复制');
+      }
+    }
+
+    // 分享到 X (Twitter)
+    function shareX() {
+      const text = encodeURIComponent(`《${shareTitle.replace(' | 观禾·浮生观禾，静心成长', '')}》 via @wangjianchao_cn\n`);
+      const xUrl = `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(shareUrl)}`;
+      window.open(xUrl, '_blank', 'width=600,height=400,noopener,noreferrer');
+    }
+
+    // 绑定所有的 data-action
+    document.querySelectorAll('[data-action]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const action = btn.getAttribute('data-action');
+        if (action === 'open-share-modal') {
+          openModal();
+        } else if (action === 'share-x') {
+          shareX();
+        } else if (action === 'copy-link') {
+          copyLink();
+        } else if (action === 'copy-wechat-format') {
+          const wechatBtn = document.getElementById('copy-wechat');
+          if (wechatBtn) {
+            wechatBtn.click();
+          } else {
+            copyLink();
+          }
+        }
+      });
+    });
+
+    // Modal 内部复制按钮
+    const modalCopyBtn = document.getElementById('modal-copy-link-btn');
+    if (modalCopyBtn) {
+      modalCopyBtn.addEventListener('click', copyLink);
+    }
+  })();
+</script>

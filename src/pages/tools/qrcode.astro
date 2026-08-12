@@ -1,49 +1,92 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const siteBase = Astro.site ?? new URL('https://www.wangjianchao.cn');
+const canonicalURL = new URL(Astro.url.pathname, siteBase).href;
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": siteBase.href },
+    { "@type": "ListItem", "position": 2, "name": "工具间", "item": new URL('/tools', siteBase).href },
+    { "@type": "ListItem", "position": 3, "name": "二维码生成器", "item": canonicalURL },
+  ],
+};
+
+const softwareSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "二维码生成器",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "All",
+  "url": canonicalURL,
+  "description": "在线一键生成高清晰度二维码，支持自定义尺寸与参数。",
+  "author": { "@type": "Person", "name": "语霖", "url": siteBase.href },
+  "inLanguage": "zh-CN",
+};
 ---
 
 <BaseLayout
-  title="二维码生成器 | 观禾·浮生观禾，静心成长"
-  description="在线生成自定义二维码的实用工具。"
-  robots="noindex, follow"
-  bodyClass="dossier"
+  title="二维码生成器 · UTILITIES | 语霖 · WANGJIANCHAO.CN"
+  description="在线一键生成高清晰度二维码，支持自定义尺寸与参数。"
+  bodyClass="dossier dossier-home"
 >
-  <div class="grid-bg"></div>
-  <div class="noise"></div>
-  <div class="wm"><span class="a">又</span><span class="b">见</span></div>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(softwareSchema)} />
+  </Fragment>
 
-  <header class="topbar">
-    <div class="topbar-in">
-      <div class="logo">朝</div>
-      <div class="brand">
-        <b>观禾</b>
-        <small>浮生观禾，静心成长</small>
-      </div>
-      <div class="topbar-right">
-        <span class="meta"><span class="dot"></span>在册</span>
-        <span class="meta">NO. TLS-QR</span>
-        <span class="meta" id="today">——</span>
-      </div>
+  <div id="pb"></div>
+
+  <!-- 顶栏导航 -->
+  <header class="topbar-home">
+    <div class="topbar-in wrap bar">
+      <a class="brand" href="/">
+        <span class="seal-s">语</span>
+        <span class="brand-name">语霖</span>
+      </a>
+      <nav>
+        <a href="/#research">研究</a>
+        <a href="/#system">系统</a>
+        <a href="/#projects">项目</a>
+        <a href="/tools" style="color: var(--los-seal);">工具</a>
+        <a href="/#about">关于</a>
+      </nav>
     </div>
   </header>
 
-  <main class="dossier-main">
-    <div class="container">
-      <div class="page-head">
-        <a class="back" href="/tools">← 返回工具间</a>
-        <div class="head-stamp">TOOL · 二维码生成器</div>
+  <main style="padding: 40px 0 100px;">
+    <div class="wrap">
+      <!-- 面包屑导航与标识 -->
+      <div class="sub-tool-bar rv">
+        <nav class="breadcrumb-nav-dossier" aria-label="面包屑导航">
+          <ol class="breadcrumb-list-dossier">
+            <li><a href="/">首页</a></li>
+            <li class="sep">/</li>
+            <li><a href="/tools">工具间</a></li>
+            <li class="sep">/</li>
+            <li class="active" aria-current="page">二维码生成器</li>
+          </ol>
+        </nav>
+        <span class="tool-stamp-badge">TOOL · TLS-QR</span>
       </div>
 
-      <div class="page-title-row">
-        <h1 class="page-title">二维码生成器 · <span class="rd">QR CODE</span></h1>
-        <div class="page-rule"></div>
-        <p class="page-sub">
-          在线生成自定义二维码。<br>
-          卷宗编号 <b>NO. TLS-QR</b>，下方为工具面板。
-        </p>
+      <!-- 标题章头 -->
+      <div class="ch-head rv" style="margin-bottom: 24px;">
+        <span class="ch-no">TLS-QR</span>
+        <h2>二维码生成器</h2>
+        <span class="ch-en">QR CODE GENERATOR</span>
+        <i class="ch-line"></i>
       </div>
 
-      <div class="tool-frame">
+      <p class="tool-page-desc rv">
+        在线一键生成高清晰度二维码，支持自定义样式与尺寸保存。<br />
+        卷宗编号 <b>NO. TLS-QR</b>，纯前端安全渲染，不传输任何私密内容。
+      </p>
+
+      <!-- 工具面板容器 -->
+      <div class="tool-frame rv">
         <div class="tool-frame-head">
           <span class="dot-r"></span>
           <span class="dot-y"></span>
@@ -59,288 +102,140 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
   </main>
 
+  <!-- 落款 Footer -->
+  <footer class="end-footer">
+    <div class="wrap end">
+      <div class="seal-square seal-lg" role="img" aria-label="语霖之印">
+        <span>语</span><span>霖</span><span>之</span><span>印</span>
+      </div>
+      <p class="f-motto">执笔为语 · 心落成霖</p>
+      <div class="f-meta">
+        <span>© 2026 语霖 · WANGJIANCHAO.CN</span>
+        <a href="#top">回到页首 ↑</a>
+      </div>
+    </div>
+  </footer>
+
   <style is:global>
-    /* 复用首页 dossier 主题 token，与 404.astro 保持一致 */
-    body.dossier {
-      --paper: #f0e4cd;
-      --paper-2: #e6dcc4;
-      --paper-3: #fbfaf4;
-      --ink: #171310;
-      --ink-2: #2c241c;
-      --red: #c13a2b;
-      --red-deep: #8b2a1f;
-      --manila: #d9a441;
-      --manila-d: #b8862e;
-      --border: #c9bea3;
-      --text-primary: #1a1a1a;
-      --text-secondary: #6b6b6b;
-      background: var(--paper);
-      color: var(--text-primary);
-      font-family: 'Noto Serif SC', serif;
-    }
-
-    .grid-bg {
-      background-image:
-        linear-gradient(to right, rgba(27,19,16,.04) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(27,19,16,.04) 1px, transparent 1px);
-      background-size: 48px 48px;
-    }
-    .noise {
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
-      opacity: .06;
-      mix-blend-mode: multiply;
-    }
-    .grid-bg, .noise, .wm { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-    .wm { overflow: hidden; }
-    .wm span {
-      position: absolute;
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 900;
-      font-size: 46vw;
-      color: transparent;
-      -webkit-text-stroke: 1.5px rgba(27,19,16,.06);
-      user-select: none;
-      line-height: .8;
-    }
-    .wm .a { top: -12%; left: -7%; }
-    .wm .b { bottom: -22%; right: -9%; }
-
-    /* topbar */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 40;
-      background: var(--paper);
-      border-bottom: 2px solid var(--ink);
-    }
-    .topbar-in {
-      width: min(1240px, 94vw);
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 11px 0;
-    }
-    .logo {
-      width: 38px;
-      height: 38px;
-      background: var(--red);
-      color: var(--paper);
-      display: grid;
-      place-items: center;
-      font-family: 'Ma Shan Zheng', serif;
-      font-size: 24px;
-      box-shadow: 3px 3px 0 var(--ink);
-      flex: none;
-    }
-    .brand {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.1;
-    }
-    .brand b {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 700;
-      font-size: 15px;
-      letter-spacing: .04em;
-    }
-    .brand small {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9.5px;
-      letter-spacing: .22em;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      padding-top: 4px;
-    }
-    .topbar-right {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .meta {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
-      letter-spacing: .12em;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--red);
-      box-shadow: 0 0 0 0 rgba(197,61,35,.6);
-      animation: pulse 2.2s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(197,61,35,.55); }
-      70% { box-shadow: 0 0 0 8px rgba(197,61,35,0); }
-      100% { box-shadow: 0 0 0 0 rgba(197,61,35,0); }
-    }
-
-    /* main */
-    .dossier-main {
-      position: relative;
-      z-index: 1;
-      padding: 56px 24px 100px;
-    }
-    .container {
-      width: min(900px, 94vw);
-      margin: 0 auto;
-    }
-
-    /* page head */
-    .page-head {
+    /* 面包屑与顶部栏 */
+    body.dossier-home .sub-tool-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 36px;
+      margin-bottom: 28px;
+    }
+    body.dossier-home .breadcrumb-nav-dossier {
+      font-family: var(--los-mono);
+      font-size: 12px;
+      letter-spacing: .12em;
+    }
+    body.dossier-home .breadcrumb-list-dossier {
+      display: flex;
       flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      color: var(--los-ink2);
     }
-    .back {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      color: var(--ink);
+    body.dossier-home .breadcrumb-list-dossier a {
+      color: var(--los-ink);
       text-decoration: none;
-      padding: 8px 14px;
-      border: 1.5px solid var(--ink);
-      background: var(--paper-3);
-      box-shadow: 3px 3px 0 var(--ink);
-      transition: transform .2s, box-shadow .2s, background .2s, color .2s;
+      transition: color .25s;
     }
-    .back:hover {
-      transform: translate(-2px, -2px);
-      box-shadow: 5px 5px 0 var(--ink);
-      background: var(--ink);
-      color: var(--paper);
+    body.dossier-home .breadcrumb-list-dossier a:hover {
+      color: var(--los-seal);
+      text-decoration: underline;
     }
-    .head-stamp {
-      font-family: 'IBM Plex Mono', monospace;
+    body.dossier-home .breadcrumb-list-dossier .sep {
+      color: var(--los-line);
+    }
+    body.dossier-home .breadcrumb-list-dossier .active {
+      color: var(--los-seal);
+      font-weight: 700;
+    }
+    body.dossier-home .tool-stamp-badge {
+      font-family: var(--los-mono);
       font-size: 11px;
-      letter-spacing: 3px;
-      padding: 5px 12px;
-      background: var(--ink);
-      color: var(--paper);
+      letter-spacing: 2px;
+      padding: 4px 10px;
+      background: var(--los-seal);
+      color: var(--los-paper);
       border-radius: 2px;
-      transform: rotate(-1deg);
     }
-
-    /* title row */
-    .page-title-row {
+    body.dossier-home .tool-page-desc {
+      font-size: 15px;
+      line-height: 1.85;
+      color: var(--los-ink2);
       margin-bottom: 32px;
     }
-    .page-title {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 900;
-      font-size: clamp(28px, 4.2vw, 42px);
-      letter-spacing: 3px;
-      color: var(--ink);
-      line-height: 1.2;
-      margin-bottom: 16px;
-    }
-    .page-title .rd { color: var(--red); }
-    .page-rule {
-      width: 60px;
-      height: 3px;
-      background: var(--ink);
-      margin-bottom: 18px;
-    }
-    .page-sub {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 14px;
-      line-height: 1.95;
-      color: var(--text-secondary);
-    }
-    .page-sub b {
-      color: var(--ink);
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 1.5px;
-      margin: 0 2px;
+    body.dossier-home .tool-page-desc b {
+      font-family: var(--los-mono);
+      font-size: 13px;
+      color: var(--los-ink);
+      letter-spacing: 1px;
     }
 
-    /* tool frame */
-    .tool-frame {
-      position: relative;
-      background: var(--paper-3);
-      border: 1.5px solid var(--ink);
-      box-shadow: 6px 6px 0 var(--ink);
+    /* 工具 Frame 容器 */
+    body.dossier-home .tool-frame {
+      background: var(--los-paper-3, #fbfaf4);
+      border: 1px solid var(--los-line);
+      box-shadow: 0 8px 24px rgba(193, 58, 43, 0.05);
       overflow: hidden;
+      margin-top: 20px;
     }
-    .tool-frame::before {
-      content: '';
-      position: absolute;
-      top: -1.5px;
-      left: 24px;
-      width: 80px;
-      height: 4px;
-      background: var(--red);
-      z-index: 2;
-    }
-    .tool-frame-head {
+    body.dossier-home .tool-frame-head {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 14px;
-      background: var(--paper-2);
-      border-bottom: 1.5px solid var(--ink);
+      padding: 12px 18px;
+      background: var(--los-paper-3, #fbfaf4);
+      border-bottom: 1px solid var(--los-line);
     }
-    .dot-r, .dot-y, .dot-g {
+    body.dossier-home .dot-r,
+    body.dossier-home .dot-y,
+    body.dossier-home .dot-g {
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      border: 1px solid var(--ink);
     }
-    .dot-r { background: var(--red); }
-    .dot-y { background: var(--manila); }
-    .dot-g { background: #6b8e4e; }
-    .frame-no {
+    body.dossier-home .dot-r { background: var(--los-seal); }
+    body.dossier-home .dot-y { background: #d9a441; }
+    body.dossier-home .dot-g { background: #6b8e4e; }
+    body.dossier-home .frame-no {
       margin-left: auto;
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--los-mono);
       font-size: 11px;
       letter-spacing: 1.5px;
-      color: var(--text-secondary);
-      text-transform: uppercase;
+      color: var(--los-ink2);
     }
-    .tool-frame iframe {
+    body.dossier-home .tool-frame iframe {
       display: block;
       width: 100%;
-      height: 80vh;
-      min-height: 600px;
+      height: 82vh;
+      min-height: 640px;
       border: 0;
-      background: #fff;
-    }
-
-    @media (max-width: 720px) {
-      .tool-frame { box-shadow: 4px 4px 0 var(--ink); }
-      .tool-frame iframe { height: 70vh; min-height: 500px; }
-      .page-title { letter-spacing: 2px; }
-      .brand small { display: none; }
+      background: #ffffff;
     }
   </style>
 
-  <script is:client>
-    (function() {
-      const el = document.getElementById('today');
-      if (!el) return;
-      try {
-        const now = new Date();
-        const fmt = new Intl.DateTimeFormat('zh-CN', {
-          timeZone: 'Asia/Shanghai',
-          year: 'numeric', month: '2-digit', day: '2-digit',
-          hour: '2-digit', minute: '2-digit', hour12: false
-        });
-        el.textContent = fmt.format(now).replace(/\//g, '.');
-      } catch (e) {
-        el.textContent = '——';
-      }
-    })();
+  <script is:inline>
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.rv').forEach((el) => io.observe(el));
+
+    window.addEventListener('scroll', () => {
+      const pb = document.getElementById('pb');
+      if (!pb) return;
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      pb.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+    });
   </script>
 </BaseLayout>

@@ -2,6 +2,8 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { SERIES, STATUS_CLASS } from '../../../data/series';
 import AdUnit from '../../../components/AdUnit.astro';
+import SocialShare from '../../../components/SocialShare.astro';
+import AuthorProfileCard from '../../../components/AuthorProfileCard.astro';
 import { ARTICLE_BODY_MAP, createFallbackBody, type Block } from '../../../data/series-articles';
 
 export function getStaticPaths() {
@@ -36,12 +38,14 @@ const statusEn = series.status === '连载中' ? 'ONGOING'
 // 上一篇 / 下一篇
 const prev = index > 0 ? series.articles[index - 1] : null;
 const next = index < total - 1 ? series.articles[index + 1] : null;
+const otherSeries = SERIES.filter((s) => s.id !== series.id);
 
 const pageTitle = `${article.title} · ${series.title}`;
 const pageDesc = `${series.desc} — ${article.title}（发表于 ${article.date}）`;
 
 const siteBase = Astro.site ?? new URL('https://www.wangjianchao.cn');
 const canonicalURL = new URL(Astro.url.pathname, siteBase).href;
+const pageOGImage = new URL(`/og/series/${series.id}/${article.no}.svg`, siteBase).href;
 
 // 面包屑结构化数据
 const breadcrumbSchema = {
@@ -54,11 +58,31 @@ const breadcrumbSchema = {
   ],
 };
 
+// 文章 BlogPosting 结构化数据
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": article.title,
+  "description": pageDesc,
+  "datePublished": new Date(article.date.replace(/\./g, '-')).toISOString(),
+  "author": { "@type": "Person", "name": "语霖", "url": siteBase.href },
+  "publisher": { "@type": "Person", "name": "语霖", "url": siteBase.href },
+  "image": pageOGImage,
+  "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalURL },
+  "articleSection": series.title,
+  "inLanguage": "zh-CN",
+};
+
 // 文章正文：按 series.id + article.no 查找真实内容，未命中则 fallback 到占位
 const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFallbackBody(series.desc, article.no, article.date);
 ---
 
-<BaseLayout title={pageTitle} description={pageDesc} ogType="article" bodyClass="dossier dossier-home dossier-article">
+<BaseLayout title={pageTitle} description={pageDesc} ogType="article" ogImage={pageOGImage} bodyClass="dossier dossier-home dossier-article">
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  </Fragment>
+
   <!-- 阅读进度线 -->
   <div id="pb"></div>
 
@@ -73,6 +97,7 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
         <a href="/#research">研究</a>
         <a href="/#system">系统</a>
         <a href="/#projects">项目</a>
+        <a href="/tools">工具</a>
         <a href="/#about">关于</a>
       </nav>
     </div>
@@ -82,10 +107,15 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
     <!-- ============ 文章封面 ============ -->
     <section class="article-hero-sec">
       <div class="wrap art-wrap">
-        <a class="back-link" href={`/series/${series.id}`} aria-label={`返回 ${series.title} 专辑`}>
-          <span class="arrow">←</span>
-          <span>返回专辑 · RETURN TO SERIES</span>
-        </a>
+        <nav class="breadcrumb-nav-dossier" aria-label="面包屑导航">
+          <ol class="breadcrumb-list-dossier">
+            <li><a href="/">首页</a></li>
+            <li class="sep">/</li>
+            <li><a href={`/series/${series.id}`}>{series.title}</a></li>
+            <li class="sep">/</li>
+            <li class="active" aria-current="page">#{article.no} {article.title}</li>
+          </ol>
+        </nav>
 
         <div class="ch-head art-ch-head">
           <span class="ch-no">{series.tab} · NO.{article.no}</span>
@@ -106,8 +136,61 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
     <!-- ============ 文章正文 ============ -->
     <section id="body">
       <div class="wrap art-wrap">
-        <div class="ad-top">
-          <AdUnit slot="6252683541" format="auto" label="文章顶部广告" />
+        <!-- 专栏顶部导览与快速目录大纲 -->
+        <div class="series-top-quicknav rv">
+          <div class="stq-bar">
+            <div class="stq-left">
+              {prev ? (
+                <a href={`/series/${series.id}/${prev.no}`} class="stq-nav-btn" title={`上一篇: ${prev.title}`}>
+                  <span class="stq-arrow">←</span> 上一篇
+                </a>
+              ) : (
+                <span class="stq-nav-btn disabled">已是首篇</span>
+              )}
+            </div>
+
+            <div class="stq-center">
+              <span class="stq-meta">《{series.title}》 第 {article.no} / {String(total).padStart(3, '0')} 篇</span>
+              <button id="toc-toggle-btn" class="stq-toc-btn" aria-expanded="false" aria-controls="toc-drawer">
+                <span class="stq-toc-icon">☰</span> 专栏大纲 <span class="stq-caret">▾</span>
+              </button>
+            </div>
+
+            <div class="stq-right">
+              {next ? (
+                <a href={`/series/${series.id}/${next.no}`} class="stq-nav-btn" title={`下一篇: ${next.title}`}>
+                  下一篇 <span class="stq-arrow">→</span>
+                </a>
+              ) : (
+                <span class="stq-nav-btn disabled">已是末篇</span>
+              )}
+            </div>
+          </div>
+
+          <!-- 折叠的专栏目录大纲面板 -->
+          <div id="toc-drawer" class="stq-drawer" hidden>
+            <div class="stq-drawer-inner">
+              <div class="stq-drawer-head">
+                <span class="stq-dh-title">【专栏全表】{series.title} ({total} 篇)</span>
+                <span class="stq-dh-status">{series.status}</span>
+              </div>
+              <ol class="stq-drawer-list">
+                {series.articles.map((art) => {
+                  const isActive = art.no === article.no;
+                  return (
+                    <li class={`stq-drawer-item ${isActive ? 'is-active' : ''}`}>
+                      <a href={`/series/${series.id}/${art.no}`} class="stq-drawer-link">
+                        <span class="stq-di-no">NO.{art.no}</span>
+                        <span class="stq-di-title">{art.title}</span>
+                        <span class="stq-di-date">{art.date}</span>
+                        {isActive && <span class="stq-di-tag">当前阅读</span>}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+          </div>
         </div>
 
         <article class="article-body rv">
@@ -360,6 +443,8 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
                     ))}
                   </div>
                 );
+              } else if (block.type === 'html') {
+                return <div class="prose-html-wrapper" set:html={block.html} />;
               }
               return <p class="prose-p">{block.text}</p>;
             })}
@@ -370,8 +455,72 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
         </article>
 
         <div class="ad-bottom">
-          <AdUnit slot="6252683541" format="auto" label="文章底部广告" />
+          <AdUnit slot="6252683541" format="auto" minHeight="120px" label="文章底部赞助推荐" />
         </div>
+
+        <AuthorProfileCard />
+
+        <SocialShare
+          title={pageTitle}
+          url={canonicalURL}
+          ogImage={pageOGImage}
+          description={pageDesc}
+          showWechatCopy={false}
+        />
+
+        <!-- 专栏全景目录大纲 (Series Outline) -->
+        <section class="series-outline-sec rv">
+          <div class="so-head">
+            <span class="so-stamp">SERIES OUTLINE · 专栏目录大纲</span>
+            <h3 class="so-title">《{series.title}》全系列路线图</h3>
+            <p class="so-desc">{series.desc}</p>
+          </div>
+          <div class="so-grid">
+            {series.articles.map((art) => {
+              const isActive = art.no === article.no;
+              return (
+                <a
+                  href={`/series/${series.id}/${art.no}`}
+                  class={`so-card ${isActive ? 'active' : ''}`}
+                >
+                  <div class="so-card-top">
+                    <span class="so-card-no">NO.{art.no}</span>
+                    <span class="so-card-date">{art.date}</span>
+                  </div>
+                  <h4 class="so-card-title">{art.title}</h4>
+                  <div class="so-card-foot">
+                    {isActive ? (
+                      <span class="so-card-badge active">正在阅读中</span>
+                    ) : (
+                      <span class="so-card-link">阅读本篇 →</span>
+                    )}
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+
+        <!-- 推荐其他专栏 -->
+        <section class="other-series-sec rv">
+          <div class="os-head">
+            <span class="os-stamp">RECOMMENDED SERIES · 探索更多专栏</span>
+            <h3 class="os-title">其他精选系列卷宗</h3>
+          </div>
+          <div class="os-grid">
+            {otherSeries.map((s) => (
+              <a href={`/series/${s.id}`} class="os-card">
+                <div class="os-card-badge">{s.tab}</div>
+                <h4 class="os-card-title">{s.title}</h4>
+                <p class="os-card-desc">{s.desc}</p>
+                <div class="os-card-meta">
+                  <span>{s.articles.length} 篇连载</span>
+                  <span class="os-card-action">浏览专栏 →</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
 
         <!-- 上一篇 / 下一篇 -->
         <nav class="article-nav rv">
@@ -413,12 +562,380 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
       </div>
     </div>
   </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('toc-toggle-btn');
+      const drawer = document.getElementById('toc-drawer');
+      if (btn && drawer) {
+        btn.addEventListener('click', () => {
+          const isHidden = drawer.hasAttribute('hidden');
+          if (isHidden) {
+            drawer.removeAttribute('hidden');
+            btn.setAttribute('aria-expanded', 'true');
+            btn.classList.add('is-open');
+          } else {
+            drawer.setAttribute('hidden', '');
+            btn.setAttribute('aria-expanded', 'false');
+            btn.classList.remove('is-open');
+          }
+        });
+      }
+    });
+  </script>
 </BaseLayout>
 
-<!-- JSON-LD: BreadcrumbList -->
-<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
-
 <style is:global>
+/* 顶部专栏快速导览与目录大纲 Drawer */
+.series-top-quicknav {
+  margin-bottom: 24px;
+}
+.stq-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--los-paper-3, #fbfaf4);
+  border: 1px solid var(--los-line, #e3dec3);
+  border-radius: 4px;
+  font-family: var(--los-mono, monospace);
+  font-size: 12px;
+}
+.stq-left, .stq-right {
+  flex-shrink: 0;
+}
+.stq-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+}
+.stq-meta {
+  color: var(--los-ink2, #736b5e);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+.stq-nav-btn {
+  color: var(--los-ink, #171310);
+  text-decoration: none;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  transition: all .2s;
+}
+.stq-nav-btn:hover:not(.disabled) {
+  background: var(--los-paper-2, #f4f1e7);
+  border-color: var(--los-seal, #c13a2b);
+  color: var(--los-seal, #c13a2b);
+}
+.stq-nav-btn.disabled {
+  color: #b0a898;
+  cursor: not-allowed;
+}
+.stq-toc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--los-seal, #c13a2b);
+  color: #ffffff;
+  border: none;
+  border-radius: 3px;
+  font-family: var(--los-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .2s, transform .1s;
+}
+.stq-toc-btn:hover {
+  background: #a82e20;
+}
+.stq-toc-btn.is-open .stq-caret {
+  transform: rotate(180deg);
+}
+.stq-caret {
+  transition: transform .2s;
+}
+.stq-drawer {
+  margin-top: 8px;
+  background: var(--los-paper-3, #fbfaf4);
+  border: 1px solid var(--los-line, #e3dec3);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(193, 58, 43, 0.06);
+  overflow: hidden;
+  animation: stqSlideDown .25s ease-out;
+}
+@keyframes stqSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.stq-drawer-inner {
+  padding: 16px;
+}
+.stq-drawer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--los-line, #e3dec3);
+  font-family: var(--los-mono, monospace);
+  font-size: 12px;
+  font-weight: 700;
+}
+.stq-dh-title {
+  color: var(--los-ink, #171310);
+}
+.stq-dh-status {
+  color: var(--los-seal, #c13a2b);
+}
+.stq-drawer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.stq-drawer-item {
+  border-radius: 3px;
+  transition: background .15s;
+}
+.stq-drawer-item.is-active {
+  background: var(--los-paper-2, #f4f1e7);
+  border-left: 3px solid var(--los-seal, #c13a2b);
+}
+.stq-drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  color: var(--los-ink, #171310);
+  text-decoration: none;
+  font-size: 13px;
+}
+.stq-drawer-link:hover {
+  color: var(--los-seal, #c13a2b);
+}
+.stq-di-no {
+  font-family: var(--los-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--los-seal, #c13a2b);
+  flex-shrink: 0;
+}
+.stq-di-title {
+  flex: 1;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stq-di-date {
+  font-family: var(--los-mono, monospace);
+  font-size: 11px;
+  color: var(--los-ink2, #736b5e);
+  flex-shrink: 0;
+}
+.stq-di-tag {
+  font-family: var(--los-mono, monospace);
+  font-size: 10px;
+  background: var(--los-seal, #c13a2b);
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* 专栏全景目录大纲 Section */
+.series-outline-sec {
+  margin: 48px 0 32px;
+  padding: 28px;
+  background: var(--los-paper-3, #fbfaf4);
+  border: 1px solid var(--los-line, #e3dec3);
+  border-radius: 4px;
+}
+.so-head {
+  margin-bottom: 24px;
+}
+.so-stamp {
+  font-family: var(--los-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--los-seal, #c13a2b);
+  letter-spacing: .15em;
+  display: block;
+  margin-bottom: 4px;
+}
+.so-title {
+  font-family: var(--los-serif, serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--los-ink, #171310);
+  margin: 0 0 6px 0;
+}
+.so-desc {
+  font-size: 13px;
+  color: var(--los-ink2, #736b5e);
+  margin: 0;
+}
+.so-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.so-card {
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid var(--los-line, #e3dec3);
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+}
+.so-card:hover {
+  border-color: var(--los-seal, #c13a2b);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(193, 58, 43, 0.08);
+}
+.so-card.active {
+  border-color: var(--los-seal, #c13a2b);
+  background: var(--los-paper-2, #f4f1e7);
+}
+.so-card-top {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--los-mono, monospace);
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+.so-card-no {
+  font-weight: 700;
+  color: var(--los-seal, #c13a2b);
+}
+.so-card-date {
+  color: var(--los-ink2, #736b5e);
+}
+.so-card-title {
+  font-family: var(--los-serif, serif);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--los-ink, #171310);
+  margin: 0 0 12px 0;
+  flex: 1;
+}
+.so-card-foot {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 11px;
+}
+.so-card-badge.active {
+  font-family: var(--los-mono, monospace);
+  background: var(--los-seal, #c13a2b);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.so-card-link {
+  font-family: var(--los-mono, monospace);
+  color: var(--los-ink2, #736b5e);
+  font-weight: 600;
+}
+.so-card:hover .so-card-link {
+  color: var(--los-seal, #c13a2b);
+}
+
+/* 推荐其他专栏 Section */
+.other-series-sec {
+  margin: 32px 0 40px;
+  padding: 24px;
+  background: var(--los-paper-2, #f4f1e7);
+  border: 1px solid var(--los-line, #e3dec3);
+  border-radius: 4px;
+}
+.os-head {
+  margin-bottom: 20px;
+}
+.os-stamp {
+  font-family: var(--los-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--los-seal, #c13a2b);
+  letter-spacing: .15em;
+  display: block;
+  margin-bottom: 4px;
+}
+.os-title {
+  font-family: var(--los-serif, serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--los-ink, #171310);
+  margin: 0;
+}
+.os-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.os-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid var(--los-line, #e3dec3);
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .2s, transform .2s;
+}
+.os-card:hover {
+  border-color: var(--los-seal, #c13a2b);
+  transform: translateY(-2px);
+}
+.os-card-badge {
+  font-family: var(--los-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--los-seal, #c13a2b);
+  margin-bottom: 6px;
+}
+.os-card-title {
+  font-family: var(--los-serif, serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--los-ink, #171310);
+  margin: 0 0 6px 0;
+}
+.os-card-desc {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--los-ink2, #736b5e);
+  margin: 0 0 12px 0;
+  flex: 1;
+}
+.os-card-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--los-mono, monospace);
+  font-size: 11px;
+  color: var(--los-ink2, #736b5e);
+}
+.os-card-action {
+  color: var(--los-seal, #c13a2b);
+  font-weight: 700;
+}
 /* ============ ARTICLE DETAIL PAGE — Life OS 风格 ============ */
 /* 共享设计系统（tokens / topbar / 印章 / 章头 / 落款 / 动画）
    已在 src/styles/global.css 的 body.dossier-home 作用域统一声明。 */
@@ -437,6 +954,40 @@ body.dossier-article .art-wrap {
   max-width: 760px;
   margin: 0 auto;
   padding: 0 32px;
+}
+
+/* dossier 面包屑 */
+body.dossier-article .breadcrumb-nav-dossier {
+  margin: 28px 0 0;
+  font-family: var(--los-mono);
+  font-size: 12px;
+  letter-spacing: .12em;
+}
+body.dossier-article .breadcrumb-list-dossier {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: var(--los-ink2);
+}
+body.dossier-article .breadcrumb-list-dossier a {
+  color: var(--los-ink);
+  text-decoration: none;
+  transition: color .25s;
+}
+body.dossier-article .breadcrumb-list-dossier a:hover {
+  color: var(--los-seal);
+  text-decoration: underline;
+}
+body.dossier-article .breadcrumb-list-dossier .sep {
+  color: var(--los-line);
+}
+body.dossier-article .breadcrumb-list-dossier .active {
+  color: var(--los-seal);
+  font-weight: 700;
 }
 
 /* 返回链接 */

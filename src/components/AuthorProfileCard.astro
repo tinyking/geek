@@ -1,0 +1,472 @@
+---
+interface Props {
+  variant?: 'compact' | 'full';
+  showTitle?: boolean;
+}
+
+const { variant = 'full', showTitle = true } = Astro.props;
+---
+
+<div class={`author-profile-card ${variant === 'compact' ? 'card-compact' : 'card-full'} rv`}>
+  {showTitle && (
+    <div class="apc-head">
+      <div class="apc-head-title">
+        <span class="apc-seal">语</span>
+        <div>
+          <span class="apc-tag">AUTHOR & IP DOSSIER</span>
+          <h3 class="apc-title">关于作者 · 语霖</h3>
+        </div>
+      </div>
+      <span class="apc-stamp">WANGJIANCHAO.CN</span>
+    </div>
+  )}
+
+  <div class="apc-body">
+    <!-- 左侧/上方：作者头像与简介 -->
+    <div class="apc-author-info">
+      <div class="apc-avatar-wrap">
+        <img
+          src="/images/portrait.jpg"
+          alt="语霖"
+          class="apc-avatar"
+          loading="lazy"
+          width="100"
+          height="100"
+        />
+        <span class="apc-seal-mini">语霖</span>
+      </div>
+
+      <div class="apc-details">
+        <div class="apc-name-row">
+          <h4 class="apc-author-name">语霖</h4>
+          <span class="apc-role-badge">全栈工程师 · Life OS 架构师</span>
+        </div>
+        
+        <p class="apc-bio">
+          20 年工程经验的技术老兵，一个 40 岁程序员重新设计人生系统的长期实验。用工程思维审视职业、认知与成长，在 AI 时代寻找第二增长曲线。
+        </p>
+
+        <!-- 社交账号矩阵 -->
+        <div class="apc-social-grid">
+          <a
+            href="https://x.com/tinyking86"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="apc-social-item"
+            title="在 X (Twitter) 上关注"
+          >
+            <span class="soc-icon">𝕏</span>
+            <span class="soc-text">@tinyking86</span>
+          </a>
+
+          <a
+            href="https://github.com/tinyking"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="apc-social-item"
+            title="GitHub 仓库与项目"
+          >
+            <span class="soc-icon">🐙</span>
+            <span class="soc-text">GitHub</span>
+          </a>
+
+          <button
+            type="button"
+            class="apc-social-item btn-copy-wx-name"
+            data-action="copy-wx-name"
+            title="点击复制微信公众号名称"
+          >
+            <span class="soc-icon">💬</span>
+            <span class="soc-text">公众号：爱语霖爱生活</span>
+          </button>
+
+          <a
+            href="/rss.xml"
+            target="_blank"
+            class="apc-social-item"
+            title="RSS 订阅源"
+          >
+            <span class="soc-icon">📡</span>
+            <span class="soc-text">RSS 订阅</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧/下方：公众号与私域沉淀 Card -->
+    <div class="apc-private-box">
+      <div class="apc-qr-frame">
+        <img
+          src="/images/wechat-qr.jpg"
+          alt="爱语霖爱生活微信公众号二维码"
+          class="apc-qr-img"
+          loading="lazy"
+          width="160"
+          height="160"
+        />
+      </div>
+
+      <div class="apc-qr-meta">
+        <span class="apc-qr-badge">私域流量 · 读者交流群</span>
+        <strong class="apc-qr-title">微信扫码关注【爱语霖爱生活】</strong>
+        <p class="apc-qr-desc">
+          沉淀技术干货、架构思考与 Life OS 重构记录，入群与百位技术同行深度交流。
+        </p>
+
+        <div class="apc-qr-actions">
+          <button
+            type="button"
+            class="apc-btn-primary"
+            data-action="open-qr-modal"
+          >
+            <span>放大二维码</span>
+            <span class="btn-arrow">↗</span>
+          </button>
+
+          <button
+            type="button"
+            class="apc-btn-secondary"
+            data-action="copy-wx-name"
+          >
+            复制公众号
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  .author-profile-card {
+    background: var(--los-paper-2, #e6dcc4);
+    border: 1px solid var(--los-line, #c9bea3);
+    padding: 28px;
+    margin: 40px 0;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  }
+
+  .apc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--los-line, #c9bea3);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .apc-head-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .apc-seal {
+    width: 32px;
+    height: 32px;
+    background: var(--los-seal, #c13a2b);
+    color: var(--los-paper, #faf7f2);
+    display: grid;
+    place-items: center;
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 18px;
+  }
+  .apc-tag {
+    font-family: var(--los-mono, monospace);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--los-seal, #c13a2b);
+    font-weight: 700;
+  }
+  .apc-title {
+    font-family: var(--los-serif, serif);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--los-ink, #171310);
+    margin: 2px 0 0 0;
+  }
+  .apc-stamp {
+    font-family: var(--los-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--los-ink2, #6b6b6b);
+    font-weight: 600;
+  }
+
+  .apc-body {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* 作者简介 */
+  .apc-author-info {
+    display: flex;
+    gap: 20px;
+    align-items: start;
+  }
+  .apc-avatar-wrap {
+    position: relative;
+    flex: none;
+  }
+  .apc-avatar {
+    width: 88px;
+    height: 88px;
+    object-fit: cover;
+    border: 2px solid var(--los-ink, #171310);
+    box-shadow: 4px 4px 0 var(--los-ink, #171310);
+  }
+  .apc-seal-mini {
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    background: var(--los-seal, #c13a2b);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    font-family: var(--los-mono, monospace);
+    font-weight: 700;
+    border-radius: 2px;
+  }
+
+  .apc-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .apc-name-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .apc-author-name {
+    font-family: var(--los-serif, serif);
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--los-ink, #171310);
+    margin: 0;
+  }
+  .apc-role-badge {
+    font-family: var(--los-mono, monospace);
+    font-size: 11px;
+    background: var(--los-paper, #faf7f2);
+    border: 1px solid var(--los-line, #c9bea3);
+    padding: 2px 8px;
+    color: var(--los-seal, #c13a2b);
+    font-weight: 600;
+  }
+  .apc-bio {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--los-ink2, #554b42);
+    margin: 4px 0 8px 0;
+  }
+
+  /* 社交链接矩阵 */
+  .apc-social-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .apc-social-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--los-paper, #faf7f2);
+    border: 1px solid var(--los-line, #c9bea3);
+    padding: 6px 12px;
+    font-family: var(--los-mono, monospace);
+    font-size: 12px;
+    color: var(--los-ink, #171310);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .2s, border-color .2s, transform .2s;
+  }
+  .apc-social-item:hover {
+    background: var(--los-ink, #171310);
+    color: var(--los-paper, #faf7f2);
+    border-color: var(--los-ink, #171310);
+    transform: translateY(-1px);
+  }
+  .soc-icon {
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  /* 右侧私域引导卡片 */
+  .apc-private-box {
+    background: var(--los-paper, #faf7f2);
+    border: 1px solid var(--los-line, #c9bea3);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .apc-qr-frame {
+    background: #fff;
+    padding: 8px;
+    border: 1px solid var(--los-line, #c9bea3);
+    margin-bottom: 12px;
+  }
+  .apc-qr-img {
+    width: 130px;
+    height: 130px;
+    display: block;
+    object-fit: cover;
+  }
+  .apc-qr-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .apc-qr-badge {
+    font-family: var(--los-mono, monospace);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--los-seal, #c13a2b);
+    font-weight: 700;
+  }
+  .apc-qr-title {
+    font-family: var(--los-serif, serif);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--los-ink, #171310);
+    margin: 4px 0;
+  }
+  .apc-qr-desc {
+    font-size: 11px;
+    color: var(--los-ink2, #6b6b6b);
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+  }
+
+  .apc-qr-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+  .apc-btn-primary {
+    flex: 1;
+    background: var(--los-seal, #c13a2b);
+    color: #fff;
+    border: none;
+    padding: 8px 10px;
+    font-family: var(--los-mono, monospace);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: opacity .2s;
+  }
+  .apc-btn-primary:hover {
+    opacity: 0.9;
+  }
+  .apc-btn-secondary {
+    background: var(--los-paper-2, #e6dcc4);
+    color: var(--los-ink, #171310);
+    border: 1px solid var(--los-line, #c9bea3);
+    padding: 8px 10px;
+    font-family: var(--los-mono, monospace);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .apc-btn-secondary:hover {
+    background: var(--los-ink, #171310);
+    color: #fff;
+  }
+
+  @media (max-width: 860px) {
+    .apc-body {
+      grid-template-columns: 1fr;
+    }
+    .apc-private-box {
+      flex-direction: row;
+      text-align: left;
+      gap: 16px;
+      align-items: center;
+    }
+    .apc-qr-frame {
+      margin-bottom: 0;
+    }
+    .apc-qr-meta {
+      align-items: flex-start;
+    }
+    .apc-qr-actions {
+      justify-content: flex-start;
+    }
+  }
+
+  @media (max-width: 580px) {
+    .apc-author-info {
+      flex-direction: column;
+    }
+    .apc-private-box {
+      flex-direction: column;
+      text-align: center;
+    }
+    .apc-qr-meta {
+      align-items: center;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    function copyWxName() {
+      const name = '爱语霖爱生活';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(name);
+      } else {
+        const input = document.createElement('input');
+        input.value = name;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+      }
+
+      const toast = document.getElementById('share-toast');
+      if (toast) {
+        toast.textContent = '✅ 已复制公众号名称【爱语霖爱生活】，可在微信搜索关注';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+      } else {
+        alert('✅ 已复制公众号名称【爱语霖爱生活】，可在微信搜索关注');
+      }
+    }
+
+    function openQrModal() {
+      const qrOverlay = document.getElementById('qrOverlay');
+      if (qrOverlay) {
+        qrOverlay.classList.add('open');
+        qrOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      } else {
+        const shareModal = document.getElementById('share-modal');
+        if (shareModal) {
+          shareModal.classList.add('active');
+          shareModal.setAttribute('aria-hidden', 'false');
+          document.body.style.overflow = 'hidden';
+        }
+      }
+    }
+
+    document.querySelectorAll('[data-action="copy-wx-name"]').forEach(btn => {
+      btn.addEventListener('click', copyWxName);
+    });
+
+    document.querySelectorAll('[data-action="open-qr-modal"]').forEach(btn => {
+      btn.addEventListener('click', openQrModal);
+    });
+  })();
+</script>

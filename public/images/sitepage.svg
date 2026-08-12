@@ -1,0 +1,65 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 675' width='1200' height='675'>
+  <rect width='1200' height='675' fill='#fbfaf4'/>
+  <!-- Grid background lines -->
+  <line x1='80' y1='0' x2='80' y2='675' stroke='#f3efdf' stroke-width='1'/>
+  <line x1='1120' y1='0' x2='1120' y2='675' stroke='#f3efdf' stroke-width='1'/>
+  <line x1='0' y1='80' x2='1200' y2='80' stroke='#f3efdf' stroke-width='1'/>
+
+  <!-- Navbar -->
+  <rect x='80' y='28' width='32' height='32' fill='#c13a2b' rx='4'/>
+  <text x='96' y='50' font-family='serif' font-size='18' fill='#ffffff' text-anchor='middle'>语</text>
+  <text x='124' y='50' font-family='serif' font-size='20' font-weight='bold' fill='#171310'>语霖</text>
+  <text x='1120' y='50' font-family='sans-serif' font-size='14' fill='#736b5e' text-anchor='end'>研究    系统    项目    工具    关于</text>
+
+  <!-- Kicker -->
+  <text x='80' y='140' font-family='monospace' font-size='13' letter-spacing='3' fill='#8c8273'>LIFE OS · V1.0 — <tspan fill='#c13a2b' font-weight='bold'>RUNNING</tspan> — BEIJING · UPTIME 40Y</text>
+
+  <!-- Hero Headings -->
+  <text x='80' y='230' font-family='serif' font-size='58' font-weight='900' fill='#171310'>把人生当程序，</text>
+  <text x='80' y='310' font-family='serif' font-size='58' font-weight='900' fill='#171310'>重构一次<tspan fill='#c13a2b'>。</tspan></text>
+
+  <!-- Seal and Side Text -->
+  <g transform='translate(880, 190)'>
+    <text x='130' y='30' font-family='serif' font-size='15' fill='#736b5e' writing-mode='tb'>执笔为语 · 心落成霖</text>
+    <rect x='0' y='10' width='88' height='88' fill='#c13a2b' rx='6'/>
+    <text x='26' y='46' font-family='serif' font-size='24' fill='#ffffff'>语</text>
+    <text x='62' y='46' font-family='serif' font-size='24' fill='#ffffff'>霖</text>
+    <text x='26' y='78' font-family='serif' font-size='24' fill='#ffffff'>之</text>
+    <text x='62' y='78' font-family='serif' font-size='24' fill='#ffffff'>印</text>
+  </g>
+
+  <!-- Lede -->
+  <text x='80' y='380' font-family='sans-serif' font-size='16' fill='#5c5549'>一个 40 岁程序员重新设计人生系统的长期实验。用工程思维，重新审视职业、认</text>
+  <text x='80' y='410' font-family='sans-serif' font-size='16' fill='#5c5549'>知、成长和个人价值，在 AI 时代寻找第二增长曲线。</text>
+
+  <!-- CTA Buttons -->
+  <rect x='80' y='450' width='130' height='44' fill='#171310' rx='3'/>
+  <text x='145' y='477' font-family='sans-serif' font-size='14' font-weight='bold' fill='#ffffff' text-anchor='middle'>开始阅读</text>
+
+  <rect x='230' y='450' width='230' height='44' fill='none' stroke='#c13a2b' stroke-width='1.5' rx='3'/>
+  <text x='345' y='477' font-family='sans-serif' font-size='14' font-weight='bold' fill='#c13a2b' text-anchor='middle'>关注公众号【爱语霖爱生活】 ↗</text>
+
+  <!-- Divider line -->
+  <line x1='80' y1='530' x2='1120' y2='530' stroke='#e3dec3' stroke-width='1'/>
+
+  <!-- Readout Bar Stats -->
+  <g transform='translate(80, 555)'>
+    <text x='110' y='28' font-family='sans-serif' font-size='28' font-weight='900' fill='#171310' text-anchor='middle'>20</text>
+    <text x='110' y='50' font-family='sans-serif' font-size='12' fill='#8c8273' text-anchor='middle'>年工程经验</text>
+
+    <line x1='270' y1='10' x2='270' y2='55' stroke='#e3dec3' stroke-width='1'/>
+
+    <text x='410' y='28' font-family='sans-serif' font-size='28' font-weight='900' fill='#171310' text-anchor='middle'>17</text>
+    <text x='410' y='50' font-family='sans-serif' font-size='12' fill='#8c8273' text-anchor='middle'>篇 DEBUG 日志</text>
+
+    <line x1='570' y1='10' x2='570' y2='55' stroke='#e3dec3' stroke-width='1'/>
+
+    <text x='710' y='28' font-family='sans-serif' font-size='28' font-weight='900' fill='#171310' text-anchor='middle'>13</text>
+    <text x='710' y='50' font-family='sans-serif' font-size='12' fill='#8c8273' text-anchor='middle'>个认知模型</text>
+
+    <line x1='870' y1='10' x2='870' y2='55' stroke='#e3dec3' stroke-width='1'/>
+
+    <text x='980' y='28' font-family='sans-serif' font-size='28' font-weight='900' fill='#171310' text-anchor='middle'>02</text>
+    <text x='980' y='50' font-family='sans-serif' font-size='12' fill='#8c8273' text-anchor='middle'>套运行系统</text>
+  </g>
+</svg>
