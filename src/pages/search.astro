@@ -1,0 +1,227 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DossierTopbar from '../components/DossierTopbar.astro';
+
+const siteBase = Astro.site ?? new URL('https://www.wangjianchao.cn');
+const canonicalURL = new URL(Astro.url.pathname, siteBase).href;
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": siteBase.href },
+    { "@type": "ListItem", "position": 2, "name": "搜索", "item": canonicalURL },
+  ],
+};
+---
+
+<BaseLayout
+  title="搜索 | 语霖·执笔为语，心落成霖"
+  description="搜索站内全部文章、系列连载与工具页面。"
+  bodyClass="dossier"
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <div class="grid-bg"></div>
+  <div class="noise"></div>
+  <div class="wm"><span class="a">又</span><span class="b">见</span></div>
+
+  <DossierTopbar fileNo="SCH" />
+
+  <main class="dossier-main">
+    <div class="container">
+      <nav class="breadcrumb-nav" aria-label="面包屑导航">
+        <ol class="breadcrumb-list">
+          <li><a href="/">首页</a></li>
+          <li class="sep">/</li>
+          <li class="active" aria-current="page">搜索</li>
+        </ol>
+      </nav>
+
+      <header class="page-head">
+        <div class="stamp">SEARCH · 搜索</div>
+        <h1 class="page-title">搜索 <span class="en">· SEARCH</span></h1>
+        <div class="rule"></div>
+        <p class="page-sub">输入关键词检索全部文章、系列连载与页面</p>
+      </header>
+
+      <div id="search"></div>
+    </div>
+  </main>
+
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    function initPagefind() {
+      if (window.PagefindUI) {
+        new PagefindUI({
+          element: '#search',
+          showSubResults: true,
+          translations: {
+            placeholder: '搜索文章…',
+            zero_results: '未找到相关结果',
+            many_results: '找到 [count] 条结果',
+            searching: '搜索中…',
+          },
+        });
+      } else {
+        setTimeout(initPagefind, 50);
+      }
+    }
+    initPagefind();
+  </script>
+
+  <style is:global>
+    .breadcrumb-nav {
+      margin-bottom: 24px;
+      font-family: var(--los-mono, 'IBM Plex Mono', monospace);
+      font-size: 13px;
+    }
+    .breadcrumb-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      color: var(--text-secondary, #6b6b6b);
+    }
+    .breadcrumb-list a {
+      color: var(--ink, #171310);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .breadcrumb-list a:hover {
+      color: var(--red, #c13a2b);
+      text-decoration: underline;
+    }
+    .breadcrumb-list .sep { color: var(--border, #c9bea3); }
+    .breadcrumb-list .active { color: var(--red, #c13a2b); font-weight: 600; }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(to right, rgba(27,19,16,.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(27,19,16,.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .noise {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
+      opacity: .06;
+      mix-blend-mode: multiply;
+    }
+    .grid-bg, .noise, .wm { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .wm { overflow: hidden; }
+    .wm span {
+      position: absolute;
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: 46vw;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(27,19,16,.06);
+      user-select: none;
+      line-height: .8;
+    }
+    .wm .a { top: -12%; left: -7%; }
+    .wm .b { bottom: -22%; right: -9%; }
+
+    .dossier-main {
+      position: relative;
+      z-index: 1;
+      padding: 56px 24px 100px;
+    }
+    .container {
+      width: min(880px, 100%);
+      margin: 0 auto;
+    }
+
+    .page-head { margin-bottom: 40px; }
+    .stamp {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      padding: 5px 12px;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 2px;
+      margin-bottom: 20px;
+      transform: rotate(-1deg);
+    }
+    .page-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(32px, 5vw, 48px);
+      letter-spacing: 2px;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .page-title .en {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: .45em;
+      letter-spacing: .15em;
+      color: var(--text-secondary);
+      font-weight: 500;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+    .rule {
+      width: 60px;
+      height: 3px;
+      background: var(--red);
+      margin-bottom: 16px;
+    }
+    .page-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: .1em;
+      color: var(--text-secondary);
+    }
+
+    /* Pagefind UI 主题适配 */
+    :root {
+      --pagefind-ui-scale: 1;
+      --pagefind-ui-primary: #c13a2b;
+      --pagefind-ui-text: #171310;
+      --pagefind-ui-background: #fbfaf4;
+      --pagefind-ui-border: #c9bea3;
+      --pagefind-ui-tag: #e6dcc4;
+      --pagefind-ui-border-width: 1.5px;
+      --pagefind-ui-border-radius: 0;
+      --pagefind-ui-image-border-radius: 0;
+      --pagefind-ui-image-box-ratio: 3 / 2;
+      --pagefind-ui-font: 'Noto Serif SC', serif;
+    }
+    .pagefind-ui__search-input {
+      font-family: 'Noto Serif SC', serif;
+      padding: 14px 16px !important;
+    }
+    .pagefind-ui__result {
+      border: 1.5px solid var(--ink) !important;
+      box-shadow: 4px 4px 0 var(--ink);
+      padding: 18px 22px !important;
+      margin-bottom: 16px !important;
+      background: var(--paper-3) !important;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .pagefind-ui__result:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--red);
+    }
+    .pagefind-ui__result-title {
+      font-family: 'Noto Serif SC', serif !important;
+      font-weight: 700 !important;
+      color: var(--ink) !important;
+    }
+    .pagefind-ui__result-link {
+      text-decoration: none !important;
+    }
+    .pagefind-ui__result-excerpt {
+      color: var(--text-secondary) !important;
+      font-size: 14px !important;
+    }
+  </style>
+</BaseLayout>

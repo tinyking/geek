@@ -1,34 +1,56 @@
 ---
+import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { SERIES, STATUS_CLASS } from '../../../data/series';
+import { STATUS_CLASS } from '../../../data/series';
 import AdUnit from '../../../components/AdUnit.astro';
 import SocialShare from '../../../components/SocialShare.astro';
 import AuthorProfileCard from '../../../components/AuthorProfileCard.astro';
-import { ARTICLE_BODY_MAP, createFallbackBody, type Block } from '../../../data/series-articles';
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const allArticles = await getCollection('seriesArticles');
   const paths: Array<{
     params: { id: string; no: string };
-    props: { series: typeof SERIES[number]; article: typeof SERIES[number]['articles'][number]; index: number; total: number };
+    props: { entry: typeof allArticles[number]; allInSeries: typeof allArticles[number][]; index: number; total: number };
   }> = [];
-  SERIES.forEach((s) => {
-    s.articles.forEach((a, i) => {
+
+  // 按 series 分组
+  const bySeries = new Map<string, typeof allArticles[number][]>();
+  for (const entry of allArticles) {
+    const sid = entry.data.series;
+    if (!bySeries.has(sid)) bySeries.set(sid, []);
+    bySeries.get(sid)!.push(entry);
+  }
+
+  for (const [sid, entries] of bySeries) {
+    // 按 no 排序
+    entries.sort((a, b) => a.data.no.localeCompare(b.data.no));
+    entries.forEach((entry, i) => {
       paths.push({
-        params: { id: s.id, no: a.no },
-        props: { series: s, article: a, index: i, total: s.articles.length }
+        params: { id: sid, no: entry.data.no },
+        props: { entry, allInSeries: entries, index: i, total: entries.length }
       });
     });
-  });
+  }
   return paths;
 }
 
 interface Props {
-  series: typeof SERIES[number];
-  article: typeof SERIES[number]['articles'][number];
+  entry: Awaited<ReturnType<typeof getCollection<'seriesArticles'>>>[number];
+  allInSeries: Awaited<ReturnType<typeof getCollection<'seriesArticles'>>>[number][];
   index: number;
   total: number;
 }
-const { series, article, index, total } = Astro.props;
+const { entry, allInSeries, index, total } = Astro.props;
+const article = entry.data;
+
+// 系列元数据（从 frontmatter 提取）
+const series = {
+  id: article.series,
+  tab: article.seriesTab,
+  title: article.seriesTitle,
+  desc: article.seriesDesc,
+  status: article.seriesStatus,
+};
 
 const stampClass = STATUS_CLASS[series.status] || 'run';
 const statusEn = series.status === '连载中' ? 'ONGOING'
@@ -36,9 +58,17 @@ const statusEn = series.status === '连载中' ? 'ONGOING'
   : 'IRREGULAR';
 
 // 上一篇 / 下一篇
-const prev = index > 0 ? series.articles[index - 1] : null;
-const next = index < total - 1 ? series.articles[index + 1] : null;
-const otherSeries = SERIES.filter((s) => s.id !== series.id);
+const prev = index > 0 ? allInSeries[index - 1] : null;
+const next = index < total - 1 ? allInSeries[index + 1] : null;
+
+// 其他系列（从全量集合中提取不重复的 series id）
+const allArticles = await getCollection('seriesArticles');
+const otherSeriesIds = [...new Set(allArticles.map(a => a.data.series))].filter(sid => sid !== series.id);
+const otherSeries = otherSeriesIds.map(sid => {
+  const a = allArticles.find(a => a.data.series === sid)!;
+  const count = allArticles.filter(a => a.data.series === sid).length;
+  return { id: sid, tab: a.data.seriesTab, title: a.data.seriesTitle, desc: a.data.seriesDesc, count };
+});
 
 const pageTitle = `${article.title} · ${series.title}`;
 const pageDesc = `${series.desc} — ${article.title}（发表于 ${article.date}）`;
@@ -73,8 +103,8 @@ const articleSchema = {
   "inLanguage": "zh-CN",
 };
 
-// 文章正文：按 series.id + article.no 查找真实内容，未命中则 fallback 到占位
-const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFallbackBody(series.desc, article.no, article.date);
+// 渲染 Markdown 正文
+const { Content } = await render(entry);
 ---
 
 <BaseLayout title={pageTitle} description={pageDesc} ogType="article" ogImage={pageOGImage} bodyClass="dossier dossier-home dossier-article">
@@ -141,7 +171,7 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
           <div class="stq-bar">
             <div class="stq-left">
               {prev ? (
-                <a href={`/series/${series.id}/${prev.no}`} class="stq-nav-btn" title={`上一篇: ${prev.title}`}>
+                <a href={`/series/${series.id}/${prev.data.no}`} class="stq-nav-btn" title={`上一篇: ${prev.data.title}`}>
                   <span class="stq-arrow">←</span> 上一篇
                 </a>
               ) : (
@@ -158,9 +188,8 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
 
             <div class="stq-right">
               {next ? (
-                <a href={`/series/${series.id}/${next.no}`} class="stq-nav-btn" title={`下一篇: ${next.title}`}>
-                  下一篇 <span class="stq-arrow">→</span>
-                </a>
+                <a href={`/series/${series.id}/${next.data.no}`} class="stq-nav-btn" title={`下一篇: ${next.data.title}`}>
+                  <span class="stq-arrow">→</span> 下一篇              </a>
               ) : (
                 <span class="stq-nav-btn disabled">已是末篇</span>
               )}
@@ -175,14 +204,14 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
                 <span class="stq-dh-status">{series.status}</span>
               </div>
               <ol class="stq-drawer-list">
-                {series.articles.map((art) => {
-                  const isActive = art.no === article.no;
+                {allInSeries.map((art) => {
+                  const isActive = art.data.no === article.no;
                   return (
                     <li class={`stq-drawer-item ${isActive ? 'is-active' : ''}`}>
-                      <a href={`/series/${series.id}/${art.no}`} class="stq-drawer-link">
-                        <span class="stq-di-no">NO.{art.no}</span>
-                        <span class="stq-di-title">{art.title}</span>
-                        <span class="stq-di-date">{art.date}</span>
+                      <a href={`/series/${series.id}/${art.data.no}`} class="stq-drawer-link">
+                        <span class="stq-di-no">NO.{art.data.no}</span>
+                        <span class="stq-di-title">{art.data.title}</span>
+                        <span class="stq-di-date">{art.data.date}</span>
                         {isActive && <span class="stq-di-tag">当前阅读</span>}
                       </a>
                     </li>
@@ -194,260 +223,7 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
         </div>
 
         <article class="article-body rv">
-            {articleBody.map((block) => {
-              if (block.type === 'h2') {
-                return (
-                  <h2 class="prose-h2">
-                    {block.kicker && <span class="prose-kicker">{block.kicker}</span>}
-                    <span class="prose-h2-text">{block.text}</span>
-                  </h2>
-                );
-              } else if (block.type === 'h3') {
-                return <h3 class="prose-h3">{block.text}</h3>;
-              } else if (block.type === 'quote') {
-                return <blockquote class="prose-quote">{block.text}</blockquote>;
-              } else if (block.type === 'hr') {
-                return <hr class="prose-hr" />;
-              } else if (block.type === 'list') {
-                return (
-                  <ul class="prose-list">
-                    {block.items.map((it) => <li>{it}</li>)}
-                  </ul>
-                );
-              } else if (block.type === 'callout') {
-                return (
-                  <aside class="prose-callout">
-                    <span class="prose-callout-mark">"</span>
-                    <p class="prose-callout-text">{block.text}</p>
-                  </aside>
-                );
-              } else if (block.type === 'code') {
-                return (
-                  <pre class="prose-code">
-                    <span class="prose-code-title">text</span>
-                    <code>{block.lines.join('\n')}</code>
-                  </pre>
-                );
-              } else if (block.type === 'flow') {
-                const nodes = block.nodes;
-                const nodeH = 56;
-                const gap = 40;
-                const padding = 28;
-                const width = 220;
-                const height = padding * 2 + nodes.length * nodeH + (nodes.length - 1) * gap;
-                const cx = width / 2;
-                return (
-                  <div class="prose-flow">
-                    <svg viewBox={`0 0 ${width} ${height}`} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="单点故障链路图">
-                      <rect x="0" y="0" width={width} height={height} fill="var(--paper-3)" />
-                      {nodes.map((label, i) => {
-                        const y = padding + i * (nodeH + gap);
-                        const isLast = i === nodes.length - 1;
-                        const isRisk = isLast;
-                        return (
-                          <g>
-                            {/* 节点框 */}
-                            <rect
-                              x={(width - 160) / 2}
-                              y={y}
-                              width="160"
-                              height={nodeH}
-                              rx="2"
-                              fill={isRisk ? 'var(--red)' : 'var(--paper)'}
-                              stroke="var(--ink)"
-                              stroke-width="1.5"
-                            />
-                            {/* 节点偏移阴影（档案卷宗风） */}
-                            <rect
-                              x={(width - 160) / 2 + 4}
-                              y={y + 4}
-                              width="160"
-                              height={nodeH}
-                              rx="2"
-                              fill="none"
-                              stroke="var(--ink)"
-                              stroke-width="1.5"
-                              opacity="0.5"
-                            />
-                            {/* 节点编号小标签 */}
-                            <rect
-                              x={(width - 160) / 2 + 10}
-                              y={y - 6}
-                              width="36"
-                              height="14"
-                              fill="var(--ink)"
-                            />
-                            <text
-                              x={(width - 160) / 2 + 28}
-                              y={y + 4}
-                              text-anchor="middle"
-                              font-family="IBM Plex Mono, monospace"
-                              font-size="9"
-                              font-weight="700"
-                              letter-spacing="1.5"
-                              fill="var(--paper)"
-                            >{`0${i + 1}`}</text>
-                            {/* 节点文字 */}
-                            <text
-                              x={cx}
-                              y={y + nodeH / 2 + 5}
-                              text-anchor="middle"
-                              font-family="Noto Serif SC, serif"
-                              font-size={label.length > 7 ? 14 : 18}
-                              font-weight="900"
-                              fill={isRisk ? 'var(--paper)' : 'var(--ink)'}
-                            >{label}</text>
-                            {/* 连接箭头 */}
-                            {!isLast && (
-                              <g stroke="var(--ink)" stroke-width="1.5" fill="none">
-                                <line
-                                  x1={cx}
-                                  y1={y + nodeH}
-                                  x2={cx}
-                                  y2={y + nodeH + gap - 6}
-                                  stroke-dasharray="4 4"
-                                />
-                                <polygon
-                                  points={`${cx - 5},${y + nodeH + gap - 6} ${cx + 5},${y + nodeH + gap - 6} ${cx},${y + nodeH + gap}`}
-                                  fill="var(--ink)"
-                                  stroke="none"
-                                />
-                              </g>
-                            )}
-                          </g>
-                        );
-                      })}
-                      {/* 底部危险标签 */}
-                      <g>
-                        <rect
-                          x={(width - 180) / 2}
-                          y={height - 22}
-                          width="180"
-                          height="16"
-                          fill="var(--red)"
-                        />
-                        <text
-                          x={cx}
-                          y={height - 11}
-                          text-anchor="middle"
-                          font-family="IBM Plex Mono, monospace"
-                          font-size="8"
-                          font-weight="700"
-                          letter-spacing="1.2"
-                          fill="var(--paper)"
-                        >SINGLE POINT OF FAILURE</text>
-                      </g>
-                    </svg>
-                  </div>
-                );
-              } else if (block.type === 'kvlist') {
-                return (
-                  <div class="prose-kvlist">
-                    {block.pairs.map((pair, i) => (
-                      <div class="kv-row" style={`--i:${i}`}>
-                        <span class="kv-k">{pair.k}</span>
-                        <span class="kv-arrow">→</span>
-                        <span class="kv-v">{pair.v}</span>
-                      </div>
-                    ))}
-                  </div>
-                );
-              } else if (block.type === 'architecture') {
-                const branches = block.branches;
-                const branchW = 150;
-                const branchH = 64;
-                const gap = 12;
-                const padding = 20;
-                const width = padding * 2 + branches.length * branchW + (branches.length - 1) * gap;
-                const rootW = 100;
-                const rootH = 32;
-                const bottomH = 32;
-                const connectorH = 20;
-                const height = padding + rootH + connectorH + branchH + connectorH + bottomH + padding;
-                const cx = width / 2;
-                const rootY = padding;
-                const branchY = rootY + rootH + connectorH;
-                const bottomY = branchY + branchH + connectorH;
-                return (
-                  <div class="prose-arch">
-                    <svg viewBox={`0 0 ${width} ${height}`} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="人生系统架构图">
-                      {/* 根节点 */}
-                      <rect x={(width - rootW) / 2} y={rootY} width={rootW} height={rootH} rx="2" fill="var(--ink)" />
-                      <text x={cx} y={rootY + rootH / 2 + 5} text-anchor="middle" font-family="Noto Serif SC, serif" font-size="14" font-weight="900" fill="var(--paper)">{block.root}</text>
-                      {/* 根到分支的连接线 */}
-                      <line x1={cx} y1={rootY + rootH} x2={cx} y2={rootY + rootH + connectorH / 2} stroke="var(--ink)" stroke-width="1.5" />
-                      <line x1={padding + branchW / 2} y1={rootY + rootH + connectorH / 2} x2={width - padding - branchW / 2} y2={rootY + rootH + connectorH / 2} stroke="var(--ink)" stroke-width="1.5" />
-                      {/* 每个分支 */}
-                      {branches.map((b, i) => {
-                        const x = padding + i * (branchW + gap);
-                        const isCenter = i === Math.floor(branches.length / 2);
-                        return (
-                          <g>
-                            <line x1={x + branchW / 2} y1={rootY + rootH + connectorH / 2} x2={x + branchW / 2} y2={branchY} stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 3" />
-                            {/* 分支卡片 */}
-                            <rect x={x} y={branchY} width={branchW} height={branchH} rx="2" fill="var(--paper-3)" stroke="var(--ink)" stroke-width="1.5" />
-                            <rect x={x} y={branchY} width={branchW} height="4" fill="var(--red)" />
-                            <text x={x + branchW / 2} y={branchY + 26} text-anchor="middle" font-family="Noto Serif SC, serif" font-size="14" font-weight="900" fill="var(--ink)">{b.label}</text>
-                            <text x={x + branchW / 2} y={branchY + 48} text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--text-secondary)">{b.desc}</text>
-                            {/* 分支到底部的连接线 */}
-                            <line x1={x + branchW / 2} y1={branchY + branchH} x2={x + branchW / 2} y2={bottomY} stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 3" />
-                          </g>
-                        );
-                      })}
-                      {/* 汇聚线 */}
-                      <line x1={padding + branchW / 2} y1={bottomY} x2={width - padding - branchW / 2} y2={bottomY} stroke="var(--ink)" stroke-width="1.5" />
-                      <line x1={cx} y1={bottomY} x2={cx} y2={bottomY} stroke="var(--ink)" stroke-width="1.5" />
-                      {/* 底部节点 */}
-                      <rect x={(width - rootW) / 2} y={bottomY} width={rootW} height={bottomH} rx="2" fill="var(--red)" stroke="var(--ink)" stroke-width="1.5" />
-                      <text x={cx} y={bottomY + bottomH / 2 + 5} text-anchor="middle" font-family="Noto Serif SC, serif" font-size="13" font-weight="900" fill="var(--paper)">{block.bottom}</text>
-                    </svg>
-                  </div>
-                );
-              } else if (block.type === 'diary') {
-                return (
-                  <div class="prose-diary">
-                    {/* 日记头部：日期 / 天气 / 地点 */}
-                    <div class="diary-meta">
-                      <div class="diary-meta-row">
-                        <span class="dm-k">DATE</span>
-                        <span class="dm-v">{block.meta.date}</span>
-                      </div>
-                      <div class="diary-meta-row">
-                        <span class="dm-k">WEATHER</span>
-                        <span class="dm-v">{block.meta.weather}</span>
-                      </div>
-                      <div class="diary-meta-row">
-                        <span class="dm-k">PLACE</span>
-                        <span class="dm-v">{block.meta.location}</span>
-                      </div>
-                    </div>
-                    {/* 日记各章节 */}
-                    {block.sections.map((s, i) => (
-                      <div class="diary-section">
-                        <div class="diary-sec-head">
-                          {s.kicker && <span class="diary-kicker">{s.kicker}</span>}
-                          <h4 class="diary-sec-title">{s.title}</h4>
-                        </div>
-                        <ul class="diary-items">
-                          {s.items.map((it, j) => (
-                            <li class="diary-item" style={`--i:${j}`}>{it}</li>
-                          ))}
-                        </ul>
-                        {s.footnote && (
-                          <div class="diary-footnote">
-                            <span class="df-mark">笺</span>
-                            <span class="df-text">{s.footnote}</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                );
-              } else if (block.type === 'html') {
-                return <div class="prose-html-wrapper" set:html={block.html} />;
-              }
-              return <p class="prose-p">{block.text}</p>;
-            })}
+            <Content />
 
             <div class="article-end-rule">
               <span>END · 完</span>
@@ -476,18 +252,18 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
             <p class="so-desc">{series.desc}</p>
           </div>
           <div class="so-grid">
-            {series.articles.map((art) => {
-              const isActive = art.no === article.no;
+            {allInSeries.map((art) => {
+              const isActive = art.data.no === article.no;
               return (
                 <a
-                  href={`/series/${series.id}/${art.no}`}
+                  href={`/series/${series.id}/${art.data.no}`}
                   class={`so-card ${isActive ? 'active' : ''}`}
                 >
                   <div class="so-card-top">
-                    <span class="so-card-no">NO.{art.no}</span>
-                    <span class="so-card-date">{art.date}</span>
+                    <span class="so-card-no">NO.{art.data.no}</span>
+                    <span class="so-card-date">{art.data.date}</span>
                   </div>
-                  <h4 class="so-card-title">{art.title}</h4>
+                  <h4 class="so-card-title">{art.data.title}</h4>
                   <div class="so-card-foot">
                     {isActive ? (
                       <span class="so-card-badge active">正在阅读中</span>
@@ -514,7 +290,7 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
                 <h4 class="os-card-title">{s.title}</h4>
                 <p class="os-card-desc">{s.desc}</p>
                 <div class="os-card-meta">
-                  <span>{s.articles.length} 篇连载</span>
+                  <span>{s.count} 篇连载</span>
                   <span class="os-card-action">浏览专栏 →</span>
                 </div>
               </a>
@@ -525,17 +301,17 @@ const articleBody = ARTICLE_BODY_MAP[`${series.id}:${article.no}`] ?? createFall
         <!-- 上一篇 / 下一篇 -->
         <nav class="article-nav rv">
           {prev ? (
-            <a class="nav-card prev" href={`/series/${series.id}/${prev.no}`}>
+            <a class="nav-card prev" href={`/series/${series.id}/${prev.data.no}`}>
               <span class="nav-label">← 上一篇 PREVIOUS</span>
-              <span class="nav-title">NO.{prev.no} · {prev.title}</span>
+              <span class="nav-title">NO.{prev.data.no} · {prev.data.title}</span>
             </a>
           ) : (
             <span class="nav-card placeholder">已是第一篇 · AT BEGINNING</span>
           )}
           {next ? (
-            <a class="nav-card next" href={`/series/${series.id}/${next.no}`}>
+            <a class="nav-card next" href={`/series/${series.id}/${next.data.no}`}>
               <span class="nav-label">下一篇 NEXT →</span>
-              <span class="nav-title">NO.{next.no} · {next.title}</span>
+              <span class="nav-title">NO.{next.data.no} · {next.data.title}</span>
             </a>
           ) : (
             <span class="nav-card placeholder">已是最后一篇 · THE END</span>
@@ -1051,6 +827,119 @@ body.dossier-article .art-index { letter-spacing: .15em; }
 body.dossier-article .article-body {
   padding: 48px 0 32px;
   font-family: var(--los-serif);
+}
+
+/* MD 渲染的标准元素样式（:not([class]) 避免与 raw HTML 特殊块冲突） */
+body.dossier-article .article-body p:not([class]) {
+  font-size: 16px;
+  line-height: 1.95;
+  color: var(--los-ink);
+  margin: 0 0 22px;
+  text-align: justify;
+  text-justify: inter-ideograph;
+}
+body.dossier-article .article-body h2:not([class]) {
+  font-family: var(--los-serif);
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--los-ink);
+  margin: 40px 0 16px;
+  padding-left: 14px;
+  border-left: 4px solid var(--los-seal);
+  line-height: 1.4;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--los-line);
+}
+body.dossier-article .article-body h3:not([class]) {
+  font-family: var(--los-serif);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--los-ink);
+  margin: 28px 0 10px;
+  line-height: 1.5;
+}
+body.dossier-article .article-body blockquote:not([class]) {
+  margin: 24px 0;
+  padding: 14px 20px;
+  background: var(--los-paper-2);
+  border-left: 3px solid var(--los-ink);
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--los-ink);
+  font-style: italic;
+}
+body.dossier-article .article-body hr:not([class]) {
+  border: 0;
+  margin: 36px 0;
+  height: 16px;
+  position: relative;
+}
+body.dossier-article .article-body hr:not([class])::before {
+  content: '· · ·';
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--los-mono);
+  font-size: 18px;
+  letter-spacing: .8em;
+  color: var(--los-ink2);
+  background: var(--los-paper);
+  display: block;
+  padding: 0 12px;
+  width: fit-content;
+  margin: 0 auto;
+  top: 50%;
+  transform: translateY(-50%);
+}
+body.dossier-article .article-body hr:not([class])::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--los-line);
+  z-index: -1;
+}
+body.dossier-article .article-body ul:not([class]) {
+  margin: 8px 0 24px;
+  padding: 0 0 0 28px;
+  list-style: none;
+}
+body.dossier-article .article-body ul:not([class]) li {
+  font-family: var(--los-serif);
+  font-size: 16px;
+  line-height: 1.95;
+  color: var(--los-ink);
+  margin: 6px 0;
+  position: relative;
+  padding-left: 18px;
+}
+body.dossier-article .article-body ul:not([class]) li::before {
+  content: '※';
+  position: absolute;
+  left: 0;
+  color: var(--los-seal);
+  font-size: 14px;
+  font-weight: 700;
+}
+body.dossier-article .article-body pre:not([class]) {
+  margin: 12px 0 24px;
+  padding: 0;
+  background: #1E293B;
+  border-radius: 4px;
+  overflow: hidden;
+}
+body.dossier-article .article-body pre:not([class]) code {
+  display: block;
+  padding: 12px 14px;
+  font-family: var(--los-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  color: #E2E8F0;
+  white-space: pre;
+  overflow-x: auto;
 }
 body.dossier-article .prose-p {
   font-size: 16px;

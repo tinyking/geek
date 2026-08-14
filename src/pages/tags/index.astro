@@ -1,0 +1,228 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DossierTopbar from '../../components/DossierTopbar.astro';
+
+const posts = await getCollection('posts');
+
+// 统计每个标签的文章数
+const tagCount = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    tagCount.set(tag, (tagCount.get(tag) ?? 0) + 1);
+  }
+}
+
+// 按文章数降序，其次按标签名
+const tags = [...tagCount.entries()]
+  .map(([name, count]) => ({ name, count }))
+  .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh-CN'));
+
+const siteBase = Astro.site ?? new URL('https://www.wangjianchao.cn');
+const canonicalURL = new URL(Astro.url.pathname, siteBase).href;
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": siteBase.href },
+    { "@type": "ListItem", "position": 2, "name": "标签索引", "item": canonicalURL },
+  ],
+};
+---
+
+<BaseLayout
+  title="标签索引 | 语霖·执笔为语，心落成霖"
+  description="按标签浏览语霖的全部文章，涵盖前端工程、产品设计、个人成长等主题。"
+  bodyClass="dossier"
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <div class="grid-bg"></div>
+  <div class="noise"></div>
+  <div class="wm"><span class="a">又</span><span class="b">见</span></div>
+
+  <DossierTopbar fileNo="TAG" />
+
+  <main class="dossier-main">
+    <div class="container">
+      <nav class="breadcrumb-nav" aria-label="面包屑导航">
+        <ol class="breadcrumb-list">
+          <li><a href="/">首页</a></li>
+          <li class="sep">/</li>
+          <li class="active" aria-current="page">标签索引</li>
+        </ol>
+      </nav>
+
+      <header class="page-head">
+        <div class="stamp">TAG · 标签</div>
+        <h1 class="page-title">标签 <span class="en">· TAGS</span></h1>
+        <div class="rule"></div>
+        <p class="page-sub">共 <b>{tags.length}</b> 个标签，<b>{posts.length}</b> 篇文章</p>
+      </header>
+
+      <div class="tag-cloud">
+        {tags.map((tag) => (
+          <a class="tag-card" href={`/tags/${encodeURIComponent(tag.name)}`}>
+            <span class="tag-name">#{tag.name}</span>
+            <span class="tag-count">{tag.count}<small>篇</small></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </main>
+
+  <style is:global>
+    .breadcrumb-nav {
+      margin-bottom: 24px;
+      font-family: var(--los-mono, 'IBM Plex Mono', monospace);
+      font-size: 13px;
+    }
+    .breadcrumb-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      color: var(--text-secondary, #6b6b6b);
+    }
+    .breadcrumb-list a {
+      color: var(--ink, #171310);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .breadcrumb-list a:hover {
+      color: var(--red, #c13a2b);
+      text-decoration: underline;
+    }
+    .breadcrumb-list .sep { color: var(--border, #c9bea3); }
+    .breadcrumb-list .active { color: var(--red, #c13a2b); font-weight: 600; }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(to right, rgba(27,19,16,.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(27,19,16,.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .noise {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
+      opacity: .06;
+      mix-blend-mode: multiply;
+    }
+    .grid-bg, .noise, .wm { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .wm { overflow: hidden; }
+    .wm span {
+      position: absolute;
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: 46vw;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(27,19,16,.06);
+      user-select: none;
+      line-height: .8;
+    }
+    .wm .a { top: -12%; left: -7%; }
+    .wm .b { bottom: -22%; right: -9%; }
+
+    .dossier-main {
+      position: relative;
+      z-index: 1;
+      padding: 56px 24px 100px;
+    }
+    .container {
+      width: min(880px, 100%);
+      margin: 0 auto;
+    }
+
+    .page-head { margin-bottom: 48px; }
+    .stamp {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      padding: 5px 12px;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 2px;
+      margin-bottom: 20px;
+      transform: rotate(-1deg);
+    }
+    .page-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(32px, 5vw, 48px);
+      letter-spacing: 2px;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .page-title .en {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: .45em;
+      letter-spacing: .15em;
+      color: var(--text-secondary);
+      font-weight: 500;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+    .rule {
+      width: 60px;
+      height: 3px;
+      background: var(--red);
+      margin-bottom: 16px;
+    }
+    .page-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: .1em;
+      color: var(--text-secondary);
+    }
+    .page-sub b { color: var(--red); font-weight: 700; }
+
+    .tag-cloud {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .tag-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--paper-3);
+      border: 1.5px solid var(--ink);
+      box-shadow: 4px 4px 0 var(--ink);
+      text-decoration: none;
+      color: var(--ink);
+      transition: transform .2s, box-shadow .2s, background .2s;
+    }
+    .tag-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--red);
+      background: var(--paper);
+    }
+    .tag-name {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--ink);
+    }
+    .tag-count {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--red);
+    }
+    .tag-count small {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-left: 2px;
+      font-weight: 400;
+    }
+  </style>
+</BaseLayout>

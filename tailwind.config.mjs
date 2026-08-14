@@ -16,10 +16,10 @@ export default {
           muted: '#9ca3af',
         },
         accent: {
-          DEFAULT: '#e57035',
-          hover: '#c85a25',
-          light: '#fff5f0',
-          lighter: '#ffede5',
+          DEFAULT: '#c13a2b',
+          hover: '#8b2a1f',
+          light: '#fbeae8',
+          lighter: '#f7dcd8',
         },
         border: {
           DEFAULT: '#e5e5e0',

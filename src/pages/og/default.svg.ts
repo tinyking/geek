@@ -40,7 +40,7 @@ export const GET: APIRoute = async () => {
 
   <!-- 5. 标语与介绍 -->
   <text x="100" y="300" font-family="'Noto Serif SC', serif" font-weight="900" font-size="46" fill="#171310" letter-spacing="1">
-    观禾 · 浮生观禾，静心成长
+    语霖 · 执笔为语，心落成霖
   </text>
 
   <text x="100" y="370" font-family="'Noto Serif SC', sans-serif" font-size="22" fill="#554b42" letter-spacing="0.5">

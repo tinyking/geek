@@ -9,8 +9,8 @@
   --text-primary: #1a1a1a;
   --text-secondary: #6b6b6b;
   --text-tertiary: #767268;
-  --accent: #e57035;
-  --accent-hover: #c85a25;
+  --accent: #c13a2b;
+  --accent-hover: #8b2a1f;
   --border: #e5e5e0;
   --border-hover: #767268;
 }
@@ -235,7 +235,7 @@ body {
     border-bottom: none;
   }
   .prose tbody tr:hover {
-    background: rgba(229, 112, 53, 0.03);
+    background: rgba(193, 58, 43, 0.03);
   }
   .prose td strong,
   .prose td code {
@@ -292,7 +292,7 @@ body {
     font-size: 0.8125rem;
     font-weight: 500;
     color: var(--accent);
-    background: rgba(229, 112, 53, 0.08);
+    background: rgba(193, 58, 43, 0.08);
     padding: 0.25rem 0.625rem;
     border-radius: 9999px;
     margin-right: 0.5rem;
@@ -747,21 +747,38 @@ body {
 html { scroll-behavior: smooth; }
 
 body.dossier {
-  --paper: #f4f1e7;
-  --paper-2: #eae5d6;
+  /* paper tones */
+  --paper: #f0e4cd;
+  --paper-2: #e6dcc4;
   --paper-3: #fbfaf4;
-  --ink: #1b2738;
-  --ink-soft: #52607a;
-  --red: #c53d23;
-  --red-deep: #9b2c18;
+
+  /* ink tones */
+  --ink: #171310;
+  --ink-2: #2c241c;
+  --ink-soft: #5b5346;
+
+  /* accent */
+  --red: #c13a2b;
+  --red-deep: #8b2a1f;
+  --accent: var(--red);
+  --accent-hover: var(--red-deep);
   --blue: #2b4ea0;
-  --manila: #e7c486;
-  --manila-d: #d7ad63;
+
+  /* manila */
+  --manila: #d9a441;
+  --manila-d: #b8862e;
+
+  /* lines & shadows */
+  --border: #c9bea3;
   --line: rgba(27, 39, 56, 0.16);
   --hard: 4px 4px 0 var(--ink);
 
-  font-family: 'Noto Sans SC', sans-serif;
-  color: var(--ink);
+  /* legacy text tokens (dossier 作用域内覆盖 :root) */
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6b6b;
+
+  font-family: 'Noto Serif SC', serif;
+  color: var(--text-primary);
   background: var(--paper);
   line-height: 1.6;
   overflow-x: hidden;
@@ -793,6 +810,97 @@ body.dossier *:focus-visible {
   outline: 2px solid var(--red);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+/* ===========================================================
+   Dossier Topbar — 顶部档案条
+   由 DossierTopbar.astro 组件渲染，4 个 dossier 页面共用：
+   404 / posts/index / posts/[slug] / bookmarks
+   =========================================================== */
+body.dossier .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--paper);
+  border-bottom: 2px solid var(--ink);
+}
+body.dossier .topbar-in {
+  width: min(1240px, 94vw);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 11px 0;
+}
+body.dossier .topbar .logo {
+  width: 38px;
+  height: 38px;
+  background: var(--red);
+  color: var(--paper);
+  display: grid;
+  place-items: center;
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 24px;
+  box-shadow: 3px 3px 0 var(--ink);
+  flex: none;
+}
+body.dossier .topbar .brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+body.dossier .topbar .brand b {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .04em;
+}
+body.dossier .topbar .brand small {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  padding-top: 4px;
+}
+body.dossier .topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+body.dossier .topbar .meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+body.dossier .topbar .meta-link {
+  text-decoration: none;
+  transition: color .2s;
+}
+body.dossier .topbar .meta-link:hover {
+  color: var(--red);
+}
+body.dossier .topbar .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 0 rgba(197,61,35,.6);
+  animation: dossier-topbar-pulse 2.2s infinite;
+}
+@keyframes dossier-topbar-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(197,61,35,.55); }
+  70% { box-shadow: 0 0 0 8px rgba(197,61,35,0); }
+  100% { box-shadow: 0 0 0 0 rgba(197,61,35,0); }
+}
+@media (max-width: 640px) {
+  body.dossier .topbar .brand small { display: none; }
 }
 
 /* ===========================================================
@@ -964,3 +1072,76 @@ body.dossier-home .rv.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   body.dossier-home .rv { opacity: 1 !important; transform: none !important; }
 }
+
+/* ===========================================================
+   夜案（Night Desk）— 卷宗反相暗色模式
+   仅作用于 dossier 页面；通过 <html class="night"> 触发，
+   初始化与切换逻辑见 BaseLayout.astro。保留红 / 印章，不背离卷宗隐喻。
+   =========================================================== */
+html.night body.dossier,
+html.night body.dossier-home {
+  --paper: #1c1814;
+  --paper-2: #221d18;
+  --paper-3: #2a241e;
+  --ink: #f0e4cd;
+  --ink-2: #e6dcc4;
+  --ink-soft: #b3a78f;
+  --red: #d9543f;
+  --red-deep: #c13a2b;
+  --accent: var(--red);
+  --accent-hover: var(--red-deep);
+  --blue: #6f8fd0;
+  --manila: #d9a441;
+  --manila-d: #b8862e;
+  --border: #3a322a;
+  --line: rgba(240, 228, 205, 0.14);
+  --hard: 4px 4px 0 #000;
+  --text-primary: #f0e4cd;
+  --text-secondary: #b3a78f;
+  --bg-warm: #1c1814;
+}
+
+/* 顶栏分隔线反相 */
+html.night body.dossier .topbar,
+html.night body.dossier-home .topbar-home { border-color: var(--ink); }
+
+/* 悬浮 TOC 与移动抽屉反相（组件样式为硬编码浅色，需显式覆盖） */
+html.night .toc-floating-sidebar,
+html.night .toc-mobile-panel {
+  background: var(--paper-3);
+  border-color: var(--ink);
+  color: var(--ink);
+  box-shadow: 4px 4px 0 #000;
+}
+html.night .toc-floating-sidebar::-webkit-scrollbar-thumb { background: var(--border); }
+html.night .toc-link { color: var(--ink-soft); }
+html.night .toc-link:hover { background: rgba(217, 84, 63, 0.12); }
+html.night .toc-link.active { color: var(--red); background: rgba(217, 84, 63, 0.16); }
+
+/* 正文区块反相 */
+html.night .prose blockquote { background: rgba(240, 228, 205, 0.05); color: var(--text-secondary); }
+html.night .prose code:not(pre code) { background: rgba(240, 228, 205, 0.08); }
+html.night .prose .account-card { background: var(--paper-3); border-color: var(--border); }
+html.night .prose .account-card .account-tag { background: var(--paper-2); color: var(--ink-soft); border-color: var(--border); }
+
+/* 工具卡 hover 反相 */
+html.night body.dossier-home .t-card:hover { background: var(--paper-2); }
+
+/* 主题切换按钮（dossier 顶栏共用） */
+body.dossier .topbar-right .theme-toggle,
+body.dossier-home .topbar-home .theme-toggle {
+  display: inline-grid; place-items: center;
+  width: 30px; height: 30px; padding: 0; margin-left: 6px;
+  border: 1px solid var(--border, #c9bea3);
+  border-radius: 4px; background: transparent;
+  color: var(--text-secondary, #6b6b6b);
+  cursor: pointer; font-size: 15px; line-height: 1;
+  transition: color .2s, border-color .2s;
+}
+body.dossier .topbar-right .theme-toggle:hover,
+body.dossier-home .topbar-home .theme-toggle:hover {
+  color: var(--red, #c13a2b); border-color: var(--red, #c13a2b);
+}
+.theme-toggle .icon-sun { display: none; }
+html.night .theme-toggle .icon-sun { display: inline; }
+html.night .theme-toggle .icon-moon { display: none; }

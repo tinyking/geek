@@ -1,15 +1,25 @@
 import type { APIRoute } from 'astro';
+import { getCollection } from 'astro:content';
 import { SERIES } from '../../../../data/series';
 
 export async function getStaticPaths() {
+  const allArticles = await getCollection('seriesArticles');
+  const seriesById = new Map(SERIES.map((s) => [s.id, s]));
   const paths = [];
-  for (const series of SERIES) {
-    for (const article of series.articles) {
-      paths.push({
-        params: { id: series.id, no: article.no },
-        props: { series, article },
-      });
-    }
+  for (const entry of allArticles) {
+    const series = seriesById.get(entry.data.series);
+    if (!series) continue;
+    paths.push({
+      params: { id: series.id, no: entry.data.no },
+      props: {
+        series,
+        article: {
+          no: entry.data.no,
+          date: entry.data.date,
+          title: entry.data.title,
+        },
+      },
+    });
   }
   return paths;
 }

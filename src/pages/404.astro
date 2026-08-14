@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import DossierTopbar from '../components/DossierTopbar.astro';
 ---
 
 <BaseLayout
-  title="404 — 档案不存在 | 观禾·浮生观禾，静心成长"
+  title="404 — 档案不存在 | 语霖·执笔为语，心落成霖"
   description="您访问的档案编号不存在或已被归档移除。"
   robots="noindex, follow"
   bodyClass="dossier"
@@ -12,20 +13,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <div class="noise"></div>
   <div class="wm"><span class="a">又</span><span class="b">见</span></div>
 
-  <header class="topbar">
-    <div class="topbar-in">
-      <div class="logo">朝</div>
-      <div class="brand">
-        <b>观禾</b>
-        <small>浮生观禾，静心成长</small>
-      </div>
-      <div class="topbar-right">
-        <span class="meta"><span class="dot"></span>在册</span>
-        <span class="meta">NO. 404</span>
-        <span class="meta" id="today">——</span>
-      </div>
-    </div>
-  </header>
+  <DossierTopbar fileNo="404" />
 
   <main class="dossier-main">
     <div class="container not-found">
@@ -50,25 +38,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </main>
 
   <style is:global>
-    /* 复用首页 dossier 主题 token，与 index.astro 保持一致 */
-    body.dossier {
-      --paper: #f0e4cd;
-      --paper-2: #e6dcc4;
-      --paper-3: #fbfaf4;
-      --ink: #171310;
-      --ink-2: #2c241c;
-      --red: #c13a2b;
-      --red-deep: #8b2a1f;
-      --manila: #d9a441;
-      --manila-d: #b8862e;
-      --border: #c9bea3;
-      --text-primary: #1a1a1a;
-      --text-secondary: #6b6b6b;
-      background: var(--paper);
-      color: var(--text-primary);
-      font-family: 'Noto Serif SC', serif;
-    }
-
     .grid-bg {
       background-image:
         linear-gradient(to right, rgba(27,19,16,.04) 1px, transparent 1px),
@@ -94,98 +63,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
     .wm .a { top: -12%; left: -7%; }
     .wm .b { bottom: -22%; right: -9%; }
-
-    /* topbar */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 40;
-      background: var(--paper);
-      border-bottom: 2px solid var(--ink);
-    }
-    .topbar-in {
-      width: min(1240px, 94vw);
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 11px 0;
-    }
-    .topbar-logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--ink);
-    }
-    .logo {
-      width: 38px;
-      height: 38px;
-      background: var(--red);
-      color: var(--paper);
-      display: grid;
-      place-items: center;
-      font-family: 'Ma Shan Zheng', serif;
-      font-size: 24px;
-      box-shadow: 3px 3px 0 var(--ink);
-      flex: none;
-    }
-    .brand {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.1;
-    }
-    .brand b {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 700;
-      font-size: 15px;
-      letter-spacing: .04em;
-    }
-    .brand small {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9.5px;
-      letter-spacing: .22em;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      padding-top: 4px;
-    }
-    .topbar-sep { color: var(--border); }
-    .topbar-section {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 2px;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-    }
-    .topbar-right {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .meta {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
-      letter-spacing: .12em;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--red);
-      box-shadow: 0 0 0 0 rgba(197,61,35,.6);
-      animation: pulse 2.2s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(197,61,35,.55); }
-      70% { box-shadow: 0 0 0 8px rgba(197,61,35,0); }
-      100% { box-shadow: 0 0 0 0 rgba(197,61,35,0); }
-    }
 
     /* main */
     .dossier-main {
@@ -322,27 +199,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       .nf-no { font-size: 80px; }
       .nf-actions { flex-direction: column; align-items: stretch; }
       .nf-meta { gap: 14px; }
-      .topbar-section { display: none; }
-      .brand small { display: none; }
     }
   </style>
-
-  <script is:client>
-    // 显示北京时间，与首页 topbar 一致
-    (function() {
-      const el = document.getElementById('today');
-      if (!el) return;
-      try {
-        const now = new Date();
-        const fmt = new Intl.DateTimeFormat('zh-CN', {
-          timeZone: 'Asia/Shanghai',
-          year: 'numeric', month: '2-digit', day: '2-digit',
-          hour: '2-digit', minute: '2-digit', hour12: false
-        });
-        el.textContent = fmt.format(now).replace(/\//g, '.');
-      } catch (e) {
-        el.textContent = '——';
-      }
-    })();
-  </script>
 </BaseLayout>

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import portraitImg from '../assets/portrait.jpg';
 
 interface Props {
   title?: string;
@@ -12,7 +13,7 @@ interface Props {
 }
 
 const {
-  title = '观禾·浮生观禾，静心成长',
+  title = '语霖·执笔为语，心落成霖',
   description = '语霖的个人博客 — 记录技术探索、产品思考与生活感悟',
   ogType = 'website',
   ogImage,
@@ -21,7 +22,7 @@ const {
   noAds = false,
 } = Astro.props;
 
-const siteName = '观禾·浮生观禾，静心成长';
+const siteName = '语霖·执笔为语，心落成霖';
 const authorName = '语霖';
 const siteURL = Astro.site ?? new URL('https://www.wangjianchao.cn');
 const siteDescription = '语霖的个人博客 — 记录技术探索、产品思考与生活感悟';
@@ -56,7 +57,7 @@ const personSchema = {
   "name": authorName,
   "alternateName": "Wang Jianchao",
   "url": siteURL.href,
-  "image": new URL('/images/portrait.jpg', siteURL).href,
+  "image": new URL(portraitImg.src, siteURL).href,
   "jobTitle": "全栈工程师 / Life OS 架构师",
   "description": siteDescription,
   "sameAs": [
@@ -74,7 +75,7 @@ const personSchema = {
 		<meta name="description" content={description} />
 		<meta name="author" content={authorName} />
 		<meta name="robots" content={robots} />
-		<meta name="theme-color" content="#e57035" />
+		<meta name="theme-color" content="#c13a2b" />
 		<link rel="canonical" href={canonicalURL} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="manifest" href="/manifest.json" />
@@ -123,6 +124,19 @@ const personSchema = {
 		<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 		<script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
 		<slot name="head" />
+
+		<!-- 夜案暗色模式：在首屏绘制前确定主题，避免闪烁 -->
+		<script is:inline>
+			(function () {
+				try {
+					var t = localStorage.getItem('theme');
+					var root = document.documentElement;
+					if (t === 'dark') { root.classList.add('night'); root.classList.remove('light'); }
+					else if (t === 'light') { root.classList.add('light'); root.classList.remove('night'); }
+					else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { root.classList.add('night'); }
+				} catch (e) {}
+			})();
+		</script>
 	</head>
 	<body class={bodyClasses}>
 		<slot />
@@ -468,10 +482,38 @@ const personSchema = {
 					}
 				}
 
-				setupReadingProgress();
-				setupLightbox();
-				setupTOC();
-			})();
-		</script>
+		setupReadingProgress();
+		setupLightbox();
+		setupTOC();
+		})();
+	</script>
+
+	<!-- 夜案暗色模式：手动切换 + 跟随系统（仅当用户未手动选择时） -->
+	<script is:inline>
+		(function () {
+			var root = document.documentElement;
+			function apply(theme) {
+				if (theme === 'dark') { root.classList.add('night'); root.classList.remove('light'); }
+				else { root.classList.add('light'); root.classList.remove('night'); }
+				try { localStorage.setItem('theme', theme); } catch (e) {}
+			}
+			function toggle() {
+				apply(root.classList.contains('night') ? 'light' : 'dark');
+			}
+			document.querySelectorAll('.theme-toggle').forEach(function (btn) {
+				btn.addEventListener('click', toggle);
+			});
+			if (window.matchMedia) {
+				var mq = window.matchMedia('(prefers-color-scheme: dark)');
+				var onChange = function (e) {
+					try { if (localStorage.getItem('theme')) return; } catch (err) {}
+					if (e.matches) { root.classList.add('night'); root.classList.remove('light'); }
+					else { root.classList.add('light'); root.classList.remove('night'); }
+				};
+				if (mq.addEventListener) mq.addEventListener('change', onChange);
+				else if (mq.addListener) mq.addListener(onChange);
+			}
+		})();
+	</script>
 	</body>
 </html>

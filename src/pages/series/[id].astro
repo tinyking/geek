@@ -1,8 +1,9 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { SERIES, STATUS_CLASS } from '../../data/series';
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
   return SERIES.map((s) => ({
     params: { id: s.id },
     props: { series: s }
@@ -22,7 +23,19 @@ const statusEn = STATUS_EN[series.status] || 'ONGOING';
 
 // 系列在首页的位置编号（按 SERIES 数组顺序）
 const seriesIndex = SERIES.findIndex((s) => s.id === series.id) + 1;
-const latest = series.articles[series.articles.length - 1];
+
+// 从 Content Collections 获取本系列文章列表
+const allArticles = await getCollection('seriesArticles');
+const articles = allArticles
+  .filter((a) => a.data.series === series.id)
+  .map((a) => ({
+    no: a.data.no,
+    date: a.data.date,
+    title: a.data.title,
+  }))
+  .sort((a, b) => a.no.localeCompare(b.no));
+
+const latest = articles[articles.length - 1];
 
 const pageTitle = `${series.title} · 文章专辑`;
 const pageDesc = series.desc;
@@ -48,8 +61,8 @@ const collectionSchema = {
   "inLanguage": "zh-CN",
   "mainEntity": {
     "@type": "ItemList",
-    "numberOfItems": series.articles.length,
-    "itemListElement": series.articles.map((art, idx) => ({
+    "numberOfItems": articles.length,
+    "itemListElement": articles.map((art, idx) => ({
       "@type": "ListItem",
       "position": idx + 1,
       "name": art.title,
@@ -109,7 +122,7 @@ const collectionSchema = {
             <p class="series-desc">{series.desc}</p>
             <div class="series-meta">
               <span class="m-stat">
-                <b>{series.articles.length}</b><small>篇</small>
+                <b>{articles.length}</b><small>篇</small>
               </span>
               <span class={`r-stamp ${stampClass}`}>{series.status}</span>
               <span class="m-latest">
@@ -137,12 +150,12 @@ const collectionSchema = {
         <div class="ch-head">
           <span class="ch-no">·</span>
           <h2>文章目录</h2>
-          <span class="ch-en">INDEX · {series.articles.length} ENTRIES</span>
+          <span class="ch-en">INDEX · {articles.length} ENTRIES</span>
           <i class="ch-line"></i>
         </div>
 
         <div class="articles-list rv">
-          {series.articles.map((a) => (
+          {articles.map((a) => (
             <a class="art-row" href={`/series/${series.id}/${a.no}`}>
               <span class="a-no">NO.{a.no}</span>
               <span class="a-date">{a.date}</span>

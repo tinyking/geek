@@ -1,6 +1,0 @@
-{
-  "name": "语霖",
-  "description": "Astro 5.x 静态个人博客，包含文章、书签及实用工具集",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

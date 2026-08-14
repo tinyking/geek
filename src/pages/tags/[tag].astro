@@ -2,30 +2,29 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import DossierTopbar from '../../components/DossierTopbar.astro';
-import { Image } from 'astro:assets';
 
-const posts = (await getCollection('posts')).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
-);
-
-// 封面缩略图：按 slug 自动匹配 src/assets/covers/ 下的图片（opt-in，缺图不渲染）
-const coverModules = import.meta.glob(
-  '/src/assets/covers/*.{jpeg,jpg,png,webp,gif,avif}',
-  { eager: true }
-);
-function resolveCover(p) {
-  const exts = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'];
-  const base = '/src/assets/covers/';
-  if (p.data.cover) {
-    const key = base + String(p.data.cover).replace(/^\/+/, '');
-    if (coverModules[key]) return coverModules[key].default;
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  const tagSet = new Set<string>();
+  for (const post of posts) {
+    for (const tag of post.data.tags) tagSet.add(tag);
   }
-  for (const ext of exts) {
-    const key = base + p.id + '.' + ext;
-    if (coverModules[key]) return coverModules[key].default;
-  }
-  return null;
+  return [...tagSet].map((tag) => {
+    const matched = posts
+      .filter((p) => p.data.tags.includes(tag))
+      .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+    return {
+      params: { tag },
+      props: { tag, posts: matched },
+    };
+  });
 }
+
+interface Props {
+  tag: string;
+  posts: Awaited<ReturnType<typeof getCollection<'posts'>>>;
+}
+const { tag, posts } = Astro.props;
 
 const siteBase = Astro.site ?? new URL('https://www.wangjianchao.cn');
 const canonicalURL = new URL(Astro.url.pathname, siteBase).href;
@@ -35,15 +34,16 @@ const breadcrumbSchema = {
   "@type": "BreadcrumbList",
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "首页", "item": siteBase.href },
-    { "@type": "ListItem", "position": 2, "name": "文章档案", "item": canonicalURL },
+    { "@type": "ListItem", "position": 2, "name": "标签索引", "item": new URL('/tags', siteBase).href },
+    { "@type": "ListItem", "position": 3, "name": `#${tag}`, "item": canonicalURL },
   ],
 };
 
 const collectionSchema = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  "name": "文章档案",
-  "description": "浏览语霖发布的全部技术文章与思考随笔，涵盖前端工程、产品设计、个人成长等主题。",
+  "name": `标签：${tag}`,
+  "description": `标签「${tag}」下的全部文章，共 ${posts.length} 篇。`,
   "url": canonicalURL,
   "inLanguage": "zh-CN",
   "mainEntity": {
@@ -60,8 +60,8 @@ const collectionSchema = {
 ---
 
 <BaseLayout
-  title="全部文章 | 语霖·执笔为语，心落成霖"
-  description="浏览语霖发布的全部技术文章与思考随笔，涵盖前端工程、产品设计、个人成长等主题。"
+  title={`#${tag} | 语霖·执笔为语，心落成霖`}
+  description={`标签「${tag}」下的全部文章，共 ${posts.length} 篇。`}
   bodyClass="dossier"
 >
   <Fragment slot="head">
@@ -73,7 +73,7 @@ const collectionSchema = {
   <div class="noise"></div>
   <div class="wm"><span class="a">又</span><span class="b">见</span></div>
 
-  <DossierTopbar fileNo="POS" />
+  <DossierTopbar fileNo="TAG" />
 
   <main class="dossier-main">
     <div class="container">
@@ -81,29 +81,24 @@ const collectionSchema = {
         <ol class="breadcrumb-list">
           <li><a href="/">首页</a></li>
           <li class="sep">/</li>
-          <li class="active" aria-current="page">文章档案</li>
+          <li><a href="/tags">标签索引</a></li>
+          <li class="sep">/</li>
+          <li class="active" aria-current="page">#{tag}</li>
         </ol>
       </nav>
 
       <header class="page-head">
-        <div class="stamp">ARCHIVE · 卷宗</div>
-        <h1 class="page-title">文章 <span class="en">· ARTICLES</span></h1>
+        <div class="stamp">TAG · 标签</div>
+        <h1 class="page-title">#{tag}</h1>
         <div class="rule"></div>
-        <p class="page-sub">共 <b>{posts.length}</b> 篇档案，按时间倒序排列</p>
+        <p class="page-sub">共 <b>{posts.length}</b> 篇文章，按时间倒序排列</p>
       </header>
 
       <div class="folder-list">
-        {posts.map((post, i) => {
-          const coverImg = resolveCover(post);
-          return (
+        {posts.map((post, i) => (
           <a class="folder" href={`/posts/${post.id}`}>
-            {coverImg && (
-              <div class="folder-thumb">
-                <Image src={coverImg} alt={post.data.title} width={240} height={240} format="webp" />
-              </div>
-            )}
+            <div class="folder-no">NO. {String(i + 1).padStart(3, '0')}</div>
             <div class="folder-body">
-              <div class="folder-no">NO. {String(i + 1).padStart(3, '0')}</div>
               <div class="folder-meta">
                 <time>{post.data.date.toLocaleDateString('zh-CN')}</time>
                 <span class="sep">·</span>
@@ -112,20 +107,18 @@ const collectionSchema = {
               <h2 class="folder-title">{post.data.title}</h2>
               <p class="folder-excerpt">{post.data.excerpt}</p>
               <div class="folder-tags">
-                {post.data.tags.map((tag) => (
-                  <a class="tag" href={`/tags/${encodeURIComponent(tag)}`}>{tag}</a>
+                {post.data.tags.map((t) => (
+                  <a class="tag" href={`/tags/${encodeURIComponent(t)}`}>{t}</a>
                 ))}
               </div>
             </div>
           </a>
-          );
-        })}
+        ))}
       </div>
     </div>
   </main>
 
   <style is:global>
-    /* === dossier 主题 token（与 404.astro 一致） === */
     .breadcrumb-nav {
       margin-bottom: 24px;
       font-family: var(--los-mono, 'IBM Plex Mono', monospace);
@@ -150,15 +143,9 @@ const collectionSchema = {
       color: var(--red, #c13a2b);
       text-decoration: underline;
     }
-    .breadcrumb-list .sep {
-      color: var(--border, #c9bea3);
-    }
-    .breadcrumb-list .active {
-      color: var(--red, #c13a2b);
-      font-weight: 600;
-    }
+    .breadcrumb-list .sep { color: var(--border, #c9bea3); }
+    .breadcrumb-list .active { color: var(--red, #c13a2b); font-weight: 600; }
 
-    /* 背景三层 */
     .grid-bg {
       background-image:
         linear-gradient(to right, rgba(27,19,16,.04) 1px, transparent 1px),
@@ -185,7 +172,6 @@ const collectionSchema = {
     .wm .a { top: -12%; left: -7%; }
     .wm .b { bottom: -22%; right: -9%; }
 
-    /* main */
     .dossier-main {
       position: relative;
       z-index: 1;
@@ -196,32 +182,7 @@ const collectionSchema = {
       margin: 0 auto;
     }
 
-    /* 返回链接 */
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-      color: var(--text-secondary);
-      text-decoration: none;
-      padding: 8px 14px;
-      border: 1px solid var(--border);
-      background: var(--paper-2);
-      transition: all .2s;
-      margin-bottom: 32px;
-    }
-    .back-link:hover {
-      color: var(--paper);
-      background: var(--ink);
-      border-color: var(--ink);
-    }
-
-    /* 页头 */
-    .page-head {
-      margin-bottom: 48px;
-    }
+    .page-head { margin-bottom: 48px; }
     .stamp {
       display: inline-block;
       font-family: 'IBM Plex Mono', monospace;
@@ -243,15 +204,6 @@ const collectionSchema = {
       line-height: 1.2;
       margin-bottom: 16px;
     }
-    .page-title .en {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: .45em;
-      letter-spacing: .15em;
-      color: var(--text-secondary);
-      font-weight: 500;
-      vertical-align: middle;
-      margin-left: 6px;
-    }
     .rule {
       width: 60px;
       height: 3px;
@@ -264,21 +216,15 @@ const collectionSchema = {
       letter-spacing: .1em;
       color: var(--text-secondary);
     }
-    .page-sub b {
-      color: var(--red);
-      font-weight: 700;
-    }
+    .page-sub b { color: var(--red); font-weight: 700; }
 
-    /* folder 卡片列表 */
     .folder-list {
       display: flex;
       flex-direction: column;
       gap: 24px;
     }
     .folder {
-      display: flex;
-      gap: 22px;
-      align-items: flex-start;
+      display: block;
       text-decoration: none;
       color: inherit;
       background: var(--paper-3);
@@ -288,88 +234,43 @@ const collectionSchema = {
       position: relative;
       transition: transform .2s, box-shadow .2s;
     }
-    .folder::before {
-      content: '';
-      position: absolute;
-      top: -1.5px;
-      left: 24px;
-      width: 80px;
-      height: 4px;
-      background: var(--manila);
-    }
     .folder:hover {
       transform: translate(-3px, -3px);
-      box-shadow: 9px 9px 0 var(--ink);
-    }
-    .folder-body {
-      flex: 1;
-      min-width: 0;
-    }
-    .folder-thumb {
-      flex: none;
-      width: 120px;
-      align-self: stretch;
-      border: 1.5px solid var(--ink);
-      box-shadow: 3px 3px 0 var(--ink);
-      overflow: hidden;
-    }
-    .folder-thumb img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      aspect-ratio: 1 / 1;
+      box-shadow: 9px 9px 0 var(--red);
     }
     .folder-no {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
-      letter-spacing: .2em;
-      color: var(--manila-d);
-      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: .15em;
+      color: var(--text-secondary);
       margin-bottom: 12px;
     }
     .folder-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
       font-family: 'IBM Plex Mono', monospace;
       font-size: 11px;
-      letter-spacing: .1em;
       color: var(--text-secondary);
-      text-transform: uppercase;
       margin-bottom: 10px;
+      letter-spacing: .05em;
     }
-    .folder-meta .sep {
-      color: var(--border);
-    }
+    .folder-meta .sep { margin: 0 8px; }
     .folder-title {
       font-family: 'Noto Serif SC', serif;
       font-weight: 700;
-      font-size: clamp(20px, 2.4vw, 24px);
-      letter-spacing: .5px;
+      font-size: 22px;
       color: var(--ink);
-      line-height: 1.4;
+      line-height: 1.35;
       margin-bottom: 10px;
-      transition: color .2s;
-    }
-    .folder:hover .folder-title {
-      color: var(--red);
     }
     .folder-excerpt {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 14.5px;
-      line-height: 1.8;
+      font-size: 14px;
       color: var(--text-secondary);
+      line-height: 1.7;
       margin-bottom: 14px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
     }
     .folder-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
     }
     .tag {
       font-family: 'IBM Plex Mono', monospace;
@@ -387,14 +288,6 @@ const collectionSchema = {
       background: var(--ink);
       color: var(--paper);
       border-color: var(--ink);
-    }
-
-    @media (max-width: 640px) {
-      .dossier-main { padding: 40px 16px 80px; }
-      .folder { padding: 20px 20px; box-shadow: 4px 4px 0 var(--ink); flex-direction: column; }
-      .folder:hover { box-shadow: 6px 6px 0 var(--ink); }
-      .folder-thumb { width: 100%; align-self: auto; }
-      .folder-thumb img { aspect-ratio: 16 / 9; }
     }
   </style>
 </BaseLayout>

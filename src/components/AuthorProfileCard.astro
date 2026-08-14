@@ -1,4 +1,7 @@
 ---
+import { Image } from 'astro:assets';
+import portraitImg from '../assets/portrait.jpg';
+
 interface Props {
   variant?: 'compact' | 'full';
   showTitle?: boolean;
@@ -25,13 +28,12 @@ const { variant = 'full', showTitle = true } = Astro.props;
     <!-- 左侧/上方：作者头像与简介 -->
     <div class="apc-author-info">
       <div class="apc-avatar-wrap">
-        <img
-          src="/images/portrait.jpg"
+        <Image
+          src={portraitImg}
           alt="语霖"
           class="apc-avatar"
-          loading="lazy"
-          width="100"
-          height="100"
+          width={100}
+          height={100}
         />
         <span class="apc-seal-mini">语霖</span>
       </div>

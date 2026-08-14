@@ -1,11 +1,30 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SERIES, STATUS_CLASS } from '../data/series';
 import AuthorProfileCard from '../components/AuthorProfileCard.astro';
 
+// 从 Content Collections 拉取所有系列文章
+const allSeriesArticles = await getCollection('seriesArticles');
+
+// 按 series id 分组并按 no 排序
+const articlesBySeries = new Map<string, { no: string; date: string; title: string }[]>();
+for (const entry of allSeriesArticles) {
+  const sid = entry.data.series;
+  if (!articlesBySeries.has(sid)) articlesBySeries.set(sid, []);
+  articlesBySeries.get(sid)!.push({
+    no: entry.data.no,
+    date: entry.data.date,
+    title: entry.data.title,
+  });
+}
+for (const arr of articlesBySeries.values()) {
+  arr.sort((a, b) => a.no.localeCompare(b.no));
+}
+
 // 跨系列按日期倒序的扁平文章流，还原 #007/#006/#005 那种单卷连续节奏
 const flatArticles = SERIES.flatMap((s) =>
-  s.articles.map((a) => ({
+  (articlesBySeries.get(s.id) ?? []).map((a) => ({
     series: s,
     article: a,
     date: a.date.replace(/\./g, '-')
@@ -29,14 +48,14 @@ const STATUS_EN: Record<string, string> = {
   <div id="pb"></div>
 
   <!-- 章节目录轨 -->
-  <aside class="rail">
-    <a href="#hero" data-sec="hero">00</a>
-    <a href="#origin" data-sec="origin">01</a>
-    <a href="#research" data-sec="research">02</a>
-    <a href="#system" data-sec="system">03</a>
-    <a href="#projects" data-sec="projects">04</a>
-    <a href="#tools" data-sec="tools">05</a>
-    <a href="#about" data-sec="about">06</a>
+  <aside class="rail" aria-label="章节导航">
+    <a href="#hero" data-sec="hero" aria-label="00 · 起源">00</a>
+    <a href="#origin" data-sec="origin" aria-label="01 · 起源">01</a>
+    <a href="#research" data-sec="research" aria-label="02 · 研究">02</a>
+    <a href="#system" data-sec="system" aria-label="03 · 系统">03</a>
+    <a href="#projects" data-sec="projects" aria-label="04 · 项目">04</a>
+    <a href="#tools" data-sec="tools" aria-label="05 · 工具">05</a>
+    <a href="#about" data-sec="about" aria-label="06 · 关于">06</a>
   </aside>
 
   <!-- 页眉 -->
@@ -52,6 +71,10 @@ const STATUS_EN: Record<string, string> = {
         <a href="#projects">项目</a>
         <a href="#tools">工具</a>
         <a href="#about">关于</a>
+        <button class="theme-toggle" type="button" aria-label="切换夜案 / 日间模式" title="切换深色 / 浅色">
+          <span class="icon-moon" aria-hidden="true">☾</span>
+          <span class="icon-sun" aria-hidden="true">☀</span>
+        </button>
       </nav>
     </div>
   </header>
@@ -59,7 +82,7 @@ const STATUS_EN: Record<string, string> = {
   <main>
     <!-- ============ 00 HERO ============ -->
     <section class="hero wrap" id="hero">
-      <div class="kicker">LIFE OS · V1.0 — <b>RUNNING</b> — BEIJING · UPTIME 40Y</div>
+      <div class="kicker">LIFE OS · V1.0 · <b>RUNNING</b></div>
       <h1>把人生当程序，<br>重构一次<span class="dot">。</span></h1>
       <p class="lede">一个 40 岁程序员重新设计人生系统的长期实验。用工程思维，重新审视职业、认知、成长和个人价值，在 AI 时代寻找第二增长曲线。</p>
       <div class="cta-row">
@@ -67,7 +90,6 @@ const STATUS_EN: Record<string, string> = {
         <button type="button" class="cta cta-sub" data-action="open-qr-modal" id="heroQrBtn">
           关注公众号【爱语霖爱生活】 ↗
         </button>
-        <span class="scroll-hint">SCROLL — 01 / 起源</span>
       </div>
       <aside class="side">
         <div class="vertical">执笔为语 · 心落成霖</div>
@@ -129,7 +151,8 @@ const STATUS_EN: Record<string, string> = {
             {SERIES.map((s, i) => {
               const stampClass = STATUS_CLASS[s.status] || 'run';
               const statusEn = STATUS_EN[s.status] || 'ONGOING';
-              const latest = s.articles[s.articles.length - 1];
+              const sArticles = articlesBySeries.get(s.id) ?? [];
+              const latest = sArticles[sArticles.length - 1];
               return (
                 <div class="r-item rv series-card">
                   <a class="r-main-link" href={`/series/${s.id}`}>
@@ -137,7 +160,7 @@ const STATUS_EN: Record<string, string> = {
                       <span class="r-no">{String(i + 1).padStart(2, '0')}</span>
                       <h4>{s.title}</h4>
                       <span class={`r-stamp ${stampClass}`}>{s.status}</span>
-                      <span class="r-pct">{s.articles.length}<small>篇</small></span>
+                      <span class="r-pct">{sArticles.length}<small>篇</small></span>
                     </div>
                     <p>{s.desc}</p>
                   </a>
@@ -200,14 +223,14 @@ const STATUS_EN: Record<string, string> = {
         </div>
         <div class="proj rv">
           <div class="p-text">
-            <div class="p-kick">PRJ.01 — KNOWLEDGE</div>
+            <div class="p-kick">PRJ.01 · KNOWLEDGE</div>
             <h3>CMS · 认知建模系统</h3>
             <p>一套基于 Obsidian 的个人知识管理系统。从原始捕获到知识发布，八层流转，让零散信息变成可复用的认知资产。已运行半年，产出 17 篇文章、13 个认知模型、2 套可执行系统。</p>
             <div class="p-tags">OBSIDIAN / MARKDOWN / GIT</div>
             <a href="#system">了解 CMS 方法论 →</a>
           </div>
           <div class="fig">
-            <div class="fig-bar">FIG.01 — CMS KNOWLEDGE PIPELINE</div>
+            <div class="fig-bar">FIG.01 · CMS KNOWLEDGE PIPELINE</div>
             <div class="fig-body">
               <div class="mini-pipe"><span>00</span><i></i><span>20</span><i></i><span>30</span><i></i><span>60</span></div>
             </div>
@@ -215,14 +238,14 @@ const STATUS_EN: Record<string, string> = {
         </div>
         <div class="proj alt rv">
           <div class="p-text">
-            <div class="p-kick">PRJ.02 — WEB</div>
+            <div class="p-kick">PRJ.02 · WEB</div>
             <h3>个人品牌官网</h3>
             <p>从「程序员博客」升级为「人生系统实验室」。用工程思维设计信息架构，让网站成为个人思想的公开展示层。内容与 CMS 知识系统直接打通。</p>
             <div class="p-tags">ASTRO / TAILWIND / MDX / VERCEL</div>
             <a href="#hero">查看网站 →</a>
           </div>
           <div class="fig">
-            <div class="fig-bar">FIG.02 — WANGJIANCHAO.CN</div>
+            <div class="fig-bar">FIG.02 · WANGJIANCHAO.CN</div>
             <div class="fig-body fig-body-img">
               <img src="/images/sitepage.svg" alt="WANGJIANCHAO.CN 网站首页预览" class="site-preview-img" width="1200" height="675" />
             </div>
@@ -384,13 +407,16 @@ body.dossier-home .rail {
   z-index: 90;
 }
 body.dossier-home .rail a {
-  font-family: var(--los-mono);
-  font-size: 10px; letter-spacing: .2em;
-  color: var(--los-ink2);
-  transition: color .3s;
-  position: relative;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--los-ink2); opacity: .45;
+  transition: all .3s; position: relative;
+  font-size: 0; line-height: 0; text-indent: -9999px;
 }
-body.dossier-home .rail a.on { color: var(--los-seal); }
+body.dossier-home .rail a:hover { opacity: 1; }
+body.dossier-home .rail a.on {
+  background: var(--los-seal); opacity: 1;
+  transform: scale(1.35);
+}
 body.dossier-home .rail a.on::before {
   content: ""; position: absolute;
   right: calc(100% + 8px); top: 50%;
@@ -450,11 +476,6 @@ body.dossier-home .cta-sub:hover {
   background: var(--los-seal, #c13a2b);
   color: #fff;
 }
-body.dossier-home .scroll-hint {
-  font-family: var(--los-mono);
-  font-size: 11px; letter-spacing: .35em;
-  color: var(--los-ink2);
-}
 body.dossier-home .side {
   position: absolute; right: 32px; top: 110px;
   display: flex; flex-direction: column; align-items: center; gap: 30px;
@@ -467,7 +488,7 @@ body.dossier-home .vertical {
   padding-right: 22px;
   height: 300px;
 }
-@media (max-width: 900px) { body.dossier-home .side { display: none; } }
+@media (max-width: 1100px) { body.dossier-home .side { display: none; } }
 
 body.dossier-home .readout {
   border-top: 1px solid var(--los-line);
@@ -908,14 +929,15 @@ body.dossier-home .t-card {
   flex-direction: column;
   text-decoration: none;
   color: var(--los-ink);
+  box-shadow: 3px 3px 0 var(--los-ink);
   transition: transform .25s, border-color .25s, background-color .25s, box-shadow .25s;
   position: relative;
 }
 body.dossier-home .t-card:hover {
   transform: translateY(-3px);
   border-color: var(--los-seal);
-  background: #ffffff;
-  box-shadow: 0 8px 24px rgba(193, 58, 43, 0.08);
+  background: var(--los-paper-2, #e6dcc4);
+  box-shadow: 6px 6px 0 var(--los-seal);
 }
 body.dossier-home .t-no {
   font-family: var(--los-mono);

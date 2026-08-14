@@ -1,0 +1,53 @@
+---
+/**
+ * Dossier Topbar — 顶部档案条
+ * 4 个 dossier 页面共用：404 / posts/index / posts/[slug] / bookmarks
+ * 样式见 src/styles/global.css 的 `body.dossier .topbar*` 作用域
+ *
+ * @prop fileNo - 档案编号文本，显示在 "NO." 之后（如 "404" / "POS" / "BMK"）
+ */
+interface Props {
+  fileNo: string;
+}
+
+const { fileNo } = Astro.props;
+---
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="logo">朝</div>
+    <div class="brand">
+      <b>语霖</b>
+      <small>执笔为语，心落成霖</small>
+    </div>
+    <div class="topbar-right">
+      <a class="meta meta-link" href="/search" title="站内搜索">搜索</a>
+      <span class="meta"><span class="dot"></span>在册</span>
+      <span class="meta">NO. {fileNo}</span>
+      <span class="meta" id="today">——</span>
+      <button class="theme-toggle" type="button" aria-label="切换夜案 / 日间模式" title="切换深色 / 浅色">
+        <span class="icon-moon" aria-hidden="true">☾</span>
+        <span class="icon-sun" aria-hidden="true">☀</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script is:client>
+  // 显示北京时间，与首页 topbar 一致
+  (function () {
+    const el = document.getElementById('today');
+    if (!el) return;
+    try {
+      const now = new Date();
+      const fmt = new Intl.DateTimeFormat('zh-CN', {
+        timeZone: 'Asia/Shanghai',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hour12: false
+      });
+      el.textContent = fmt.format(now).replace(/\//g, '.');
+    } catch (e) {
+      el.textContent = '——';
+    }
+  })();
+</script>
